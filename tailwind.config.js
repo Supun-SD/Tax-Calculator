@@ -7,6 +7,7 @@ module.exports = {
         background: '#181818',
         surface: '#232323',
         'surface-2': '#3A3A3A',
+        "ph": "#7D7D7D",
         primary: {
           DEFAULT: '#4A90E2',
           hover: '#357ABD',
