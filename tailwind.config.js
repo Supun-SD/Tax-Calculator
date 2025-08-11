@@ -6,11 +6,14 @@ module.exports = {
       colors: {
         background: '#181818',
         surface: '#232323',
+        'surface-2': '#3A3A3A',
         primary: {
           DEFAULT: '#4A90E2',
           hover: '#357ABD',
         },
-        secondary: '#6C757D',
+        secondary: '#D9D9D9',
+        'popup-bg': '#C0C0C0',
+        'popup-title-bg': '#6C757D',
         text: {
           primary: '#F1F1F1',
           secondary: '#C0C0C0',

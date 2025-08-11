@@ -14,7 +14,7 @@ const Navigation = ({ title, showBackButton = true }: NavigationProps) => {
             {showBackButton && (
                 <button
                     onClick={() => navigate('/')}
-                    className="flex items-center gap-2 text-white hover:text-gray-300 transition-colors p-2 rounded-lg"
+                    className="text-white hover:text-gray-300 transition-colors"
                 >
                     <IoIosArrowBack size={36} />
                 </button>
