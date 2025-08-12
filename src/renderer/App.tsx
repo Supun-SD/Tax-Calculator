@@ -5,19 +5,23 @@ import Accounts from './pages/Accounts/Accounts';
 import History from './pages/History/History';
 import Banks from './pages/Banks/Banks';
 import Settings from './pages/Settings/Settings';
+import { ToastContainer } from 'react-toastify';
 
 const App = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/calculate" element={<Calculate />} />
-        <Route path="/accounts" element={<Accounts />} />
-        <Route path="/history" element={<History />} />
-        <Route path="/banks" element={<Banks />} />
-        <Route path="/settings" element={<Settings />} />
-      </Routes>
-    </Router>
+    <>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/calculate" element={<Calculate />} />
+          <Route path="/accounts" element={<Accounts />} />
+          <Route path="/history" element={<History />} />
+          <Route path="/banks" element={<Banks />} />
+          <Route path="/settings" element={<Settings />} />
+        </Routes>
+      </Router>
+      <ToastContainer />
+    </>
   );
 };
 

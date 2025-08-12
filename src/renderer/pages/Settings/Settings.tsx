@@ -5,7 +5,7 @@ import { FiSave } from 'react-icons/fi';
 import Button from '../../components/Button';
 import { settings as mockSettings } from '../../../../mockdata/settings';
 import { useState, useMemo } from 'react';
-import { Bounce, ToastContainer, toast } from 'react-toastify';
+import { Bounce, toast } from 'react-toastify';
 
 const Settings = () => {
     const initialSettings = mockSettings;
@@ -311,19 +311,6 @@ const Settings = () => {
                     Import Data
                 </Button>
             </div>
-            <ToastContainer
-                position="bottom-right"
-                autoClose={5000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick={false}
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="colored"
-                transition={Bounce}
-            />
         </div>
     );
 };
