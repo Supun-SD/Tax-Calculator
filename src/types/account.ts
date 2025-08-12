@@ -1,4 +1,4 @@
-export interface Bank {
+export interface Account {
   id: number;
   name: string;
   tinNumber: number;
