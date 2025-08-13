@@ -8,3 +8,7 @@ body {
   background-color: #181818;
   padding: 2em;
 }
+
+.radix-themes {
+  min-height: auto !important;
+}
