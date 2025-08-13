@@ -6,10 +6,12 @@ import { accounts as mockAccounts } from '../../../../mockdata/accounts';
 import { DataTable, Column } from '../../components/DataTable';
 import React, { useState } from 'react';
 import { Account } from '../../../types/account';
+import AddAccountModal from './components/AddAccountModal';
 
 const Accounts = () => {
     const accounts: Array<Account> = mockAccounts;
     const [searchValue, setSearchValue] = useState('');
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
     const columns: Column<Account>[] = [
         {
@@ -52,6 +54,17 @@ const Accounts = () => {
         setSearchValue(e.target.value);
     };
 
+    const handleAddAccount = (newAccount: Omit<Account, 'id'>) => {
+        // TODO: Implement actual add functionality
+        // For now, just log the new account
+        console.log('Adding new account:', newAccount);
+
+        // In a real app, you would:
+        // 1. Call API to save the account
+        // 2. Update the local state
+        // 3. Show success message
+    };
+
     return (
         <div className="p-8">
             <Navigation title="Accounts" />
@@ -63,7 +76,12 @@ const Accounts = () => {
                     placeholder="Search by name or TIN number"
                     className="my-4"
                 />
-                <Button icon={IoIosAdd} size="md" className="px-10">
+                <Button
+                    icon={IoIosAdd}
+                    size="md"
+                    className="px-10"
+                    onClick={() => setIsAddModalOpen(true)}
+                >
                     Add
                 </Button>
             </div>
@@ -78,6 +96,12 @@ const Accounts = () => {
                 onEdit={handleEdit}
                 onView={handleView}
                 onDelete={handleDelete}
+            />
+
+            <AddAccountModal
+                isOpen={isAddModalOpen}
+                onClose={() => setIsAddModalOpen(false)}
+                onAdd={handleAddAccount}
             />
         </div>
     );
