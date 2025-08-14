@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
-@import "tailwindcss/base";
-@import "@radix-ui/themes/styles.css";
+@import 'tailwindcss/base';
+@import '@radix-ui/themes/styles.css';
 
 @tailwind components;
 @tailwind utilities;

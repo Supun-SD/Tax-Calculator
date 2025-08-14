@@ -64,17 +64,17 @@ const Banks = () => {
 
   const handleAddBank = (bankData: Omit<Bank, 'id'>) => {
     const newBank: Bank = {
-      id: Math.max(...banks.map(b => b.id), 0) + 1,
-      ...bankData
+      id: Math.max(...banks.map((b) => b.id), 0) + 1,
+      ...bankData,
     };
-    setBanks(prev => [...prev, newBank]);
+    setBanks((prev) => [...prev, newBank]);
     setIsModalOpen(false);
   };
 
   const handleEditBank = (updatedBank: Bank) => {
-    setBanks(prev => prev.map(bank =>
-      bank.id === updatedBank.id ? updatedBank : bank
-    ));
+    setBanks((prev) =>
+      prev.map((bank) => (bank.id === updatedBank.id ? updatedBank : bank))
+    );
     setIsModalOpen(false);
   };
 
@@ -85,7 +85,7 @@ const Banks = () => {
 
   const handleConfirmDelete = () => {
     if (deletingBank) {
-      setBanks(prev => prev.filter(bank => bank.id !== deletingBank.id));
+      setBanks((prev) => prev.filter((bank) => bank.id !== deletingBank.id));
       showSuccess('Bank deleted successfully');
       setDeletingBank(undefined);
     }
@@ -106,7 +106,12 @@ const Banks = () => {
           placeholder="Search by name or TIN number"
           className="my-4"
         />
-        <Button icon={IoIosAdd} size="md" className="px-10" onClick={handleAddButtonClick}>
+        <Button
+          icon={IoIosAdd}
+          size="md"
+          className="px-10"
+          onClick={handleAddButtonClick}
+        >
           Add
         </Button>
       </div>
@@ -131,11 +136,15 @@ const Banks = () => {
       />
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog.Root open={!!deletingBank} onOpenChange={() => setDeletingBank(undefined)}>
-        <AlertDialog.Content className='bg-popup-bg'>
+      <AlertDialog.Root
+        open={!!deletingBank}
+        onOpenChange={() => setDeletingBank(undefined)}
+      >
+        <AlertDialog.Content className="bg-popup-bg">
           <AlertDialog.Title>Delete Bank</AlertDialog.Title>
           <AlertDialog.Description size="3">
-            Are you sure you want to delete the bank "{deletingBank?.name}"?
+            Are you sure you want to delete the bank "{deletingBank?.name}
+            "?
           </AlertDialog.Description>
 
           <Flex gap="3" mt="6" justify="end">

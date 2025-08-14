@@ -6,6 +6,7 @@ interface SearchBarProps extends React.InputHTMLAttributes<HTMLInputElement> {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
   className?: string;
+  inputTextColor?: string;
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({
@@ -13,6 +14,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   onChange,
   placeholder = 'Search by name or TIN number',
   className = '',
+  inputTextColor = 'white',
   ...inputProps
 }) => {
   return (
@@ -21,7 +23,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
     >
       <input
         type="text"
-        className="flex-grow bg-transparent px-3 py-1 text-white placeholder-ph outline-none"
+        className={`flex-grow bg-transparent px-3 py-1 text-${inputTextColor} placeholder-ph outline-none`}
         value={value}
         onChange={onChange}
         placeholder={placeholder}
