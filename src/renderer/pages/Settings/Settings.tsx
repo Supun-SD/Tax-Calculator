@@ -5,19 +5,11 @@ import { FiSave } from 'react-icons/fi';
 import Button from '../../components/Button';
 import { settings as mockSettings } from '../../../../mockdata/settings';
 import { useState, useMemo } from 'react';
-import { Bounce, toast } from 'react-toastify';
+import { useToast } from '../../hooks/useToast';
 
 const Settings = () => {
     const initialSettings = mockSettings;
-
-    const notify = () =>
-        toast.success('Settings saved', {
-            position: 'bottom-right',
-            pauseOnHover: false,
-            autoClose: 4000,
-            theme: 'colored',
-            transition: Bounce,
-        });
+    const { showSuccess, showError } = useToast();
 
     const [reliefsAndAit, setReliefsAndAit] = useState({
         personalRelief: initialSettings.reliefsAndAit.personalRelief,
@@ -134,15 +126,9 @@ const Settings = () => {
         try {
             const currentValues = getCurrentValues();
             // TODO: Implement actual save functionality
-            notify();
+            showSuccess('Settings saved')
         } catch (error) {
-            toast.error('Failed to save settings', {
-                position: 'bottom-right',
-                pauseOnHover: false,
-                autoClose: 4000,
-                theme: 'colored',
-                transition: Bounce,
-            });
+            showError('Failed to save settings');
         }
     };
 
@@ -290,7 +276,7 @@ const Settings = () => {
                     variant="primary"
                     icon={FiSave}
                     disabled={!hasChanges}
-                    onClick={notify}
+                    onClick={() => handleSaveSettings()}
                 >
                     Save
                 </Button>

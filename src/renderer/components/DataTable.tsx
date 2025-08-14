@@ -14,7 +14,6 @@ export interface DataTableProps<T> {
   data: T[];
   columns: Column<T>[];
   searchValue?: string;
-  onSearchChange?: (value: string) => void;
   searchKeys?: (keyof T)[];
   itemsPerPageOptions?: number[];
   defaultItemsPerPage?: number;
@@ -34,7 +33,6 @@ export function DataTable<T extends { id?: number | string }>({
   data,
   columns,
   searchValue: externalSearchValue,
-  onSearchChange,
   searchKeys,
   itemsPerPageOptions = [5, 10, 20, 50],
   defaultItemsPerPage = 10,

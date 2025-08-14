@@ -1,24 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Modal from '../../../components/Modal';
 import { TextField } from '@radix-ui/themes';
 import { Text } from '@radix-ui/themes';
 import { Account } from '../../../../types/account';
+import { useToast } from '../../../hooks/useToast';
 
-interface AddAccountModalProps {
+interface AccountModalProps {
     isOpen: boolean;
     onClose: () => void;
     onAdd: (account: Omit<Account, 'id'>) => void;
+    onEdit?: (account: Account) => void;
+    account?: Account;
 }
 
-const AddAccountModal: React.FC<AddAccountModalProps> = ({
+const AccountModal: React.FC<AccountModalProps> = ({
     isOpen,
     onClose,
-    onAdd
+    onAdd,
+    onEdit,
+    account
 }) => {
     const [formData, setFormData] = useState({
         name: '',
         tinNumber: ''
     });
+    const { showSuccess, showError } = useToast();
+
+    // Check if we're in edit mode
+    const isEditMode = !!account;
+
+    // Update form data when account prop changes (for edit mode)
+    useEffect(() => {
+        if (account) {
+            setFormData({
+                name: account.name,
+                tinNumber: account.tinNumber.toString()
+            });
+        } else {
+            setFormData({ name: '', tinNumber: '' });
+        }
+    }, [account]);
 
     const handleInputChange = (field: 'name' | 'tinNumber', value: string) => {
         setFormData(prev => ({
@@ -27,17 +48,24 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({
         }));
     };
 
-    const handleAdd = () => {
+    const handleSubmit = () => {
         if (formData.name.trim() && formData.tinNumber.trim()) {
-            onAdd({
-                name: formData.name.trim(),
-                tinNumber: parseInt(formData.tinNumber.trim())
-            });
-
-            console.log({
-                name: formData.name.trim(),
-                tinNumber: parseInt(formData.tinNumber.trim())
-            });
+            if (isEditMode && onEdit && account) {
+                // Edit mode
+                onEdit({
+                    ...account,
+                    name: formData.name.trim(),
+                    tinNumber: parseInt(formData.tinNumber.trim())
+                });
+                showSuccess('Account updated successfully');
+            } else {
+                // Add mode
+                onAdd({
+                    name: formData.name.trim(),
+                    tinNumber: parseInt(formData.tinNumber.trim())
+                });
+                showSuccess('Account added successfully');
+            }
 
             // Reset form and close modal
             setFormData({ name: '', tinNumber: '' });
@@ -56,19 +84,20 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title="Add new account"
-            showCloseButton={false}
+            title={isEditMode ? "Edit account" : "Add new account"}
             actions={[
                 {
                     label: 'Cancel',
                     onClick: handleCancel,
-                    variant: 'secondary'
+                    variant: 'secondary',
+                    className: '!px-10 rounded-2xl'
                 },
                 {
-                    label: 'Add',
-                    onClick: handleAdd,
+                    label: isEditMode ? 'Update' : 'Add',
+                    onClick: handleSubmit,
                     variant: 'primary',
-                    disabled: !isFormValid
+                    disabled: !isFormValid,
+                    className: '!px-10 rounded-2xl'
                 }
             ]}
         >
@@ -104,4 +133,4 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({
     );
 };
 
-export default AddAccountModal;
+export default AccountModal;
