@@ -14,7 +14,8 @@ const calculations: Array<Calculation> = [
             taxRate: 0.22,
             taxAmount: 13860,
             netIncome: 61140
-        }
+        },
+        status: 'submitted'
     },
     {
         id: 2,
@@ -28,7 +29,8 @@ const calculations: Array<Calculation> = [
             taxRate: 0.24,
             taxAmount: 16800,
             netIncome: 68200
-        }
+        },
+        status: 'submitted'
     },
     {
         id: 3,
@@ -42,7 +44,8 @@ const calculations: Array<Calculation> = [
             taxRate: 0.22,
             taxAmount: 12540,
             netIncome: 52460
-        }
+        },
+        status: 'draft'
     },
     {
         id: 4,
@@ -56,7 +59,8 @@ const calculations: Array<Calculation> = [
             taxRate: 0.24,
             taxAmount: 18480,
             netIncome: 76520
-        }
+        },
+        status: 'submitted'
     },
     {
         id: 5,
@@ -70,7 +74,8 @@ const calculations: Array<Calculation> = [
             taxRate: 0.22,
             taxAmount: 13200,
             netIncome: 56800
-        }
+        },
+        status: 'draft'
     },
     {
         id: 6,
@@ -84,7 +89,8 @@ const calculations: Array<Calculation> = [
             taxRate: 0.22,
             taxAmount: 14520,
             netIncome: 65480
-        }
+        },
+        status: 'submitted'
     },
     {
         id: 7,
@@ -98,7 +104,8 @@ const calculations: Array<Calculation> = [
             taxRate: 0.22,
             taxAmount: 11220,
             netIncome: 48780
-        }
+        },
+        status: 'draft'
     },
     {
         id: 8,
@@ -112,7 +119,8 @@ const calculations: Array<Calculation> = [
             taxRate: 0.24,
             taxAmount: 17760,
             netIncome: 72240
-        }
+        },
+        status: 'submitted'
     }
 ];
 

@@ -6,4 +6,5 @@ export interface Calculation {
   year: string;
   account: Account;
   calculationData: any;
+  status: 'submitted' | 'draft';
 }

@@ -125,6 +125,7 @@ const Settings = () => {
     const handleSaveSettings = () => {
         try {
             const currentValues = getCurrentValues();
+            console.log(currentValues);
             // TODO: Implement actual save functionality
             showSuccess('Settings saved')
         } catch (error) {
