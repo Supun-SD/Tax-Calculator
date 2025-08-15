@@ -17,6 +17,7 @@ interface ModalProps {
   }[];
   maxWidth?: string;
   trigger?: React.ReactNode;
+  closeOnOverlayClick?: boolean;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -27,6 +28,7 @@ const Modal: React.FC<ModalProps> = ({
   actions = [],
   maxWidth = '450px',
   trigger,
+  closeOnOverlayClick = false,
 }) => {
   const [internalIsOpen, setInternalIsOpen] = useState(false);
 
@@ -48,6 +50,11 @@ const Modal: React.FC<ModalProps> = ({
       <Dialog.Content
         maxWidth={maxWidth}
         className="relative rounded-3xl bg-popup-bg p-10"
+        onPointerDownOutside={(e) => {
+          if (!closeOnOverlayClick) {
+            e.preventDefault();
+          }
+        }}
       >
         <Dialog.Close className="absolute right-4 top-4 cursor-pointer p-2">
           <div>

@@ -2,18 +2,21 @@ import React from 'react';
 import { Flex, Text, Separator } from '@radix-ui/themes';
 import { LuUser } from 'react-icons/lu';
 import { Account } from '../../../../types/account';
+import Button from '../../../components/Button';
 
 interface HeaderProps {
   selectedAccount: Account | null;
   assessmentPeriod: { start: string; end: string } | null;
+  onSelectAccount: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({
   selectedAccount,
   assessmentPeriod,
+  onSelectAccount,
 }) => {
   return (
-    <>
+    <Flex align="center" justify="between" className="w-full rounded-2xl bg-surface-2 p-6 mb-8">
       {selectedAccount ? (
         <Flex gap="4">
           <div className="relative">
@@ -51,7 +54,17 @@ const Header: React.FC<HeaderProps> = ({
           Select an account and assessment years
         </div>
       )}
-    </>
+
+      {/* Select Account Button */}
+      <Button
+        icon={LuUser}
+        size="sm"
+        className="ml-6 px-6"
+        onClick={onSelectAccount}
+      >
+        Select account
+      </Button>
+    </Flex>
   );
 };
 

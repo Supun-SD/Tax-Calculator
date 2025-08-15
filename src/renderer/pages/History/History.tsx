@@ -85,11 +85,10 @@ const History = () => {
           <nav className="-mb-px flex space-x-2 sm:space-x-4">
             <button
               onClick={() => setActiveTab('submitted')}
-              className={`group relative rounded-xl border-b-2 px-3 py-5 text-sm font-medium transition-all duration-200 ease-out ${
-                activeTab === 'submitted'
+              className={`group relative rounded-xl border-b-2 px-3 py-5 text-sm font-medium transition-all duration-200 ease-out ${activeTab === 'submitted'
                   ? 'border-primary bg-primary/10 text-primary shadow-sm'
                   : 'border-transparent text-gray-400 hover:border-gray-300 hover:bg-surface hover:text-white'
-              }`}
+                }`}
             >
               Submitted Calculations
               <span
@@ -100,11 +99,10 @@ const History = () => {
             </button>
             <button
               onClick={() => setActiveTab('draft')}
-              className={`group relative rounded-xl border-b-2 px-3 py-5 text-sm font-medium transition-all duration-200 ease-out ${
-                activeTab === 'draft'
+              className={`group relative rounded-xl border-b-2 px-3 py-5 text-sm font-medium transition-all duration-200 ease-out ${activeTab === 'draft'
                   ? 'border-primary bg-primary/10 text-primary shadow-sm'
                   : 'border-transparent text-gray-400 hover:border-gray-300 hover:bg-surface hover:text-white'
-              }`}
+                }`}
             >
               Draft Calculations
               <span

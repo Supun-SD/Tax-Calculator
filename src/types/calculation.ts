@@ -8,3 +8,7 @@ export interface Calculation {
   calculationData: any;
   status: 'submitted' | 'draft';
 }
+
+interface CalculationData {
+  
+}
