@@ -8,12 +8,11 @@ interface TaxComponent {
     isHighlighted?: boolean;
 }
 
-const BalancePayableTax = () => {
+const TotalPayableTax = () => {
     const [taxComponents, setTaxComponents] = useState<TaxComponent[]>([
         { name: "AIT - Rent", percentage: 5, amount: 450000.00 },
         { name: "AIT - Interest", percentage: 5, amount: 450000.00 },
-        { name: "AIT - Interest", percentage: 5, amount: 450000.00 },
-        { name: "APPIT", percentage: 10, amount: 450000.00 }
+        { name: "APPIT", percentage: 5, amount: 450000.00 }
     ]);
 
     const [deduction, setDeduction] = useState<number>(450000.00);
@@ -38,7 +37,7 @@ const BalancePayableTax = () => {
 
     return (
         <div className="h-full flex flex-col">
-            <Text className='text-white pl-3' size="4" weight="bold">Balance payable tax</Text>
+            <Text className='text-white pl-3' size="4" weight="bold">Total payable tax</Text>
             <Separator className="w-full mt-3 bg-surface-2" />
             <div className='text-white bg-surface mt-4 p-8 rounded-2xl flex-1 flex flex-col'>
                 {/* Tax Components Table */}
@@ -51,26 +50,7 @@ const BalancePayableTax = () => {
                             >
                                 <Text className="text-white flex-1">{component.name}</Text>
                                 {component.name === "APPIT" ? (
-                                    <div className="flex-1 flex justify-center">
-                                        <input
-                                            type="number"
-                                            value={component.percentage}
-                                            onChange={(e) => {
-                                                const newPercentage = parseFloat(e.target.value) || 0;
-                                                const updatedComponents = [...taxComponents];
-                                                updatedComponents[index] = {
-                                                    ...component,
-                                                    percentage: newPercentage
-                                                };
-                                                setTaxComponents(updatedComponents);
-                                            }}
-                                            className="bg-transparent text-white text-center w-16 outline-none border-b border-gray-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                            min="0"
-                                            max="100"
-                                            step="0.1"
-                                        />
-                                        <span className="text-white ml-1">%</span>
-                                    </div>
+                                    <div></div>
                                 ) : (
                                     <Text className="text-white text-center flex-1">{formatPercentage(component.percentage)}</Text>
                                 )}
@@ -90,7 +70,7 @@ const BalancePayableTax = () => {
                 {/* Balance Payable Tax */}
                 <div className="mt-6 bg-gray-600/30 border-2 border-green-500 rounded-lg p-4">
                     <div className="flex justify-between items-center">
-                        <Text className="text-white font-semibold">Balance payable tax</Text>
+                        <Text className="text-white font-semibold">Total payable tax</Text>
                         <Text className="text-white font-bold text-lg">
                             {formatCurrency(balancePayable)}
                         </Text>
@@ -101,4 +81,4 @@ const BalancePayableTax = () => {
     );
 };
 
-export default BalancePayableTax;
+export default TotalPayableTax;

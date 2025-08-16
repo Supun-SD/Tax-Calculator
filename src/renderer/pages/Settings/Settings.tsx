@@ -17,7 +17,6 @@ const Settings = () => {
     rentRelief: initialSettings.reliefsAndAit.rentRelief,
     aitDividend: initialSettings.reliefsAndAit.aitDividend,
     whtRent: initialSettings.reliefsAndAit.whtRent,
-    aitBusinessIncome: initialSettings.reliefsAndAit.aitBusinessIncome,
   });
 
   const [taxRates, setTaxRates] = useState({
@@ -37,9 +36,7 @@ const Settings = () => {
       reliefsAndAit.aitInterest !== initialSettings.reliefsAndAit.aitInterest ||
       reliefsAndAit.rentRelief !== initialSettings.reliefsAndAit.rentRelief ||
       reliefsAndAit.aitDividend !== initialSettings.reliefsAndAit.aitDividend ||
-      reliefsAndAit.whtRent !== initialSettings.reliefsAndAit.whtRent ||
-      reliefsAndAit.aitBusinessIncome !==
-        initialSettings.reliefsAndAit.aitBusinessIncome;
+      reliefsAndAit.whtRent !== initialSettings.reliefsAndAit.whtRent
 
     const taxRatesChanged =
       taxRates.first !== initialSettings.taxRates.first ||
@@ -193,17 +190,6 @@ const Settings = () => {
                 value={reliefsAndAit.whtRent.toString()}
                 onChange={(e) =>
                   handleReliefsAndAitChange('whtRent', e.target.value)
-                }
-                suffix="%"
-              />
-            </div>
-            <div className="col-span-1">
-              <Input
-                label="AIT on business income"
-                type="text"
-                value={reliefsAndAit.aitBusinessIncome.toString()}
-                onChange={(e) =>
-                  handleReliefsAndAitChange('aitBusinessIncome', e.target.value)
                 }
                 suffix="%"
               />

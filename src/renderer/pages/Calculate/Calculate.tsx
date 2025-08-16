@@ -7,8 +7,8 @@ import SelectAccountModal from './components/SelectAccountModal';
 import Header from './components/Header';
 import TaxableIncomeCalculation from './components/TaxableIncomeCalculation';
 import GrossIncomeTax from './components/GrossIncomeTax';
-import QRT from './components/QRT';
-import BalancePayableTax from './components/BalancePayableTax';
+import BalancelPayableTax from './components/BalancelPayableTax';
+import TotalPayableTax from './components/TotalPayableTax ';
 import Button from '../../components/Button';
 import { MdOutlineOpenInNew } from "react-icons/md";
 import Employment from './components/Employment';
@@ -93,8 +93,8 @@ const Calculate = () => {
         <div className="h-full">
           <GrossIncomeTax />
         </div>
-        <QRT />
-        <BalancePayableTax />
+        <TotalPayableTax />
+        <BalancelPayableTax />
       </Grid>
 
       <Flex gap="3" mt="6" justify="end">

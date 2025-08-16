@@ -8,8 +8,8 @@ interface ReliefsAndAit {
   rentRelief: number;
   aitInterest: number;
   aitDividend: number;
-  aitBusinessIncome: number;
   whtRent: number;
+  foreignIncomeTaxRate: number;
 }
 
 interface TaxRates {

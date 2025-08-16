@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Text, Separator } from '@radix-ui/themes';
 
-const QRT = () => {
+const BalancelPayableTax = () => {
     const [quarterlyValues, setQuarterlyValues] = useState({
         qrt1: 25000.00,
         qrt2: 0.00,
@@ -25,7 +25,7 @@ const QRT = () => {
 
     return (
         <div className="h-full flex flex-col">
-            <Text className='text-white pl-3' size="4" weight="bold">QRT</Text>
+            <Text className='text-white pl-3' size="4" weight="bold">Balance payable tax</Text>
             <Separator className="w-full mt-3 bg-surface-2" />
             <div className='text-white bg-surface mt-4 p-8 rounded-2xl flex-1 flex flex-col'>
                 <div className="space-y-4 flex-1">
@@ -89,7 +89,7 @@ const QRT = () => {
                 {/* Total */}
                 <div className="mt-6 bg-green-600/20 border border-green-500/30 rounded-lg p-4">
                     <div className="flex justify-between items-center">
-                        <Text className="text-white font-semibold">Total</Text>
+                        <Text className="text-white font-semibold">Balance payable tax</Text>
                         <Text className="text-white font-bold text-lg">
                             Rs. 4,500,000.00
                         </Text>
@@ -100,4 +100,4 @@ const QRT = () => {
     );
 };
 
-export default QRT;
+export default BalancelPayableTax;

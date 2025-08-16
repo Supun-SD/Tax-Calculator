@@ -1,3 +1,4 @@
+import React from 'react';
 import { Text, Separator, Flex, IconButton, Tooltip } from '@radix-ui/themes';
 import { IoIosInformationCircleOutline } from "react-icons/io";
 
@@ -61,6 +62,10 @@ const TaxableIncomeCalculation = () => {
                                     </Flex>
                                 </td>
                                 <td className="py-3 px-4 text-right">(3000.00)</td>
+                            </tr>
+                            <tr className="border-b border-gray-700">
+                                <td className="py-3 px-4">Solar relief</td>
+                                <td className="py-3 px-4 text-right">(0.00)</td>
                             </tr>
                         </tbody>
                     </table>

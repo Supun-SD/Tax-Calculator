@@ -11,6 +11,7 @@ interface RentProps {
 
 interface IncomeEntry {
     id: number;
+    name: string;
     amount: number;
     multiplier: number;
     product: number;
@@ -20,7 +21,7 @@ interface IncomeEntry {
 const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
 
     const [incomeEntries, setIncomeEntries] = useState<IncomeEntry[]>([
-        { id: 1, amount: 0, multiplier: 1, product: 0 }
+        { id: 1, name: "", amount: 0, multiplier: 1, product: 0 }
     ]);
     const [totalIncome, setTotalIncome] = useState<number>(0);
 
@@ -28,6 +29,15 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
         const total = incomeEntries.reduce((sum, entry) => sum + entry.product, 0);
         setTotalIncome(total);
     }, [incomeEntries]);
+
+    const handleNameChange = (id: number, value: string) => {
+        setIncomeEntries(prev => prev.map(entry => {
+            if (entry.id === id) {
+                return { ...entry, name: value }
+            }
+            return entry;
+        }))
+    }
 
     const handleAmountChange = (id: number, value: string) => {
         const numValue = parseFloat(value) || 0;
@@ -55,6 +65,7 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
         const newId = Math.max(...incomeEntries.map(entry => entry.id)) + 1;
         const newEntry: IncomeEntry = {
             id: newId,
+            name: "",
             amount: 0,
             multiplier: 1,
             product: 0
@@ -84,7 +95,7 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
             isOpen={isOpen}
             onClose={onClose}
             title="Rent Income"
-            maxWidth="500px"
+            maxWidth="750px"
             actions={[
                 {
                     label: 'Cancel',
@@ -104,13 +115,24 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
                 <div className="space-y-4">
                     {incomeEntries.map((entry) => (
                         <div key={entry.id} className="flex items-center gap-3">
+                            {/* Name Input */}
+                            <div className="bg-white rounded-lg px-4 py-2 flex-[2]">
+                                <input
+                                    type="text"
+                                    value={entry.name}
+                                    onChange={(e) => handleNameChange(entry.id, e.target.value)}
+                                    className="bg-transparent text-black w-full outline-none"
+                                    placeholder='Name'
+                                />
+                            </div>
+
                             {/* Amount Input */}
-                            <div className="bg-white rounded-lg px-4 py-2 flex-1">
+                            <div className="bg-white rounded-lg px-4 py-2 flex-[1]">
                                 <input
                                     type="number"
                                     value={entry.amount}
                                     onChange={(e) => handleAmountChange(entry.id, e.target.value)}
-                                    className="bg-transparent text-black text-center w-full outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    className="bg-transparent text-black w-full outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                     step="0.01"
                                 />
                             </div>

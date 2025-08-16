@@ -3,6 +3,7 @@ import { Text, Separator, Grid } from '@radix-ui/themes';
 
 interface TaxSlab {
     slab: string;
+    value: number;
     rate: number;
     maxAmount: number;
     tax: number;
@@ -15,12 +16,12 @@ const GrossIncomeTax = () => {
 
     // Define tax slabs based on the image
     const taxSlabRates = [
-        { slab: "1st 500,000", rate: 0.06, maxAmount: 500000 },
-        { slab: "2nd 500,000", rate: 0.12, maxAmount: 500000 },
-        { slab: "3rd 500,000", rate: 0.18, maxAmount: 500000 },
-        { slab: "4th 500,000", rate: 0.24, maxAmount: 500000 },
-        { slab: "5th 500,000", rate: 0.30, maxAmount: 500000 },
-        { slab: "Remaining", rate: 0.36, maxAmount: Infinity }
+        { slab: "1st", value: 500000.00, rate: 0.06, maxAmount: 500000 },
+        { slab: "2nd", value: 500000.00, rate: 0.12, maxAmount: 500000 },
+        { slab: "3rd", value: 500000.00, rate: 0.18, maxAmount: 500000 },
+        { slab: "4th", value: 500000.00, rate: 0.24, maxAmount: 500000 },
+        { slab: "5th", value: 500000.00, rate: 0.30, maxAmount: 500000 },
+        { slab: "Remaining", value: 254000.00, rate: 0.36, maxAmount: Infinity }
     ];
 
     const calculateTax = (income: number) => {
@@ -49,6 +50,7 @@ const GrossIncomeTax = () => {
 
                 calculatedSlabs.push({
                     slab: slab.slab,
+                    value: slab.value,
                     rate: slab.rate,
                     maxAmount: slab.maxAmount,
                     tax: taxAmount
@@ -86,6 +88,7 @@ const GrossIncomeTax = () => {
                         <thead>
                             <tr className="border-b border-gray-600">
                                 <th className="text-left py-3 px-4 font-semibold text-gray-300">Slab</th>
+                                <th className="text-left py-3 px-4 font-semibold text-gray-300">Value</th>
                                 <th className="text-left py-3 px-4 font-semibold text-gray-300">Rate</th>
                                 <th className="text-right py-3 px-4 font-semibold text-gray-300">Tax</th>
                             </tr>
@@ -94,6 +97,7 @@ const GrossIncomeTax = () => {
                             {taxSlabs.map((slab, index) => (
                                 <tr key={index} className="border-b border-gray-700">
                                     <td className="py-3 px-4">{slab.slab}</td>
+                                    <td className="py-3 px-4">{slab.value.toFixed(2)}</td>
                                     <td className="py-3 px-4">{formatPercentage(slab.rate)}</td>
                                     <td className="py-3 px-4 text-right">{formatCurrency(slab.tax)}</td>
                                 </tr>

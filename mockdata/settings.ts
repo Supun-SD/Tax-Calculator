@@ -5,9 +5,9 @@ const settings: Settings = {
         personalRelief: 1200000.00,
         rentRelief: 25,
         aitInterest: 5,
-        aitDividend: 10,
-        aitBusinessIncome: 10,
-        whtRent: 10
+        aitDividend: 15,
+        whtRent: 10,
+        foreignIncomeTaxRate: 15,
     },
     taxRates: {
         first: 6,
