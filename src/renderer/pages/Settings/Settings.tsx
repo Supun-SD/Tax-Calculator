@@ -17,6 +17,7 @@ const Settings = () => {
     rentRelief: initialSettings.reliefsAndAit.rentRelief,
     aitDividend: initialSettings.reliefsAndAit.aitDividend,
     whtRent: initialSettings.reliefsAndAit.whtRent,
+    foreignIncomeRate: initialSettings.reliefsAndAit.foreignIncomeTaxRate,
   });
 
   const [taxRates, setTaxRates] = useState({
@@ -32,11 +33,13 @@ const Settings = () => {
   const hasChanges = useMemo(() => {
     const reliefsChanged =
       reliefsAndAit.personalRelief !==
-        initialSettings.reliefsAndAit.personalRelief ||
+      initialSettings.reliefsAndAit.personalRelief ||
       reliefsAndAit.aitInterest !== initialSettings.reliefsAndAit.aitInterest ||
       reliefsAndAit.rentRelief !== initialSettings.reliefsAndAit.rentRelief ||
       reliefsAndAit.aitDividend !== initialSettings.reliefsAndAit.aitDividend ||
-      reliefsAndAit.whtRent !== initialSettings.reliefsAndAit.whtRent
+      reliefsAndAit.whtRent !== initialSettings.reliefsAndAit.whtRent ||
+      reliefsAndAit.foreignIncomeRate !==
+      initialSettings.reliefsAndAit.foreignIncomeTaxRate;
 
     const taxRatesChanged =
       taxRates.first !== initialSettings.taxRates.first ||
@@ -61,6 +64,7 @@ const Settings = () => {
       'aitDividend',
       'whtRent',
       'aitBusinessIncome',
+      'foreignIncomeRate',
     ];
     if (percentageFields.includes(field)) {
       if (number < 0) {
@@ -190,6 +194,17 @@ const Settings = () => {
                 value={reliefsAndAit.whtRent.toString()}
                 onChange={(e) =>
                   handleReliefsAndAitChange('whtRent', e.target.value)
+                }
+                suffix="%"
+              />
+            </div>
+            <div className="col-span-1">
+              <Input
+                label="Foreign income tax rate"
+                type="text"
+                value={reliefsAndAit.foreignIncomeRate.toString()}
+                onChange={(e) =>
+                  handleReliefsAndAitChange('foreignIncomeRate', e.target.value)
                 }
                 suffix="%"
               />
