@@ -4,6 +4,9 @@ import { TextField, Text } from '@radix-ui/themes';
 import { Bank } from '../../../../types/bank';
 import { useToast } from '../../../hooks/useToast';
 import axios from 'axios';
+import { BankUpdateReq } from 'src/types/BankUpdateReq';
+import { bankService } from '../../../services/bankService';
+import { BankCreateReq } from 'src/types/BankCreateReq';
 
 type ModalMode = 'add' | 'edit';
 
@@ -55,25 +58,22 @@ const BankModal: React.FC<BankModalProps> = ({
     try {
       if (mode === 'edit' && onEdit && bank) {
         // Edit mode
-        const response = await axios.put(
-          `http://localhost:8080/api/bank/${bank.id}`,
-          {
-            name: formData.name.trim(),
-            tinNumber: formData.tinNumber.trim(),
-          }
-        );
-        const updatedBank: Bank = response.data.data;
+        const newBankData: BankUpdateReq = {
+          name: formData.name.trim(),
+          tinNumber: formData.tinNumber.trim(),
+        }
+        const updatedBank: Bank = await bankService.updateBank(bank.id, newBankData);
         onEdit(updatedBank);
         setFormData({ name: '', tinNumber: '' });
         onClose();
         showSuccess('Bank updated successfully');
       } else if (mode === 'add' && onAdd) {
         // Add mode
-        const response = await axios.post('http://localhost:8080/api/bank', {
+        const newBankData: BankCreateReq = {
           name: formData.name.trim(),
           tinNumber: formData.tinNumber.trim(),
-        });
-        const addedBank: Bank = response.data.data;
+        }
+        const addedBank: Bank = await bankService.createBank(newBankData);
         onAdd(addedBank);
         setFormData({ name: '', tinNumber: '' });
         onClose();

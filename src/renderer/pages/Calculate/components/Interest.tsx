@@ -6,6 +6,7 @@ import Button from '../../../components/Button';
 import { Bank } from 'src/types/bank';
 import axios from 'axios';
 import { ClipLoader } from 'react-spinners';
+import { bankService } from '../../../services/bankService';
 
 interface InterestProps {
     isOpen: boolean;
@@ -47,8 +48,8 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
         const fetchBanks = async () => {
             setIsBanksLoading(true);
             try {
-                const response = await axios.get('http://localhost:8080/api/bank');
-                setBanks(response.data.data);
+                const banks: Bank[] = await bankService.getAllBanks();
+                setBanks(banks);
             } catch (error) {
                 console.error('Error fetching banks:', error);
             } finally {

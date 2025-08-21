@@ -8,8 +8,8 @@ import { Bank } from '../../../types/bank';
 import BankModal from './components/BankModal';
 import { AlertDialog, Flex } from '@radix-ui/themes';
 import { useToast } from '../../hooks/useToast';
-import axios from 'axios';
 import { ClipLoader } from 'react-spinners';
+import { bankService } from '../../services/bankService';
 
 const Banks = () => {
   const [banks, setBanks] = useState<Array<Bank>>([]);
@@ -26,8 +26,8 @@ const Banks = () => {
     const fetchBanks = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('http://localhost:8080/api/bank');
-        setBanks(response.data.data);
+        const banks: Bank[] = await bankService.getAllBanks();
+        setBanks(banks);
       } catch (error) {
         showError('Error loading banks');
       } finally {
@@ -99,7 +99,7 @@ const Banks = () => {
     setIsDeleting(true);
     if (deletingBank) {
       try {
-        await axios.delete(`http://localhost:8080/api/bank/${deletingBank.id}`);
+        await bankService.deleteBank(deletingBank.id);
         setBanks((prev) => prev.filter((bank) => bank.id !== deletingBank.id));
         showSuccess('Bank deleted successfully');
         setDeletingBank(undefined);
