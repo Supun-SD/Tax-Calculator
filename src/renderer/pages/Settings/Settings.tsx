@@ -88,7 +88,16 @@ const SettingsPage = () => {
     const numericValue = value.replace(/[^\d.]/g, '');
     const number = parseFloat(numericValue) || 0;
 
-    // Validate percentage fields (fields with % suffix) to be between 1 and 100
+    // Allow empty values (0) for clearing inputs
+    if (numericValue === '' || number === 0) {
+      setReliefsAndAit((prev) => ({
+        ...prev,
+        [field]: 0,
+      }));
+      return;
+    }
+
+    // Validate percentage fields (fields with % suffix) to be between 0 and 100
     const percentageFields = [
       'aitInterest',
       'rentRelief',
@@ -124,6 +133,15 @@ const SettingsPage = () => {
     // Convert all tax rate fields to numbers
     const numericValue = value.replace(/[^\d.]/g, '');
     const number = parseFloat(numericValue) || 0;
+
+    // Allow empty values (0) for clearing inputs
+    if (numericValue === '' || number === 0) {
+      setTaxRates((prev) => ({
+        ...prev,
+        [field]: 0,
+      }));
+      return;
+    }
 
     // Validate all tax rate fields to be between 1 and 100 (they are all percentages)
     if (number < 1) {
@@ -362,6 +380,7 @@ const SettingsPage = () => {
           variant="secondary"
           icon={TbFileExport}
           onClick={handleSaveSettings}
+          disabled
         >
           Export Data
         </Button>
@@ -370,6 +389,7 @@ const SettingsPage = () => {
           variant="secondary"
           icon={TbFileImport}
           onClick={() => handleSaveSettings()}
+          disabled
         >
           Import Data
         </Button>

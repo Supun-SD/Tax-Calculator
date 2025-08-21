@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Modal from '../../../components/Modal';
 import { TextField, Text } from '@radix-ui/themes';
-import { Bank } from '../../../../types/bank';
-import { BankUpdateReq } from '../../../../types/BankUpdateReq';
-import { BankCreateReq } from '../../../../types/BankCreateReq';
+import { Bank, BankCreateReq, BankUpdateReq } from '../../../../types/bank';
 
 type ModalMode = 'add' | 'edit';
 

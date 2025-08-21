@@ -1,8 +1,6 @@
 import axios from "axios";
 import { API_BASE_URL } from "../config/api";
-import { Bank } from "src/types/bank";
-import { BankCreateReq } from "src/types/BankCreateReq";
-import { BankUpdateReq } from "src/types/BankUpdateReq";
+import { Bank, BankCreateReq, BankUpdateReq } from "../../types/bank";
 
 const getAllBanks = async (): Promise<Bank[]> => {
     const response = await axios.get(`${API_BASE_URL}/bank`);

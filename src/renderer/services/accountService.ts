@@ -1,9 +1,6 @@
 import axios from "axios";
 import { API_BASE_URL } from "../config/api";
-import { Account } from "../../types/account";
-import { AccountCreateReq } from "../../types/AccountCreateReq";
-import { AccountUpdateReq } from "../../types/AccountUpdateReq";
-
+import { Account, AccountCreateReq, AccountUpdateReq } from "../../types/account";
 
 const getAllAccounts = async (): Promise<Account[]> => {
     const response = await axios.get(`${API_BASE_URL}/account`);

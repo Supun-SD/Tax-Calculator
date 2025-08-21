@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Modal from '../../../components/Modal';
 import { TextField } from '@radix-ui/themes';
 import { Text } from '@radix-ui/themes';
-import { Account } from '../../../../types/account';
-import { AccountCreateReq } from '../../../../types/AccountCreateReq';
-import { AccountUpdateReq } from '../../../../types/AccountUpdateReq';
+import { Account, AccountCreateReq, AccountUpdateReq } from '../../../../types/account';
 
 interface AccountModalProps {
   isOpen: boolean;

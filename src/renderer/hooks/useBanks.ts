@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Bank } from '../../types/bank';
-import { BankCreateReq } from '../../types/BankCreateReq';
-import { BankUpdateReq } from '../../types/BankUpdateReq';
+import { Bank, BankCreateReq, BankUpdateReq } from '../../types/bank';
 import { bankService } from '../services/bankService';
 import { useToast } from './useToast';
 

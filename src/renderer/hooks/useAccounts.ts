@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Account } from '../../types/account';
-import { AccountCreateReq } from '../../types/AccountCreateReq';
-import { AccountUpdateReq } from '../../types/AccountUpdateReq';
+import { Account, AccountCreateReq, AccountUpdateReq } from '../../types/account';
 import { accountService } from '../services/accountService';
 import { useToast } from './useToast';
 
