@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Dialog, Flex } from '@radix-ui/themes';
 import { IoIosClose } from 'react-icons/io';
 import Button from './Button';
+import { ClipLoader } from 'react-spinners';
 
 interface ModalProps {
   isOpen?: boolean;
@@ -18,6 +19,7 @@ interface ModalProps {
   maxWidth?: string;
   trigger?: React.ReactNode;
   closeOnOverlayClick?: boolean;
+  loading?: boolean;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -29,6 +31,7 @@ const Modal: React.FC<ModalProps> = ({
   maxWidth = '450px',
   trigger,
   closeOnOverlayClick = false,
+  loading = false,
 }) => {
   const [internalIsOpen, setInternalIsOpen] = useState(false);
 
@@ -64,22 +67,24 @@ const Modal: React.FC<ModalProps> = ({
         <Dialog.Title>{title}</Dialog.Title>
 
         <div className="my-8">{children}</div>
+        {loading ? <Flex justify="end" align="center" className="mr-12 my-5"><ClipLoader color="gray" size={28} /></Flex> :
+          actions.length > 0 && (
+            <Flex gap="3" justify="end">
+              {actions.map((action, index) => (
+                <Button
+                  key={index}
+                  variant={action.variant || 'primary'}
+                  onClick={action.onClick}
+                  disabled={action.disabled}
+                  className={action.className}
+                >
+                  {action.label}
+                </Button>
+              ))}
+            </Flex>
+          )
 
-        {actions.length > 0 && (
-          <Flex gap="3" justify="end">
-            {actions.map((action, index) => (
-              <Button
-                key={index}
-                variant={action.variant || 'primary'}
-                onClick={action.onClick}
-                disabled={action.disabled}
-                className={action.className}
-              >
-                {action.label}
-              </Button>
-            ))}
-          </Flex>
-        )}
+        }
       </Dialog.Content>
     </Dialog.Root>
   );

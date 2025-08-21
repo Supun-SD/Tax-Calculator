@@ -3,6 +3,7 @@ import Modal from '../../../components/Modal';
 import { TextField, Text } from '@radix-ui/themes';
 import { Bank } from '../../../../types/bank';
 import { useToast } from '../../../hooks/useToast';
+import axios from 'axios';
 
 type ModalMode = 'add' | 'edit';
 
@@ -10,7 +11,7 @@ interface BankModalProps {
   isOpen: boolean;
   onClose: () => void;
   mode: ModalMode;
-  onAdd?: (bank: Omit<Bank, 'id'>) => void;
+  onAdd?: (bank: Bank) => void;
   onEdit?: (bank: Bank) => void;
   bank?: Bank;
 }
@@ -28,6 +29,7 @@ const BankModal: React.FC<BankModalProps> = ({
     tinNumber: '',
   });
   const { showSuccess, showError } = useToast();
+  const [loading, setLoading] = useState(false);
 
   // Update form data when bank prop changes (for edit mode)
   useEffect(() => {
@@ -48,41 +50,43 @@ const BankModal: React.FC<BankModalProps> = ({
     }));
   };
 
-  const handleSubmit = () => {
-    if (formData.name.trim() && formData.tinNumber.trim()) {
-      try {
-        const tinNumber = parseInt(formData.tinNumber.trim());
-
-        if (isNaN(tinNumber)) {
-          showError('TIN Number must be a valid number');
-          return;
-        }
-
-        if (mode === 'edit' && onEdit && bank) {
-          // Edit mode
-          onEdit({
-            ...bank,
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      if (mode === 'edit' && onEdit && bank) {
+        // Edit mode
+        const response = await axios.put(
+          `http://localhost:8080/api/bank/${bank.id}`,
+          {
             name: formData.name.trim(),
-            tinNumber: tinNumber,
-          });
-          showSuccess('Bank updated successfully');
-        } else if (mode === 'add' && onAdd) {
-          // Add mode
-          onAdd({
-            name: formData.name.trim(),
-            tinNumber: tinNumber,
-          });
-          showSuccess('Bank added successfully');
-        }
-
-        // Reset form and close modal
+            tinNumber: formData.tinNumber.trim(),
+          }
+        );
+        const updatedBank: Bank = response.data.data;
+        onEdit(updatedBank);
         setFormData({ name: '', tinNumber: '' });
         onClose();
-      } catch (error) {
-        showError('Invalid TIN Number format');
+        showSuccess('Bank updated successfully');
+      } else if (mode === 'add' && onAdd) {
+        // Add mode
+        const response = await axios.post('http://localhost:8080/api/bank', {
+          name: formData.name.trim(),
+          tinNumber: formData.tinNumber.trim(),
+        });
+        const addedBank: Bank = response.data.data;
+        onAdd(addedBank);
+        setFormData({ name: '', tinNumber: '' });
+        onClose();
+        showSuccess('Bank added successfully');
       }
-    } else {
-      showError('Please fill in all fields');
+    } catch (error) {
+      if (mode === 'add') {
+        showError('Error adding bank');
+      } else {
+        showError('Error updating bank');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -129,6 +133,7 @@ const BankModal: React.FC<BankModalProps> = ({
       title={getTitle()}
       actions={getActions()}
       maxWidth="450px"
+      loading={loading}
     >
       <div className="space-y-4">
         <div>

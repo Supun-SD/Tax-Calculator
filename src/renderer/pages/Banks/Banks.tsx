@@ -2,22 +2,40 @@ import Navigation from '../../components/Navigation';
 import Button from '../../components/Button';
 import { IoIosAdd } from 'react-icons/io';
 import { DataTable, Column } from '../../components/DataTable';
-import { banks as mockBanks } from '../../../../mockdata/banks';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SearchBar from '../../components/SearchBar';
 import { Bank } from '../../../types/bank';
 import BankModal from './components/BankModal';
 import { AlertDialog, Flex } from '@radix-ui/themes';
 import { useToast } from '../../hooks/useToast';
+import axios from 'axios';
+import { ClipLoader } from 'react-spinners';
 
 const Banks = () => {
-  const [banks, setBanks] = useState<Array<Bank>>(mockBanks);
+  const [banks, setBanks] = useState<Array<Bank>>([]);
   const [searchValue, setSearchValue] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
   const [selectedBank, setSelectedBank] = useState<Bank | undefined>(undefined);
   const [deletingBank, setDeletingBank] = useState<Bank | undefined>(undefined);
   const { showSuccess, showError } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const fetchBanks = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get('http://localhost:8080/api/bank');
+        setBanks(response.data.data);
+      } catch (error) {
+        showError('Error loading banks');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBanks();
+  }, []);
 
   const columns: Column<Bank>[] = [
     {
@@ -62,20 +80,14 @@ const Banks = () => {
     setDeletingBank(bank);
   };
 
-  const handleAddBank = (bankData: Omit<Bank, 'id'>) => {
-    const newBank: Bank = {
-      id: Math.max(...banks.map((b) => b.id), 0) + 1,
-      ...bankData,
-    };
-    setBanks((prev) => [...prev, newBank]);
-    setIsModalOpen(false);
+  const handleAddBank = (newBank: Bank) => {
+    setBanks((prev) => [newBank, ...prev]);
   };
 
   const handleEditBank = (updatedBank: Bank) => {
     setBanks((prev) =>
       prev.map((bank) => (bank.id === updatedBank.id ? updatedBank : bank))
     );
-    setIsModalOpen(false);
   };
 
   const handleCloseModal = () => {
@@ -83,11 +95,19 @@ const Banks = () => {
     setSelectedBank(undefined);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
+    setIsDeleting(true);
     if (deletingBank) {
-      setBanks((prev) => prev.filter((bank) => bank.id !== deletingBank.id));
-      showSuccess('Bank deleted successfully');
-      setDeletingBank(undefined);
+      try {
+        await axios.delete(`http://localhost:8080/api/bank/${deletingBank.id}`);
+        setBanks((prev) => prev.filter((bank) => bank.id !== deletingBank.id));
+        showSuccess('Bank deleted successfully');
+        setDeletingBank(undefined);
+      } catch (error) {
+        showError('Error deleting bank');
+      } finally {
+        setIsDeleting(false);
+      }
     }
   };
 
@@ -115,16 +135,21 @@ const Banks = () => {
           Add
         </Button>
       </div>
-
-      <DataTable
-        data={banks}
-        columns={columns}
-        searchValue={searchValue}
-        searchKeys={['name', 'tinNumber']}
-        showActions={true}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
+      {loading ? (
+        <div className="flex items-center justify-center h-60">
+          <ClipLoader color="white" />
+        </div>
+      ) : (
+        <DataTable
+          data={banks}
+          columns={columns}
+          searchValue={searchValue}
+          searchKeys={['name', 'tinNumber']}
+          showActions={true}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      )}
 
       <BankModal
         isOpen={isModalOpen}
@@ -136,10 +161,7 @@ const Banks = () => {
       />
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog.Root
-        open={!!deletingBank}
-        onOpenChange={() => setDeletingBank(undefined)}
-      >
+      <AlertDialog.Root open={!!deletingBank}>
         <AlertDialog.Content className="bg-popup-bg">
           <AlertDialog.Title>Delete Bank</AlertDialog.Title>
           <AlertDialog.Description size="3">
@@ -147,21 +169,27 @@ const Banks = () => {
             "?
           </AlertDialog.Description>
 
-          <Flex gap="3" mt="6" justify="end">
+          <Flex gap="3" mt="6" justify="end" align="center">
             <AlertDialog.Cancel>
-              <Button variant="secondary" onClick={handleCancelDelete}>
+              <Button variant="secondary" onClick={handleCancelDelete} disabled={isDeleting}>
                 Cancel
               </Button>
             </AlertDialog.Cancel>
-            <AlertDialog.Action>
-              <Button
-                variant="outline"
-                className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
-                onClick={handleConfirmDelete}
-              >
-                Delete Bank
-              </Button>
-            </AlertDialog.Action>
+            {isDeleting ? (
+              <div className="flex items-center justify-center px-14">
+                <ClipLoader color="gray" size={28} />
+              </div>
+            ) : (
+              <AlertDialog.Action>
+                <Button
+                  variant="outline"
+                  className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
+                  onClick={handleConfirmDelete}
+                >
+                  Delete Bank
+                </Button>
+              </AlertDialog.Action>
+            )}
           </Flex>
         </AlertDialog.Content>
       </AlertDialog.Root>

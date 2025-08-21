@@ -1,5 +1,7 @@
 export interface Bank {
   id: number;
   name: string;
-  tinNumber: number;
+  tinNumber: string;
+  createdAt: string;
+  updatedAt: string;
 }
