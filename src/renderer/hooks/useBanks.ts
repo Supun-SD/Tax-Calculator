@@ -30,8 +30,18 @@ export const useBanks = (): UseBanksReturn => {
     try {
       const fetchedBanks = await bankService.getAllBanks();
       setBanks(fetchedBanks);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error loading banks';
+    } catch (err: any) {
+      let errorMessage = 'Error loading banks';
+      
+      // Handle Axios error with response data
+      if (err?.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err?.response?.data) {
+        errorMessage = err.response.data;
+      } else if (err?.message) {
+        errorMessage = err.message;
+      }
+      
       setError(errorMessage);
       showError(errorMessage);
     } finally {
@@ -46,8 +56,20 @@ export const useBanks = (): UseBanksReturn => {
       setBanks(prev => [newBank, ...prev]);
       showSuccess('Bank created successfully');
       return newBank;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error creating bank';
+    } catch (err: any) {
+      console.log(err);
+      let errorMessage = 'Error creating bank';
+      
+      // Handle Axios error with response data
+      if (err?.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err?.response?.data) {
+        errorMessage = err.response.data;
+      } else if (err?.message) {
+        errorMessage = err.message;
+      }
+      errorMessage = errorMessage.replace("tinNumber", "TIN number");
+
       setError(errorMessage);
       showError(errorMessage);
       return null;
@@ -61,8 +83,19 @@ export const useBanks = (): UseBanksReturn => {
       setBanks(prev => prev.map(b => b.id === id ? updatedBank : b));
       showSuccess('Bank updated successfully');
       return updatedBank;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error updating bank';
+    } catch (err: any) {
+      let errorMessage = 'Error updating bank';
+      
+      // Handle Axios error with response data
+      if (err?.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err?.response?.data) {
+        errorMessage = err.response.data;
+      } else if (err?.message) {
+        errorMessage = err.message;
+      }
+      errorMessage = errorMessage.replace("tinNumber", "TIN number");
+      
       setError(errorMessage);
       showError(errorMessage);
       return null;
@@ -77,8 +110,18 @@ export const useBanks = (): UseBanksReturn => {
       setBanks(prev => prev.filter(bank => bank.id !== id));
       showSuccess('Bank deleted successfully');
       return true;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error deleting bank';
+    } catch (err: any) {
+      let errorMessage = 'Error deleting bank';
+      
+      // Handle Axios error with response data
+      if (err?.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err?.response?.data) {
+        errorMessage = err.response.data;
+      } else if (err?.message) {
+        errorMessage = err.message;
+      }
+      
       setError(errorMessage);
       showError(errorMessage);
       return false;

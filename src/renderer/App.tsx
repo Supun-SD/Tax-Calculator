@@ -1,4 +1,5 @@
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 import Home from './pages/Home';
 import Calculate from './pages/Calculate/Calculate';
 import Accounts from './pages/Accounts/Accounts';
@@ -20,7 +21,13 @@ const App = () => {
           <Route path="/settings" element={<Settings />} />
         </Routes>
       </Router>
-      <ToastContainer />
+      {createPortal(
+        <ToastContainer
+          style={{ zIndex: 9999 }}
+          containerId="toast-container"
+        />,
+        document.body
+      )}
     </>
   );
 };

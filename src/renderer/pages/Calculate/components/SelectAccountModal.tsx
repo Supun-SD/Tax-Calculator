@@ -4,24 +4,26 @@ import Modal from '../../../components/Modal';
 import SearchBar from '../../../components/SearchBar';
 import { Account } from '../../../../types/account';
 import { FiCalendar } from 'react-icons/fi';
+import { useAccounts } from '../../../hooks/useAccounts';
+import { ClipLoader } from 'react-spinners';
 
 interface SelectAccountModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSelect: (account: Account, startDate: string, endDate: string) => void;
-  accounts: Account[];
 }
 
 const SelectAccountModal: React.FC<SelectAccountModalProps> = ({
   isOpen,
   onClose,
   onSelect,
-  accounts,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+
+  const { accounts, loading, error } = useAccounts();
 
   const years = useMemo(() => {
     const currentYear = new Date().getFullYear();
@@ -52,6 +54,12 @@ const SelectAccountModal: React.FC<SelectAccountModalProps> = ({
     setSearchTerm('');
   };
 
+  const handleCancel = () => {
+    onClose();
+    setSelectedAccount(null);
+    setSearchTerm('');
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -65,7 +73,7 @@ const SelectAccountModal: React.FC<SelectAccountModalProps> = ({
         {
           label: 'Cancel',
           onClick: () => {
-            onClose();
+            handleCancel();
             setSelectedAccount(null);
           },
           variant: 'secondary',
@@ -91,22 +99,34 @@ const SelectAccountModal: React.FC<SelectAccountModalProps> = ({
           />
 
           {/* Account List Overlay */}
-          {searchTerm && filteredAccounts.length > 0 && (
+          {searchTerm && (
             <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-40 overflow-y-auto rounded-lg border border-gray-300 bg-white shadow-lg">
-              {filteredAccounts.map((account) => (
-                <div
-                  key={account.id}
-                  className={`cursor-pointer border-b border-gray-200 p-3 last:border-b-0 hover:bg-gray-100 ${
-                    selectedAccount?.id === account.id ? 'bg-blue-100' : ''
-                  }`}
-                  onClick={() => handleAccountClick(account)}
-                >
-                  <Flex justify="between" className="text-black">
-                    <Text size="3">{account.name}</Text>
-                    <Text size="3">{account.tinNumber}</Text>
-                  </Flex>
+              {loading ? (
+                <div className="flex items-center justify-center p-10">
+                  <div className="flex items-center gap-2">
+                    <ClipLoader color="gray" size={20} />
+                    <Text size="3" className="text-gray-500">Loading accounts...</Text>
+                  </div>
                 </div>
-              ))}
+              ) : filteredAccounts.length > 0 ? (
+                filteredAccounts.map((account) => (
+                  <div
+                    key={account.id}
+                    className={`cursor-pointer border-b border-gray-200 p-3 last:border-b-0 hover:bg-gray-100 ${selectedAccount?.id === account.id ? 'bg-blue-100' : ''
+                      }`}
+                    onClick={() => handleAccountClick(account)}
+                  >
+                    <Flex justify="between" className="text-black">
+                      <Text size="3">{account.name}</Text>
+                      <Text size="3">{account.tinNumber}</Text>
+                    </Flex>
+                  </div>
+                ))
+              ) : (
+                <div className="p-5 text-gray-500">
+                  <Text size="3">No accounts found</Text>
+                </div>
+              )}
             </div>
           )}
         </div>

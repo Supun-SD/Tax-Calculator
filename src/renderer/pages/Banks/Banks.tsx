@@ -148,7 +148,7 @@ const Banks = () => {
               </Button>
             </AlertDialog.Cancel>
             {isDeleting ? (
-              <div className="flex items-center justify-center px-14">
+              <div className="flex items-center justify-center px-14 mx-3">
                 <ClipLoader color="gray" size={28} />
               </div>
             ) : (

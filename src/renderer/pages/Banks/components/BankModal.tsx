@@ -51,35 +51,31 @@ const BankModal: React.FC<BankModalProps> = ({
 
   const handleSubmit = async () => {
     setLoading(true);
-    try {
-      if (mode === 'edit' && bank) {
-        // Edit mode
-        const newBankData: BankUpdateReq = {
-          name: formData.name.trim(),
-          tinNumber: formData.tinNumber.trim(),
-        }
-        const result = await onUpdateBank(bank.id, newBankData);
-        if (result) {
-          setFormData({ name: '', tinNumber: '' });
-          onClose();
-        }
-      } else if (mode === 'add') {
-        // Add mode
-        const newBankData: BankCreateReq = {
-          name: formData.name.trim(),
-          tinNumber: formData.tinNumber.trim(),
-        }
-        const result = await onCreateBank(newBankData);
-        if (result) {
-          setFormData({ name: '', tinNumber: '' });
-          onClose();
-        }
+
+    if (mode === 'edit' && bank) {
+      // Edit mode
+      const newBankData: BankUpdateReq = {
+        name: formData.name.trim(),
+        tinNumber: formData.tinNumber.trim(),
       }
-    } catch (error) {
-      // Error handling is done in the hook
-    } finally {
-      setLoading(false);
+      const result = await onUpdateBank(bank.id, newBankData);
+      if (result) {
+        setFormData({ name: '', tinNumber: '' });
+        onClose();
+      }
+    } else if (mode === 'add') {
+      // Add mode
+      const newBankData: BankCreateReq = {
+        name: formData.name.trim(),
+        tinNumber: formData.tinNumber.trim(),
+      }
+      const result = await onCreateBank(newBankData);
+      if (result) {
+        setFormData({ name: '', tinNumber: '' });
+        onClose();
+      }
     }
+    setLoading(false);
   };
 
   const handleCancel = () => {

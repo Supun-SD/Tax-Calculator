@@ -3,31 +3,32 @@ import Modal from '../../../components/Modal';
 import { TextField } from '@radix-ui/themes';
 import { Text } from '@radix-ui/themes';
 import { Account } from '../../../../types/account';
-import { useToast } from '../../../hooks/useToast';
+import { AccountCreateReq } from '../../../../types/AccountCreateReq';
+import { AccountUpdateReq } from '../../../../types/AccountUpdateReq';
 
 interface AccountModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (account: Omit<Account, 'id'>) => void;
-  onEdit?: (account: Account) => void;
+  mode: 'add' | 'edit';
+  onCreateAccount: (account: AccountCreateReq) => Promise<Account | null>;
+  onUpdateAccount: (id: number, account: AccountUpdateReq) => Promise<Account | null>;
   account?: Account;
 }
 
 const AccountModal: React.FC<AccountModalProps> = ({
   isOpen,
   onClose,
-  onAdd,
-  onEdit,
+  mode,
+  onCreateAccount,
+  onUpdateAccount,
   account,
+
 }) => {
   const [formData, setFormData] = useState({
     name: '',
     tinNumber: '',
   });
-  const { showSuccess, showError } = useToast();
-
-  // Check if we're in edit mode
-  const isEditMode = !!account;
+  const [loading, setLoading] = useState(false);
 
   // Update form data when account prop changes (for edit mode)
   useEffect(() => {
@@ -48,29 +49,32 @@ const AccountModal: React.FC<AccountModalProps> = ({
     }));
   };
 
-  const handleSubmit = () => {
-    if (formData.name.trim() && formData.tinNumber.trim()) {
-      if (isEditMode && onEdit && account) {
-        // Edit mode
-        onEdit({
-          ...account,
-          name: formData.name.trim(),
-          tinNumber: parseInt(formData.tinNumber.trim()),
-        });
-        showSuccess('Account updated successfully');
-      } else {
-        // Add mode
-        onAdd({
-          name: formData.name.trim(),
-          tinNumber: parseInt(formData.tinNumber.trim()),
-        });
-        showSuccess('Account added successfully');
+  const handleSubmit = async () => {
+    setLoading(true);
+    if (mode === 'edit' && account) {
+      // Edit mode
+      const newAccountData: AccountUpdateReq = {
+        name: formData.name.trim(),
+        tinNumber: formData.tinNumber.trim(),
       }
-
-      // Reset form and close modal
-      setFormData({ name: '', tinNumber: '' });
-      onClose();
+      const result = await onUpdateAccount(account.id, newAccountData);
+      if (result) {
+        setFormData({ name: '', tinNumber: '' });
+        onClose();
+      }
+    } else if (mode === 'add') {
+      // Add mode
+      const newAccountData: AccountCreateReq = {
+        name: formData.name.trim(),
+        tinNumber: formData.tinNumber.trim(),
+      }
+      const result = await onCreateAccount(newAccountData);
+      if (result) {
+        setFormData({ name: '', tinNumber: '' });
+        onClose();
+      }
     }
+    setLoading(false);
   };
 
   const handleCancel = () => {
@@ -80,26 +84,43 @@ const AccountModal: React.FC<AccountModalProps> = ({
 
   const isFormValid = formData.name.trim() && formData.tinNumber.trim();
 
+  const getTitle = () => {
+    switch (mode) {
+      case 'add':
+        return 'Add new account';
+      case 'edit':
+        return 'Edit account';
+      default:
+        return 'Account';
+    }
+  };
+
+  const getActions = () => {
+    return [
+      {
+        label: 'Cancel',
+        onClick: handleCancel,
+        variant: 'secondary' as const,
+        className: '!px-10 rounded-2xl',
+      },
+      {
+        label: mode === 'edit' ? 'Update' : 'Add',
+        onClick: handleSubmit,
+        variant: 'primary' as const,
+        disabled: !isFormValid,
+        className: '!px-10 rounded-2xl',
+      },
+    ];
+  };
+
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={isEditMode ? 'Edit account' : 'Add new account'}
-      actions={[
-        {
-          label: 'Cancel',
-          onClick: handleCancel,
-          variant: 'secondary',
-          className: '!px-10 rounded-2xl',
-        },
-        {
-          label: isEditMode ? 'Update' : 'Add',
-          onClick: handleSubmit,
-          variant: 'primary',
-          disabled: !isFormValid,
-          className: '!px-10 rounded-2xl',
-        },
-      ]}
+      title={getTitle()}
+      actions={getActions()}
+      maxWidth="450px"
+      loading={loading}
     >
       <div className="space-y-4">
         <div>
@@ -111,6 +132,7 @@ const AccountModal: React.FC<AccountModalProps> = ({
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
               size="3"
+              placeholder="Enter full name"
               className="h-12 rounded-xl bg-white px-1 ring-0 focus:outline-none focus:ring-0 [&:focus-within]:outline-none [&:focus-within]:ring-0 [&>input]:focus:outline-none [&>input]:focus:ring-0"
             />
           </div>
@@ -124,6 +146,8 @@ const AccountModal: React.FC<AccountModalProps> = ({
               value={formData.tinNumber}
               onChange={(e) => handleInputChange('tinNumber', e.target.value)}
               size="3"
+              placeholder="Enter TIN number"
+              type="number"
               className="h-12 rounded-xl bg-white px-1 ring-0 focus:outline-none focus:ring-0 [&:focus-within]:outline-none [&:focus-within]:ring-0 [&>input]:focus:outline-none [&>input]:focus:ring-0"
             />
           </div>

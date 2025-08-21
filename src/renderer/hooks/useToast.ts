@@ -13,6 +13,10 @@ const defaultOptions: ToastOptions = {
   autoClose: 4000,
   theme: 'colored',
   transition: Bounce,
+  style: {
+    zIndex: 9999,
+  },
+  containerId: 'toast-container',
 };
 
 export const useToast = (): UseToastReturn => {

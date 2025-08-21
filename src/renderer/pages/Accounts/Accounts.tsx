@@ -2,7 +2,6 @@ import Button from '../../components/Button';
 import Navigation from '../../components/Navigation';
 import SearchBar from '../../components/SearchBar';
 import { IoIosAdd } from 'react-icons/io';
-import { accounts as mockAccounts } from '../../../../mockdata/accounts';
 import { DataTable, Column } from '../../components/DataTable';
 import React, { useState } from 'react';
 import { Account } from '../../../types/account';
@@ -10,22 +9,26 @@ import AccountModal from './components/AccountModal';
 import ViewAccountModal from './components/ViewAccountModal';
 import { AlertDialog, Flex } from '@radix-ui/themes';
 import { useToast } from '../../hooks/useToast';
+import { useAccounts } from '../../hooks/useAccounts';
+import { ClipLoader } from 'react-spinners';
 
 const Accounts = () => {
-  const [accounts, setAccounts] = useState<Array<Account>>(mockAccounts);
   const [searchValue, setSearchValue] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingAccount, setEditingAccount] = useState<Account | undefined>(
-    undefined
-  );
+  const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
+  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
+  const [deletingAccount, setDeletingAccount] = useState<Account | null>(null);
+  const [viewingAccount, setViewingAccount] = useState<Account | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [viewingAccount, setViewingAccount] = useState<Account | undefined>(
-    undefined
-  );
-  const [deletingAccount, setDeletingAccount] = useState<Account | undefined>(
-    undefined
-  );
-  const { showSuccess, showError } = useToast();
+
+  const {
+    accounts,
+    loading,
+    isDeleting,
+    createAccount,
+    updateAccount,
+    deleteAccount
+  } = useAccounts();
 
   const columns: Column<Account>[] = [
     {
@@ -50,8 +53,19 @@ const Accounts = () => {
     },
   ];
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(e.target.value);
+  };
+
+  const handleAddButtonClick = () => {
+    setModalMode('add');
+    setSelectedAccount(null);
+    setIsModalOpen(true);
+  };
+
   const handleEdit = (account: Account) => {
-    setEditingAccount(account);
+    setModalMode('edit');
+    setSelectedAccount(account);
     setIsModalOpen(true);
   };
 
@@ -64,72 +78,22 @@ const Accounts = () => {
     setDeletingAccount(account);
   };
 
-  const handleConfirmDelete = () => {
-    if (deletingAccount) {
-      // TODO: Implement actual delete functionality
-      // For now, just remove from local state
-      setAccounts((prevAccounts) =>
-        prevAccounts.filter((acc) => acc.id !== deletingAccount.id)
-      );
-      showSuccess('Account deleted successfully');
-      console.log('Deleting account:', deletingAccount);
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedAccount(null);
+  };
 
-      // In a real app, you would:
-      // 1. Call API to delete the account
-      // 2. Show success message
-      // 3. Handle errors appropriately
+  const handleConfirmDelete = async () => {
+    if (deletingAccount) {
+      const success = await deleteAccount(deletingAccount.id);
+      if (success) {
+        setDeletingAccount(null);
+      }
     }
-    setDeletingAccount(undefined);
   };
 
   const handleCancelDelete = () => {
-    setDeletingAccount(undefined);
-  };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchValue(e.target.value);
-  };
-
-  const handleAddAccount = (newAccount: Omit<Account, 'id'>) => {
-    // TODO: Implement actual add functionality
-    // For now, just add to local state with a temporary ID
-    const accountWithId: Account = {
-      ...newAccount,
-      id: Date.now(), // Temporary ID generation
-    };
-    setAccounts((prevAccounts) => [...prevAccounts, accountWithId]);
-    console.log('Adding new account:', accountWithId);
-
-    // In a real app, you would:
-    // 1. Call API to save the account
-    // 2. Update the local state with the response
-    // 3. Show success message
-  };
-
-  const handleEditAccount = (updatedAccount: Account) => {
-    // TODO: Implement actual edit functionality
-    // For now, just update local state
-    setAccounts((prevAccounts) =>
-      prevAccounts.map((acc) =>
-        acc.id === updatedAccount.id ? updatedAccount : acc
-      )
-    );
-    console.log('Updating account:', updatedAccount);
-
-    // In a real app, you would:
-    // 1. Call API to update the account
-    // 2. Update the local state
-    // 3. Show success message
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setEditingAccount(undefined);
-  };
-
-  const handleAddButtonClick = () => {
-    setEditingAccount(undefined);
-    setIsModalOpen(true);
+    setDeletingAccount(null);
   };
 
   return (
@@ -153,23 +117,30 @@ const Accounts = () => {
         </Button>
       </div>
 
-      <DataTable
-        data={accounts}
-        columns={columns}
-        searchValue={searchValue}
-        searchKeys={['name', 'tinNumber']}
-        showActions={true}
-        onEdit={handleEdit}
-        onView={handleView}
-        onDelete={handleDelete}
-      />
+      {loading ? (
+        <div className="flex items-center justify-center h-60">
+          <ClipLoader color="white" />
+        </div>
+      ) : (
+        <DataTable
+          data={accounts}
+          columns={columns}
+          searchValue={searchValue}
+          searchKeys={['name', 'tinNumber']}
+          showActions={true}
+          onEdit={handleEdit}
+          onView={handleView}
+          onDelete={handleDelete}
+        />
+      )}
 
       <AccountModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        onAdd={handleAddAccount}
-        onEdit={handleEditAccount}
-        account={editingAccount}
+        mode={modalMode}
+        onCreateAccount={createAccount}
+        onUpdateAccount={updateAccount}
+        account={selectedAccount}
       />
       <ViewAccountModal
         isOpen={isViewModalOpen}
@@ -178,33 +149,34 @@ const Accounts = () => {
       />
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog.Root
-        open={!!deletingAccount}
-        onOpenChange={() => setDeletingAccount(undefined)}
-      >
-        <AlertDialog.Content maxWidth="450px" className="bg-popup-bg">
+      <AlertDialog.Root open={!!deletingAccount}>
+        <AlertDialog.Content className="bg-popup-bg">
           <AlertDialog.Title>Delete Account</AlertDialog.Title>
-          <AlertDialog.Description size="2">
-            Are you sure you want to delete the account "{deletingAccount?.name}
-            "? This action cannot be undone and all associated data will be
-            permanently removed.
+          <AlertDialog.Description size="3">
+            Are you sure you want to delete the account "{deletingAccount?.name}"?
           </AlertDialog.Description>
 
-          <Flex gap="3" mt="4" justify="end">
+          <Flex gap="3" mt="6" justify="end" align="center">
             <AlertDialog.Cancel>
-              <Button variant="secondary" onClick={handleCancelDelete}>
+              <Button variant="secondary" onClick={handleCancelDelete} disabled={isDeleting}>
                 Cancel
               </Button>
             </AlertDialog.Cancel>
-            <AlertDialog.Action>
-              <Button
-                variant="outline"
-                className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
-                onClick={handleConfirmDelete}
-              >
-                Delete Account
-              </Button>
-            </AlertDialog.Action>
+            {isDeleting ? (
+              <div className="flex items-center justify-center px-14 mx-3">
+                <ClipLoader color="gray" size={28} />
+              </div>
+            ) : (
+              <AlertDialog.Action>
+                <Button
+                  variant="outline"
+                  className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
+                  onClick={handleConfirmDelete}
+                >
+                  Delete Account
+                </Button>
+              </AlertDialog.Action>
+            )}
           </Flex>
         </AlertDialog.Content>
       </AlertDialog.Root>

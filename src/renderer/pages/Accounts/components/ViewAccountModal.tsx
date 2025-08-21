@@ -2,13 +2,7 @@ import Modal from '../../../components/Modal';
 import { Flex, Separator, Text, Button } from '@radix-ui/themes';
 import { Account } from '../../../../types/account';
 import { Calculation } from '../../../../types/calculation';
-import {
-  RiAccountCircleFill,
-  RiCalculatorLine,
-  RiEyeLine,
-  RiEditLine,
-  RiDownloadLine,
-} from 'react-icons/ri';
+import { RiAccountCircleFill } from 'react-icons/ri';
 import { calculations } from '../../../../../mockdata/calculations';
 import CalculationCard from './CalculationCard';
 
@@ -61,7 +55,7 @@ const ViewAccountModal: React.FC<ViewAccountModalProps> = ({
         ) : (
           <Flex direction="column" gap="3" mt="5">
             {accountCalculations.map((calculation) => (
-              <CalculationCard calculation={calculation} />
+              <CalculationCard key={calculation.id} calculation={calculation} />
             ))}
           </Flex>
         )}

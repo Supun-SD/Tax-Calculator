@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import Navigation from '../../components/Navigation';
 import { Flex, Grid, Separator, Text } from '@radix-ui/themes';
-import { accounts } from '../../../../mockdata/accounts';
 import { Account } from '../../../types/account';
 import SelectAccountModal from './components/SelectAccountModal';
 import Header from './components/Header';
@@ -113,7 +112,6 @@ const Calculate = () => {
         isOpen={isSelectAccountModalOpen}
         onClose={() => setIsSelectAccountModalOpen(false)}
         onSelect={handleSelectAccount}
-        accounts={accounts}
       />
     </div>
   );
