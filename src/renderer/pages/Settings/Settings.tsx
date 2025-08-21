@@ -3,54 +3,85 @@ import Input from '../../components/Input';
 import { TbFileImport, TbFileExport } from 'react-icons/tb';
 import { FiSave } from 'react-icons/fi';
 import Button from '../../components/Button';
-import { settings as mockSettings } from '../../../../mockdata/settings';
-import { useState, useMemo } from 'react';
-import { useToast } from '../../hooks/useToast';
+import { useState, useMemo, useEffect } from 'react';
+import { useSettingsContext } from '../../contexts/SettingsContext';
+import { Settings } from '../../../types/settings';
+import { ClipLoader } from 'react-spinners';
 
-const Settings = () => {
-  const initialSettings = mockSettings;
-  const { showSuccess, showError } = useToast();
+const SettingsPage = () => {
+  const {
+    settings,
+    loading,
+    error,
+    isUpdating,
+    updateSettings
+  } = useSettingsContext();
 
   const [reliefsAndAit, setReliefsAndAit] = useState({
-    personalRelief: initialSettings.reliefsAndAit.personalRelief,
-    aitInterest: initialSettings.reliefsAndAit.aitInterest,
-    rentRelief: initialSettings.reliefsAndAit.rentRelief,
-    aitDividend: initialSettings.reliefsAndAit.aitDividend,
-    whtRent: initialSettings.reliefsAndAit.whtRent,
-    foreignIncomeRate: initialSettings.reliefsAndAit.foreignIncomeTaxRate,
+    personalRelief: 0,
+    aitInterest: 0,
+    rentRelief: 0,
+    aitDividend: 0,
+    whtRent: 0,
+    foreignIncomeRate: 0,
   });
 
   const [taxRates, setTaxRates] = useState({
-    first: initialSettings.taxRates.first,
-    second: initialSettings.taxRates.second,
-    third: initialSettings.taxRates.third,
-    fourth: initialSettings.taxRates.fourth,
-    fifth: initialSettings.taxRates.fifth,
-    other: initialSettings.taxRates.other,
+    first: 0,
+    second: 0,
+    third: 0,
+    fourth: 0,
+    fifth: 0,
+    other: 0,
   });
+
+  // Update local state when settings are loaded
+  useEffect(() => {
+    if (settings) {
+      setReliefsAndAit({
+        personalRelief: settings.reliefsAndAit.personalRelief,
+        aitInterest: settings.reliefsAndAit.aitInterest,
+        rentRelief: settings.reliefsAndAit.rentRelief,
+        aitDividend: settings.reliefsAndAit.aitDividend,
+        whtRent: settings.reliefsAndAit.whtRent,
+        foreignIncomeRate: settings.reliefsAndAit.foreignIncomeTaxRate,
+      });
+
+      setTaxRates({
+        first: settings.taxRates.first,
+        second: settings.taxRates.second,
+        third: settings.taxRates.third,
+        fourth: settings.taxRates.fourth,
+        fifth: settings.taxRates.fifth,
+        other: settings.taxRates.other,
+      });
+    }
+  }, [settings]);
 
   // Check if any changes have been made
   const hasChanges = useMemo(() => {
+    if (!settings) return false;
+
     const reliefsChanged =
       reliefsAndAit.personalRelief !==
-      initialSettings.reliefsAndAit.personalRelief ||
-      reliefsAndAit.aitInterest !== initialSettings.reliefsAndAit.aitInterest ||
-      reliefsAndAit.rentRelief !== initialSettings.reliefsAndAit.rentRelief ||
-      reliefsAndAit.aitDividend !== initialSettings.reliefsAndAit.aitDividend ||
-      reliefsAndAit.whtRent !== initialSettings.reliefsAndAit.whtRent ||
+      settings.reliefsAndAit.personalRelief ||
+      reliefsAndAit.aitInterest !== settings.reliefsAndAit.aitInterest ||
+      reliefsAndAit.rentRelief !== settings.reliefsAndAit.rentRelief ||
+      reliefsAndAit.aitDividend !== settings.reliefsAndAit.aitDividend ||
+      reliefsAndAit.whtRent !== settings.reliefsAndAit.whtRent ||
       reliefsAndAit.foreignIncomeRate !==
-      initialSettings.reliefsAndAit.foreignIncomeTaxRate;
+      settings.reliefsAndAit.foreignIncomeTaxRate;
 
     const taxRatesChanged =
-      taxRates.first !== initialSettings.taxRates.first ||
-      taxRates.second !== initialSettings.taxRates.second ||
-      taxRates.third !== initialSettings.taxRates.third ||
-      taxRates.fourth !== initialSettings.taxRates.fourth ||
-      taxRates.fifth !== initialSettings.taxRates.fifth ||
-      taxRates.other !== initialSettings.taxRates.other;
+      taxRates.first !== settings.taxRates.first ||
+      taxRates.second !== settings.taxRates.second ||
+      taxRates.third !== settings.taxRates.third ||
+      taxRates.fourth !== settings.taxRates.fourth ||
+      taxRates.fifth !== settings.taxRates.fifth ||
+      taxRates.other !== settings.taxRates.other;
 
     return reliefsChanged || taxRatesChanged;
-  }, [reliefsAndAit, taxRates, initialSettings]);
+  }, [reliefsAndAit, taxRates, settings]);
 
   const handleReliefsAndAitChange = (field: string, value: string) => {
     // Convert all reliefs and AIT fields to numbers
@@ -116,23 +147,67 @@ const Settings = () => {
     }));
   };
 
-  const getCurrentValues = () => {
-    return {
-      reliefsAndAit,
-      taxRates,
+  const handleSaveSettings = async () => {
+    if (!settings) return;
+
+    const updatedSettings: Settings = {
+      ...settings,
+      reliefsAndAit: {
+        ...settings.reliefsAndAit,
+        personalRelief: reliefsAndAit.personalRelief,
+        aitInterest: reliefsAndAit.aitInterest,
+        rentRelief: reliefsAndAit.rentRelief,
+        aitDividend: reliefsAndAit.aitDividend,
+        whtRent: reliefsAndAit.whtRent,
+        foreignIncomeTaxRate: reliefsAndAit.foreignIncomeRate,
+      },
+      taxRates: {
+        ...settings.taxRates,
+        first: taxRates.first,
+        second: taxRates.second,
+        third: taxRates.third,
+        fourth: taxRates.fourth,
+        fifth: taxRates.fifth,
+        other: taxRates.other,
+      },
     };
+
+    await updateSettings(updatedSettings);
+
   };
 
-  const handleSaveSettings = () => {
-    try {
-      const currentValues = getCurrentValues();
-      console.log(currentValues);
-      // TODO: Implement actual save functionality
-      showSuccess('Settings saved');
-    } catch (error) {
-      showError('Failed to save settings');
-    }
-  };
+  if (loading) {
+    return (
+      <div className="p-8">
+        <Navigation title="Settings" />
+        <div className="mt-4 flex items-center justify-center h-60">
+          <div className="text-white"><ClipLoader color="#fff" size={32} /></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8">
+        <Navigation title="Settings" />
+        <div className="mt-4 flex items-center justify-center">
+          <div className="text-red-500">Error: {error}</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!settings) {
+    return (
+      <div className="p-8">
+        <Navigation title="Settings" />
+        <div className="mt-4 flex items-center justify-center">
+          <div className="text-white">No settings found</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8">
@@ -277,10 +352,10 @@ const Settings = () => {
           type="button"
           variant="primary"
           icon={FiSave}
-          disabled={!hasChanges}
+          disabled={!hasChanges || isUpdating}
           onClick={() => handleSaveSettings()}
         >
-          Save
+          {isUpdating ? 'Saving...' : 'Save'}
         </Button>
         <Button
           type="button"
@@ -303,4 +378,4 @@ const Settings = () => {
   );
 };
 
-export default Settings;
+export default SettingsPage;

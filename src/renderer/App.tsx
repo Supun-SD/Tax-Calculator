@@ -7,10 +7,11 @@ import History from './pages/History/History';
 import Banks from './pages/Banks/Banks';
 import Settings from './pages/Settings/Settings';
 import { ToastContainer } from 'react-toastify';
+import { SettingsProvider } from './contexts/SettingsContext';
 
 const App = () => {
   return (
-    <>
+    <SettingsProvider>
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -28,7 +29,7 @@ const App = () => {
         />,
         document.body
       )}
-    </>
+    </SettingsProvider>
   );
 };
 

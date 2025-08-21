@@ -1,4 +1,6 @@
 export interface Settings {
+  id: number;
+  year: string;
   reliefsAndAit: ReliefsAndAit;
   taxRates: TaxRates;
 }
@@ -19,4 +21,10 @@ interface TaxRates {
   fourth: number;
   fifth: number;
   other: number;
+}
+
+export interface SettingsUpdateReq {
+  year: string;
+  reliefsAndAit: ReliefsAndAit;
+  taxRates: TaxRates;
 }
