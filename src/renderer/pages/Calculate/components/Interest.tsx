@@ -3,10 +3,8 @@ import Modal from "../../../components/Modal";
 import { settings } from '../../../../../mockdata/settings';
 import { IoAdd, IoClose, IoChevronDown } from "react-icons/io5";
 import Button from '../../../components/Button';
-import { Bank } from 'src/types/bank';
-import axios from 'axios';
 import { ClipLoader } from 'react-spinners';
-import { bankService } from '../../../services/bankService';
+import { useBanks } from '../../../hooks/useBanks';
 
 interface InterestProps {
     isOpen: boolean;
@@ -36,28 +34,14 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
         }
     ]);
 
-    const [banks, setBanks] = useState<Bank[]>([]);
-    const [isBanksLoading, setIsBanksLoading] = useState<boolean>(false);
     const [totalGrossInterest, setTotalGrossInterest] = useState<number>(0);
     const [totalAIT, setTotalAIT] = useState<number>(0);
     const [bankSearchTerm, setBankSearchTerm] = useState<string>("");
     const [activeBankDropdown, setActiveBankDropdown] = useState<number | null>(null);
 
+    const { banks, loading: isBanksLoading } = useBanks();
+
     useEffect(() => {
-
-        const fetchBanks = async () => {
-            setIsBanksLoading(true);
-            try {
-                const banks: Bank[] = await bankService.getAllBanks();
-                setBanks(banks);
-            } catch (error) {
-                console.error('Error fetching banks:', error);
-            } finally {
-                setIsBanksLoading(false);
-            }
-        };
-        fetchBanks();
-
         const totalGross = interestEntries.reduce((sum, entry) => {
             // If joint account, add only half of the gross interest
             const contribution = entry.isJoint ? entry.grossInterest / 2 : entry.grossInterest;

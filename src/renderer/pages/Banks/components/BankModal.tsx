@@ -2,11 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Modal from '../../../components/Modal';
 import { TextField, Text } from '@radix-ui/themes';
 import { Bank } from '../../../../types/bank';
-import { useToast } from '../../../hooks/useToast';
-import axios from 'axios';
-import { BankUpdateReq } from 'src/types/BankUpdateReq';
-import { bankService } from '../../../services/bankService';
-import { BankCreateReq } from 'src/types/BankCreateReq';
+import { BankUpdateReq } from '../../../../types/BankUpdateReq';
+import { BankCreateReq } from '../../../../types/BankCreateReq';
 
 type ModalMode = 'add' | 'edit';
 
@@ -14,8 +11,8 @@ interface BankModalProps {
   isOpen: boolean;
   onClose: () => void;
   mode: ModalMode;
-  onAdd?: (bank: Bank) => void;
-  onEdit?: (bank: Bank) => void;
+  onCreateBank: (bank: BankCreateReq) => Promise<Bank | null>;
+  onUpdateBank: (id: number, bank: BankUpdateReq) => Promise<Bank | null>;
   bank?: Bank;
 }
 
@@ -23,15 +20,14 @@ const BankModal: React.FC<BankModalProps> = ({
   isOpen,
   onClose,
   mode,
-  onAdd,
-  onEdit,
+  onCreateBank,
+  onUpdateBank,
   bank,
 }) => {
   const [formData, setFormData] = useState({
     name: '',
     tinNumber: '',
   });
-  const { showSuccess, showError } = useToast();
   const [loading, setLoading] = useState(false);
 
   // Update form data when bank prop changes (for edit mode)
@@ -56,35 +52,31 @@ const BankModal: React.FC<BankModalProps> = ({
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      if (mode === 'edit' && onEdit && bank) {
+      if (mode === 'edit' && bank) {
         // Edit mode
         const newBankData: BankUpdateReq = {
           name: formData.name.trim(),
           tinNumber: formData.tinNumber.trim(),
         }
-        const updatedBank: Bank = await bankService.updateBank(bank.id, newBankData);
-        onEdit(updatedBank);
-        setFormData({ name: '', tinNumber: '' });
-        onClose();
-        showSuccess('Bank updated successfully');
-      } else if (mode === 'add' && onAdd) {
+        const result = await onUpdateBank(bank.id, newBankData);
+        if (result) {
+          setFormData({ name: '', tinNumber: '' });
+          onClose();
+        }
+      } else if (mode === 'add') {
         // Add mode
         const newBankData: BankCreateReq = {
           name: formData.name.trim(),
           tinNumber: formData.tinNumber.trim(),
         }
-        const addedBank: Bank = await bankService.createBank(newBankData);
-        onAdd(addedBank);
-        setFormData({ name: '', tinNumber: '' });
-        onClose();
-        showSuccess('Bank added successfully');
+        const result = await onCreateBank(newBankData);
+        if (result) {
+          setFormData({ name: '', tinNumber: '' });
+          onClose();
+        }
       }
     } catch (error) {
-      if (mode === 'add') {
-        showError('Error adding bank');
-      } else {
-        showError('Error updating bank');
-      }
+      // Error handling is done in the hook
     } finally {
       setLoading(false);
     }

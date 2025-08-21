@@ -2,40 +2,29 @@ import Navigation from '../../components/Navigation';
 import Button from '../../components/Button';
 import { IoIosAdd } from 'react-icons/io';
 import { DataTable, Column } from '../../components/DataTable';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import SearchBar from '../../components/SearchBar';
 import { Bank } from '../../../types/bank';
 import BankModal from './components/BankModal';
 import { AlertDialog, Flex } from '@radix-ui/themes';
-import { useToast } from '../../hooks/useToast';
 import { ClipLoader } from 'react-spinners';
-import { bankService } from '../../services/bankService';
+import { useBanks } from '../../hooks/useBanks';
 
 const Banks = () => {
-  const [banks, setBanks] = useState<Array<Bank>>([]);
   const [searchValue, setSearchValue] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
   const [selectedBank, setSelectedBank] = useState<Bank | undefined>(undefined);
   const [deletingBank, setDeletingBank] = useState<Bank | undefined>(undefined);
-  const { showSuccess, showError } = useToast();
-  const [loading, setLoading] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
 
-  useEffect(() => {
-    const fetchBanks = async () => {
-      setLoading(true);
-      try {
-        const banks: Bank[] = await bankService.getAllBanks();
-        setBanks(banks);
-      } catch (error) {
-        showError('Error loading banks');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchBanks();
-  }, []);
+  const {
+    banks,
+    loading,
+    isDeleting,
+    createBank,
+    updateBank,
+    deleteBank
+  } = useBanks();
 
   const columns: Column<Bank>[] = [
     {
@@ -80,33 +69,16 @@ const Banks = () => {
     setDeletingBank(bank);
   };
 
-  const handleAddBank = (newBank: Bank) => {
-    setBanks((prev) => [newBank, ...prev]);
-  };
-
-  const handleEditBank = (updatedBank: Bank) => {
-    setBanks((prev) =>
-      prev.map((bank) => (bank.id === updatedBank.id ? updatedBank : bank))
-    );
-  };
-
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedBank(undefined);
   };
 
   const handleConfirmDelete = async () => {
-    setIsDeleting(true);
     if (deletingBank) {
-      try {
-        await bankService.deleteBank(deletingBank.id);
-        setBanks((prev) => prev.filter((bank) => bank.id !== deletingBank.id));
-        showSuccess('Bank deleted successfully');
+      const success = await deleteBank(deletingBank.id);
+      if (success) {
         setDeletingBank(undefined);
-      } catch (error) {
-        showError('Error deleting bank');
-      } finally {
-        setIsDeleting(false);
       }
     }
   };
@@ -155,8 +127,8 @@ const Banks = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         mode={modalMode}
-        onAdd={handleAddBank}
-        onEdit={handleEditBank}
+        onCreateBank={createBank}
+        onUpdateBank={updateBank}
         bank={selectedBank}
       />
 
