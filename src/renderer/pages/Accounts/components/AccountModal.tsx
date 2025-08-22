@@ -115,6 +115,8 @@ const AccountModal: React.FC<AccountModalProps> = ({
     ];
   };
 
+  const titles = ['Capt', 'Cm', 'Dr', 'Major', 'Miss', 'Mr', 'Mrs', 'Ms', 'Prof', 'Rev', 'Sec', 'The Hon']
+
   return (
     <Modal
       isOpen={isOpen}
@@ -141,18 +143,11 @@ const AccountModal: React.FC<AccountModalProps> = ({
                   className="rounded-xl bg-white px-3 h-12 ring-0 focus:outline-none focus:ring-0 [&:focus-within]:outline-none [&:focus-within]:ring-0 flex justify-between items-center"
                 />
                 <Select.Content>
-                  <Select.Item value="Capt">Capt</Select.Item>
-                  <Select.Item value="Cm">Cm</Select.Item>
-                  <Select.Item value="Dr">Dr</Select.Item>
-                  <Select.Item value="Major">Major</Select.Item>
-                  <Select.Item value="Miss">Miss</Select.Item>
-                  <Select.Item value="Mr">Mr</Select.Item>
-                  <Select.Item value="Mrs">Mrs</Select.Item>
-                  <Select.Item value="Ms">Ms</Select.Item>
-                  <Select.Item value="Prof">Prof</Select.Item>
-                  <Select.Item value="Rev">Rev</Select.Item>
-                  <Select.Item value="Sec">Sec</Select.Item>
-                  <Select.Item value="The Hon">The Hon</Select.Item>
+                  {titles.map((title) => (
+                    <Select.Item key={title} value={title}>
+                      {title}
+                    </Select.Item>
+                  ))}
                 </Select.Content>
               </Select.Root>
             </div>
