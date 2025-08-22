@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Modal from '../../../components/Modal';
-import { TextField } from '@radix-ui/themes';
+import { TextField, Select } from '@radix-ui/themes';
 import { Text } from '@radix-ui/themes';
 import { Account, AccountCreateReq, AccountUpdateReq } from '../../../../types/account';
 
@@ -23,6 +23,7 @@ const AccountModal: React.FC<AccountModalProps> = ({
 
 }) => {
   const [formData, setFormData] = useState({
+    title: '',
     name: '',
     tinNumber: '',
   });
@@ -32,15 +33,16 @@ const AccountModal: React.FC<AccountModalProps> = ({
   useEffect(() => {
     if (account) {
       setFormData({
+        title: account.title,
         name: account.name,
         tinNumber: account.tinNumber.toString(),
       });
     } else {
-      setFormData({ name: '', tinNumber: '' });
+      setFormData({ title: '', name: '', tinNumber: '' });
     }
   }, [account]);
 
-  const handleInputChange = (field: 'name' | 'tinNumber', value: string) => {
+  const handleInputChange = (field: 'title' | 'name' | 'tinNumber', value: string) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -52,23 +54,25 @@ const AccountModal: React.FC<AccountModalProps> = ({
     if (mode === 'edit' && account) {
       // Edit mode
       const newAccountData: AccountUpdateReq = {
+        title: formData.title.trim(),
         name: formData.name.trim(),
         tinNumber: formData.tinNumber.trim(),
       }
       const result = await onUpdateAccount(account.id, newAccountData);
       if (result) {
-        setFormData({ name: '', tinNumber: '' });
+        setFormData({ title: '', name: '', tinNumber: '' });
         onClose();
       }
     } else if (mode === 'add') {
       // Add mode
       const newAccountData: AccountCreateReq = {
+        title: formData.title.trim(),
         name: formData.name.trim(),
         tinNumber: formData.tinNumber.trim(),
       }
       const result = await onCreateAccount(newAccountData);
       if (result) {
-        setFormData({ name: '', tinNumber: '' });
+        setFormData({ title: '', name: '', tinNumber: '' });
         onClose();
       }
     }
@@ -76,11 +80,11 @@ const AccountModal: React.FC<AccountModalProps> = ({
   };
 
   const handleCancel = () => {
-    setFormData({ name: '', tinNumber: '' });
+    setFormData({ title: '', name: '', tinNumber: '' });
     onClose();
   };
 
-  const isFormValid = formData.name.trim() && formData.tinNumber.trim();
+  const isFormValid = formData.title.trim() && formData.name.trim() && formData.tinNumber.trim();
 
   const getTitle = () => {
     switch (mode) {
@@ -117,22 +121,55 @@ const AccountModal: React.FC<AccountModalProps> = ({
       onClose={onClose}
       title={getTitle()}
       actions={getActions()}
-      maxWidth="450px"
+      maxWidth="500px"
       loading={loading}
     >
       <div className="space-y-4">
-        <div>
-          <Text as="div" size="3" mb="1">
-            Full name
-          </Text>
-          <div className="rounded-xl bg-white">
-            <TextField.Root
-              value={formData.name}
-              onChange={(e) => handleInputChange('name', e.target.value)}
-              size="3"
-              placeholder="Enter full name"
-              className="h-12 rounded-xl bg-white px-1 ring-0 focus:outline-none focus:ring-0 [&:focus-within]:outline-none [&:focus-within]:ring-0 [&>input]:focus:outline-none [&>input]:focus:ring-0"
-            />
+        <div className="grid grid-cols-7 gap-2">
+          <div className="col-span-2">
+            <Text as="div" size="3" mb="1">
+              Title
+            </Text>
+            <div className="rounded-xl bg-white">
+              <Select.Root
+                value={formData.title}
+                onValueChange={(value) => handleInputChange('title', value)}
+                size="3"
+              >
+                <Select.Trigger
+                  placeholder="select title"
+                  className="rounded-xl bg-white px-3 h-12 ring-0 focus:outline-none focus:ring-0 [&:focus-within]:outline-none [&:focus-within]:ring-0 flex justify-between items-center"
+                />
+                <Select.Content>
+                  <Select.Item value="Capt">Capt</Select.Item>
+                  <Select.Item value="Cm">Cm</Select.Item>
+                  <Select.Item value="Dr">Dr</Select.Item>
+                  <Select.Item value="Major">Major</Select.Item>
+                  <Select.Item value="Miss">Miss</Select.Item>
+                  <Select.Item value="Mr">Mr</Select.Item>
+                  <Select.Item value="Mrs">Mrs</Select.Item>
+                  <Select.Item value="Ms">Ms</Select.Item>
+                  <Select.Item value="Prof">Prof</Select.Item>
+                  <Select.Item value="Rev">Rev</Select.Item>
+                  <Select.Item value="Sec">Sec</Select.Item>
+                  <Select.Item value="The Hon">The Hon</Select.Item>
+                </Select.Content>
+              </Select.Root>
+            </div>
+          </div>
+          <div className="col-span-5">
+            <Text as="div" size="3" mb="1">
+              Full name
+            </Text>
+            <div className="rounded-xl bg-white">
+              <TextField.Root
+                value={formData.name}
+                onChange={(e) => handleInputChange('name', e.target.value)}
+                size="3"
+                placeholder="Enter full name"
+                className="h-12 rounded-xl bg-white px-1 ring-0 focus:outline-none focus:ring-0 [&:focus-within]:outline-none [&:focus-within]:ring-0 [&>input]:focus:outline-none [&>input]:focus:ring-0"
+              />
+            </div>
           </div>
         </div>
         <div>
