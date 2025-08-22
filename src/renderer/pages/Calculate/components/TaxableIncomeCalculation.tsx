@@ -29,8 +29,8 @@ const TaxableIncomeCalculation = () => {
     const handleInputChange = (value: string) => {
         if (value.match(/^\d*\.?\d{0,2}$/)) {
             setSolarReliefInput(value);
-            const numericValue = parseFloat(value) || 0;
-            setSolarReliefContext(Math.round(numericValue * 100) / 100);
+            const numericValue = CalculationService.parseAndRound(value);
+            setSolarReliefContext(numericValue);
         }
     };
 

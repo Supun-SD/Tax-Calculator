@@ -21,6 +21,7 @@ import { Status } from '../../../types/enums/status';
 import { useCalculationContext } from '../../contexts/CalculationContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useToast } from '../../hooks/useToast';
+import { CalculationService } from '../../services/calculationService';
 
 // Modal registry for better scalability
 const MODAL_COMPONENTS = {
@@ -89,7 +90,7 @@ const Calculate = () => {
       showError('Please select an account and assessment period');
       return;
     }
-    console.log('Saving draft');
+    // TODO: Implement save draft functionality
   };
 
   const handleSubmit = () => {
@@ -113,7 +114,7 @@ const Calculate = () => {
           totalAssessableIncome: assessableIncome
         },
         deductionsFromAssessableIncome: {
-          personalRelief: Number(settings.reliefsAndAit.personalRelief),
+          personalRelief: CalculationService.parseAndRound(settings.reliefsAndAit.personalRelief),
           rentRelief: {
             rate: settings.reliefsAndAit.rentRelief,
             value: calculationResult?.breakdown.rentRelief

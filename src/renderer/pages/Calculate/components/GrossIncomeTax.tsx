@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Text, Separator } from '@radix-ui/themes';
 import { useCalculationContext } from '../../../contexts/CalculationContext';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
+import { CalculationService } from '../../../services/calculationService';
 
 interface TaxSlab {
     slab: string;
@@ -62,16 +63,16 @@ const GrossIncomeTax = () => {
 
                 calculatedSlabs.push({
                     slab: slab.slab,
-                    value: Math.round(taxableAmount * 100) / 100,
+                    value: CalculationService.parseAndRound(taxableAmount),
                     rate: slab.rate,
                     maxAmount: slab.maxAmount,
-                    tax: Math.round(taxAmount * 100) / 100
+                    tax: CalculationService.parseAndRound(taxAmount)
                 });
             }
         });
 
         setTaxSlabs(calculatedSlabs);
-        setTotalTax(Math.round(totalTaxAmount * 100) / 100);
+        setTotalTax(CalculationService.parseAndRound(totalTaxAmount));
     };
 
     const calculateForeignIncomeTax = (income: number) => {
@@ -82,7 +83,7 @@ const GrossIncomeTax = () => {
 
         const taxRate = settings.reliefsAndAit.foreignIncomeTaxRate / 100;
         const tax = income * taxRate;
-        setForeignIncomeTax(Math.round(tax * 100) / 100);
+        setForeignIncomeTax(CalculationService.parseAndRound(tax));
     };
 
     useEffect(() => {
@@ -118,10 +119,7 @@ const GrossIncomeTax = () => {
     }, [totalTax, foreignIncomeTax, foreignIncome, taxSlabs, settings, loading, setGrossIncomeTax]);
 
     const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }).format(amount);
+        return CalculationService.formatCurrency(amount);
     };
 
     const formatPercentage = (rate: number) => {
@@ -132,7 +130,7 @@ const GrossIncomeTax = () => {
         const value = e.target.value;
         if (value === '' || /^\d*\.?\d{0,2}$/.test(value)) {
             setForeignIncomeInput(value);
-            setForeignIncome(value === '' ? 0 : parseFloat(value) || 0);
+            setForeignIncome(value === '' ? 0 : CalculationService.parseAndRound(value));
         }
     };
 

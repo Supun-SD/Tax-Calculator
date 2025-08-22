@@ -5,6 +5,7 @@ import { IoAdd } from "react-icons/io5";
 import Button from '../../../components/Button';
 import { EmploymentIncome } from '../../../../types/calculation';
 import { useCalculationContext } from '../../../contexts/CalculationContext';
+import { CalculationService } from '../../../services/calculationService';
 
 interface EmploymentProps {
     isOpen: boolean;
@@ -45,7 +46,7 @@ const Employment: React.FC<EmploymentProps> = ({ isOpen, onClose }) => {
 
     // Helpers
     const formatCurrency = (amount: number) =>
-        new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
+        CalculationService.formatCurrency(amount);
 
     const updateEntry = (id: number, field: keyof IncomeEntry, value: string) => {
         if (value.match(/^\d*\.?\d{0,2}$/)) {
@@ -53,8 +54,8 @@ const Employment: React.FC<EmploymentProps> = ({ isOpen, onClose }) => {
                 prev.map(entry => {
                     if (entry.id !== id) return entry;
                     const updated = { ...entry, [field]: value };
-                    const amount = parseFloat(updated.amount) || 0;
-                    const multiplier = parseFloat(updated.multiplier) || 0;
+                    const amount = CalculationService.parseAndRound(updated.amount);
+                    const multiplier = CalculationService.parseAndRound(updated.multiplier);
                     updated.product = amount * multiplier;
                     return updated;
                 })
@@ -86,24 +87,24 @@ const Employment: React.FC<EmploymentProps> = ({ isOpen, onClose }) => {
 
     // Totals
     const totalIncome = useMemo(() => incomeEntries.reduce((sum, e) => sum + e.product, 0), [incomeEntries]);
-    const totalAppit = useMemo(() => incomeEntries.reduce((sum, e) => sum + (parseFloat(e.appit) || 0), 0), [incomeEntries]);
+    const totalAppit = useMemo(() => incomeEntries.reduce((sum, e) => sum + CalculationService.parseAndRound(e.appit), 0), [incomeEntries]);
 
     const handleDone = () => {
         const employmentIncome: EmploymentIncome = {
-            total: Math.round(totalIncome * 100) / 100,
-            appitTotal: Math.round(totalAppit * 100) / 100,
+            total: CalculationService.parseAndRound(totalIncome),
+            appitTotal: CalculationService.parseAndRound(totalAppit),
             incomes: incomeEntries.map(entry => {
-                const amount = parseFloat(entry.amount) || 0;
-                const multiplier = parseFloat(entry.multiplier) || 0;
-                const appit = parseFloat(entry.appit) || 0;
+                const amount = CalculationService.parseAndRound(entry.amount);
+                const multiplier = CalculationService.parseAndRound(entry.multiplier);
+                const appit = CalculationService.parseAndRound(entry.appit);
                 const product = amount * multiplier;
 
                 return {
                     name: entry.name,
-                    value: Math.round(amount * 100) / 100,
-                    multiplier: Math.round(multiplier),
-                    appit: Math.round(appit * 100) / 100,
-                    total: Math.round(product * 100) / 100
+                    value: CalculationService.parseAndRound(amount),
+                    multiplier: CalculationService.parseAndRoundWhole(multiplier),
+                    appit: CalculationService.parseAndRound(appit),
+                    total: CalculationService.parseAndRound(product)
                 };
             })
         };

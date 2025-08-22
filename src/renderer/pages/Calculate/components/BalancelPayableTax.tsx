@@ -19,16 +19,19 @@ const BalancelPayableTax = () => {
             return;
         }
 
-        setQuarterlyPaymentsInput({
+        const updatedInputs = {
             ...quarterlyPaymentsInput,
             [quarter]: cleanValue
-        });
+        };
 
+        setQuarterlyPaymentsInput(updatedInputs);
+
+        // Update the context with the new values
         setQuarterlyPayments({
-            one: Number(quarterlyPaymentsInput.one),
-            two: Number(quarterlyPaymentsInput.two),
-            three: Number(quarterlyPaymentsInput.three),
-            four: Number(quarterlyPaymentsInput.four)
+            one: CalculationService.parseAndRound(updatedInputs.one),
+            two: CalculationService.parseAndRound(updatedInputs.two),
+            three: CalculationService.parseAndRound(updatedInputs.three),
+            four: CalculationService.parseAndRound(updatedInputs.four)
         });
     };
 

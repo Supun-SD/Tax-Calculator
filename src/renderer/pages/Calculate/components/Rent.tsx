@@ -5,6 +5,7 @@ import { IoAdd } from "react-icons/io5";
 import Button from '../../../components/Button';
 import { RentalIncome } from '../../../../types/calculation';
 import { useCalculationContext } from '../../../contexts/CalculationContext';
+import { CalculationService } from '../../../services/calculationService';
 
 interface RentProps {
     isOpen: boolean;
@@ -43,7 +44,7 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
 
     // Helpers
     const formatCurrency = (amount: number) =>
-        new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
+        CalculationService.formatCurrency(amount);
 
     const updateEntry = (id: number, field: keyof IncomeEntry, value: string) => {
         if (value.match(/^\d*\.?\d{0,2}$/)) {
@@ -51,8 +52,8 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
                 prev.map(entry => {
                     if (entry.id !== id) return entry;
                     const updated = { ...entry, [field]: value };
-                    const amount = parseFloat(updated.amount) || 0;
-                    const multiplier = parseFloat(updated.multiplier) || 0;
+                    const amount = CalculationService.parseAndRound(updated.amount);
+                    const multiplier = CalculationService.parseAndRound(updated.multiplier);
                     updated.product = amount * multiplier;
                     return updated;
                 })
@@ -84,17 +85,17 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
 
     const handleDone = () => {
         const rentalIncome: RentalIncome = {
-            total: Math.round(totalIncome * 100) / 100,
+            total: CalculationService.parseAndRound(totalIncome),
             incomes: incomeEntries.map(entry => {
-                const amount = parseFloat(entry.amount) || 0;
-                const multiplier = parseFloat(entry.multiplier) || 0;
-                const product = parseFloat(entry.product.toString()) || 0;
+                const amount = CalculationService.parseAndRound(entry.amount);
+                const multiplier = CalculationService.parseAndRound(entry.multiplier);
+                const product = CalculationService.parseAndRound(entry.product);
 
                 return {
                     name: entry.name,
-                    value: Math.round(amount * 100) / 100,
-                    multiplier: Math.round(multiplier),
-                    total: Math.round(product * 100) / 100
+                    value: CalculationService.parseAndRound(amount),
+                    multiplier: CalculationService.parseAndRoundWhole(multiplier),
+                    total: CalculationService.parseAndRound(product)
                 };
             })
         };

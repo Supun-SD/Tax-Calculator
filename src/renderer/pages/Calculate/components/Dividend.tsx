@@ -5,6 +5,7 @@ import Button from '../../../components/Button';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { DividendIncome } from '../../../../types/calculation';
 import { useCalculationContext } from '../../../contexts/CalculationContext';
+import { CalculationService } from '../../../services/calculationService';
 
 interface DividendProps {
     isOpen: boolean;
@@ -46,7 +47,7 @@ const Dividend: React.FC<DividendProps> = ({ isOpen, onClose }) => {
     }, [isOpen, dividendIncome, settings?.reliefsAndAit.aitDividend]);
 
     const formatCurrency = (amount: number) =>
-        new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
+        CalculationService.formatCurrency(amount);
 
     const updateEntry = (id: number, field: keyof DividendEntry, value: string) => {
         if (value.match(/^\d*\.?\d{0,2}$/)) {
@@ -59,9 +60,9 @@ const Dividend: React.FC<DividendProps> = ({ isOpen, onClose }) => {
 
                     // Only calculate AIT when gross dividend or rate changes
                     if (field === "grossDividend" || field === "rate") {
-                        const gross = parseFloat(updated.grossDividend) || 0;
-                        const rate = parseFloat(updated.rate) || 0;
-                        const aitAmount = Math.round((gross * rate) / 100 * 100) / 100;
+                        const gross = CalculationService.parseAndRound(updated.grossDividend);
+                        const rate = CalculationService.parseAndRound(updated.rate);
+                        const aitAmount = CalculationService.parseAndRound((gross * rate) / 100);
                         updated.ait = aitAmount;
                     }
 
@@ -92,7 +93,7 @@ const Dividend: React.FC<DividendProps> = ({ isOpen, onClose }) => {
     };
 
     const totalGrossDividend = useMemo(() =>
-        dividendEntries.reduce((sum, e) => sum + (parseFloat(e.grossDividend) || 0), 0), [dividendEntries]);
+        dividendEntries.reduce((sum, e) => sum + CalculationService.parseAndRound(e.grossDividend), 0), [dividendEntries]);
 
     const isDoneDisabled = useMemo(() =>
         dividendEntries.some(entry => entry.company === "" || entry.grossDividend === "" || entry.rate === ""), [dividendEntries]);
@@ -101,23 +102,23 @@ const Dividend: React.FC<DividendProps> = ({ isOpen, onClose }) => {
         dividendEntries.reduce((sum, e) => sum + e.ait, 0), [dividendEntries]);
 
     const totalExempted = useMemo(() =>
-        dividendEntries.reduce((sum, e) => sum + (parseFloat(e.exempted) || 0), 0), [dividendEntries]);
+        dividendEntries.reduce((sum, e) => sum + CalculationService.parseAndRound(e.exempted), 0), [dividendEntries]);
 
     const handleDone = () => {
         const dividendIncome: DividendIncome = {
-            totalGrossDividend: Math.round(totalGrossDividend * 100) / 100,
-            totalAit: Math.round(totalAit * 100) / 100,
-            totalExempted: Math.round(totalExempted * 100) / 100,
+            totalGrossDividend: CalculationService.parseAndRound(totalGrossDividend),
+            totalAit: CalculationService.parseAndRound(totalAit),
+            totalExempted: CalculationService.parseAndRound(totalExempted),
             incomes: dividendEntries.map(entry => {
-                const grossDividend = Math.round((parseFloat(entry.grossDividend) || 0) * 100) / 100;
-                const rate = Math.round(parseFloat(entry.rate) || 0);
-                const exempted = Math.round((parseFloat(entry.exempted) || 0) * 100) / 100;
+                const grossDividend = CalculationService.parseAndRound(entry.grossDividend);
+                const rate = CalculationService.parseAndRoundWhole(entry.rate);
+                const exempted = CalculationService.parseAndRound(entry.exempted);
 
                 return {
                     companyName: entry.company,
                     grossDividend,
                     rate,
-                    ait: Math.round(entry.ait * 100) / 100,
+                    ait: CalculationService.parseAndRound(entry.ait),
                     exempted
                 };
             })

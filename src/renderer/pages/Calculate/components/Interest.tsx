@@ -8,6 +8,7 @@ import { Bank } from '../../../../types/bank';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { InterestIncome } from '../../../../types/calculation';
 import { useCalculationContext } from '../../../contexts/CalculationContext';
+import { CalculationService } from '../../../services/calculationService';
 
 interface InterestProps {
     isOpen: boolean;
@@ -87,21 +88,21 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
         let aitTotal = 0;
 
         interestEntries.forEach(entry => {
-            const gross = parseFloat(entry.grossInterest) || 0;
+            const gross = CalculationService.parseAndRound(entry.grossInterest);
             const contribution = entry.isJoint ? gross / 2 : gross;
-            const aitAmount = Math.round((contribution * settings.reliefsAndAit.aitInterest) / 100 * 100) / 100; // Round to 2 decimal places
+            const aitAmount = CalculationService.parseAndRound((contribution * settings.reliefsAndAit.aitInterest) / 100);
 
             entry.ait = aitAmount;
             grossTotal += contribution;
             aitTotal += aitAmount;
         });
 
-        setTotalGrossInterest(Math.round(grossTotal * 100) / 100);
-        setTotalAIT(Math.round(aitTotal * 100) / 100);
+        setTotalGrossInterest(CalculationService.parseAndRound(grossTotal));
+        setTotalAIT(CalculationService.parseAndRound(aitTotal));
     }, [interestEntries, settings.reliefsAndAit.aitInterest]);
 
     const formatCurrency = (amount: number) =>
-        new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
+        CalculationService.formatCurrency(amount);
 
     const updateEntry = (id: number, field: keyof InterestEntry, value: string) => {
         if (field === "grossInterest") {
@@ -161,19 +162,19 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
 
     const handleDone = () => {
         const interestIncome: InterestIncome = {
-            totalGrossInterest: Math.round(totalGrossInterest * 100) / 100,
-            totalAit: Math.round(totalAIT * 100) / 100,
+            totalGrossInterest: CalculationService.parseAndRound(totalGrossInterest),
+            totalAit: CalculationService.parseAndRound(totalAIT),
             incomes: interestEntries.map(e => {
-                const gross = parseFloat(e.grossInterest) || 0;
+                const gross = CalculationService.parseAndRound(e.grossInterest);
                 const contribution = e.isJoint ? gross / 2 : gross;
                 return {
                     bank: e.bank,
                     accountNumber: e.accountNumber,
                     certificateNumber: e.certificateNumber,
                     isJoint: e.isJoint,
-                    grossInterest: Math.round(gross * 100) / 100,
-                    contribution: Math.round(contribution * 100) / 100,
-                    ait: Math.round(e.ait * 100) / 100
+                    grossInterest: CalculationService.parseAndRound(gross),
+                    contribution: CalculationService.parseAndRound(contribution),
+                    ait: CalculationService.parseAndRound(e.ait)
                 };
             })
         };
@@ -207,7 +208,7 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
                 {/* Table Rows */}
                 <div className="space-y-2">
                     {interestEntries.map(entry => {
-                        const gross = parseFloat(entry.grossInterest) || 0;
+                        const gross = CalculationService.parseAndRound(entry.grossInterest);
                         const contribution = entry.isJoint ? gross / 2 : gross;
 
                         return (

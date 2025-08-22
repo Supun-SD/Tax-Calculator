@@ -36,6 +36,20 @@ export interface CalculationResult {
 
 export class CalculationService {
   /**
+   * Convert string to number safely, returning 0 for invalid values
+   */
+  static toNumber(value: string | number | null | undefined): number {
+    if (value === null || value === undefined || value === '') {
+      return 0;
+    }
+    if (typeof value === 'number') {
+      return value;
+    }
+    const parsed = parseFloat(value);
+    return isNaN(parsed) ? 0 : parsed;
+  }
+
+  /**
    * Round a number to 2 decimal places
    */
   static roundToTwoDecimals(value: number): number {
@@ -43,10 +57,31 @@ export class CalculationService {
   }
 
   /**
+   * Round a number to whole number (for percentages)
+   */
+  static roundToWhole(value: number): number {
+    return Math.round(value);
+  }
+
+  /**
+   * Safely parse and round a string number to 2 decimal places
+   */
+  static parseAndRound(value: string | number | null | undefined): number {
+    return this.roundToTwoDecimals(this.toNumber(value));
+  }
+
+  /**
+   * Safely parse and round a string number to whole number
+   */
+  static parseAndRoundWhole(value: string | number | null | undefined): number {
+    return this.roundToWhole(this.toNumber(value));
+  }
+
+  /**
    * Format percentage for display (whole numbers only)
    */
   static formatPercentage(value: number): string {
-    return Math.round(value).toString();
+    return this.roundToWhole(value).toString();
   }
 
   /**

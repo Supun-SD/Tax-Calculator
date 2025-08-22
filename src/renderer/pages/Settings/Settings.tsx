@@ -7,6 +7,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { Settings } from '../../../types/settings';
 import { ClipLoader } from 'react-spinners';
+import { CalculationService } from '../../services/calculationService';
 
 const SettingsPage = () => {
   const {
@@ -86,7 +87,7 @@ const SettingsPage = () => {
   const handleReliefsAndAitChange = (field: string, value: string) => {
     // Convert all reliefs and AIT fields to numbers
     const numericValue = value.replace(/[^\d.]/g, '');
-    const number = parseFloat(numericValue) || 0;
+    const number = CalculationService.parseAndRound(numericValue);
 
     // Allow empty values (0) for clearing inputs
     if (numericValue === '' || number === 0) {
@@ -125,14 +126,14 @@ const SettingsPage = () => {
 
     setReliefsAndAit((prev) => ({
       ...prev,
-      [field]: Math.round(number),
+      [field]: CalculationService.parseAndRoundWhole(number),
     }));
   };
 
   const handleTaxRatesChange = (field: string, value: string) => {
     // Convert all tax rate fields to numbers
     const numericValue = value.replace(/[^\d.]/g, '');
-    const number = parseFloat(numericValue) || 0;
+    const number = CalculationService.parseAndRound(numericValue);
 
     // Allow empty values (0) for clearing inputs
     if (numericValue === '' || number === 0) {
@@ -161,7 +162,7 @@ const SettingsPage = () => {
 
     setTaxRates((prev) => ({
       ...prev,
-      [field]: Math.round(number),
+      [field]: CalculationService.parseAndRoundWhole(number),
     }));
   };
 

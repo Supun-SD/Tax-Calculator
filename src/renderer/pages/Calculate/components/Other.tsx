@@ -4,6 +4,7 @@ import { IoAdd } from "react-icons/io5";
 import Button from '../../../components/Button';
 import { OtherIncome } from '../../../../types/calculation';
 import { useCalculationContext } from '../../../contexts/CalculationContext';
+import { CalculationService } from '../../../services/calculationService';
 
 interface OtherProps {
     isOpen: boolean;
@@ -37,7 +38,7 @@ const Other: React.FC<OtherProps> = ({ isOpen, onClose }) => {
     }, [isOpen, otherIncome]);
 
     const formatCurrency = (amount: number) =>
-        new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
+        CalculationService.formatCurrency(amount);
 
     // Update numeric fields with validation
     const updateEntry = (id: number, field: keyof OtherEntry, value: string) => {
@@ -65,7 +66,7 @@ const Other: React.FC<OtherProps> = ({ isOpen, onClose }) => {
 
     // Totals
     const totalIncome = useMemo(() =>
-        otherEntries.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0), [otherEntries]);
+        otherEntries.reduce((sum, e) => sum + CalculationService.parseAndRound(e.amount), 0), [otherEntries]);
 
     const isDoneDisabled = useMemo(() =>
         otherEntries.some(e => e.description === "" || e.amount === ""), [otherEntries]
@@ -73,10 +74,10 @@ const Other: React.FC<OtherProps> = ({ isOpen, onClose }) => {
 
     const handleDone = () => {
         const otherIncome: OtherIncome = {
-            total: Math.round(totalIncome * 100) / 100,
+            total: CalculationService.parseAndRound(totalIncome),
             incomes: otherEntries.map(entry => ({
                 incomeType: entry.description,
-                value: Math.round((parseFloat(entry.amount) || 0) * 100) / 100
+                value: CalculationService.parseAndRound(entry.amount)
             }))
         };
         setOtherIncome(otherIncome);

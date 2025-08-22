@@ -4,6 +4,7 @@ import { IoAdd } from "react-icons/io5";
 import Button from '../../../components/Button';
 import { BusinessIncome } from '../../../../types/calculation';
 import { useCalculationContext } from '../../../contexts/CalculationContext';
+import { CalculationService } from '../../../services/calculationService';
 
 interface BusinessProps {
     isOpen: boolean;
@@ -43,7 +44,7 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
     }, [isOpen, businessIncome]);
 
     const formatCurrency = (amount: number) =>
-        new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
+        CalculationService.formatCurrency(amount);
 
     // Update a numeric field
     const updateEntry = (id: number, field: keyof BusinessEntry, value: string) => {
@@ -76,10 +77,10 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
 
     // Totals
     const totalAmount = useMemo(() =>
-        businessEntries.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0), [businessEntries]);
+        businessEntries.reduce((sum, e) => sum + CalculationService.parseAndRound(e.amount), 0), [businessEntries]);
 
     const totalProfessionalPractice = useMemo(() =>
-        businessEntries.reduce((sum, e) => sum + (parseFloat(e.professionalPractice) || 0), 0), [businessEntries]);
+        businessEntries.reduce((sum, e) => sum + CalculationService.parseAndRound(e.professionalPractice), 0), [businessEntries]);
 
     const isDoneDisabled = useMemo(() =>
         businessEntries.some(e => e.hospital === "" || e.amount === "" || e.professionalPractice === "") ||
@@ -89,14 +90,14 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
 
     const handleDone = () => {
         const businessIncome: BusinessIncome = {
-            total: Math.round(totalAmount * 100) / 100,
-            professionalPracticeTotal: Math.round(totalProfessionalPractice * 100) / 100,
+            total: CalculationService.parseAndRound(totalAmount),
+            professionalPracticeTotal: CalculationService.parseAndRound(totalProfessionalPractice),
             incomes: businessEntries.map(entry => ({
                 hospitalName: entry.hospital,
-                value: Math.round((parseFloat(entry.amount) || 0) * 100) / 100,
-                professionalPractice: Math.round((parseFloat(entry.professionalPractice) || 0) * 100) / 100
+                value: CalculationService.parseAndRound(entry.amount),
+                professionalPractice: CalculationService.parseAndRound(entry.professionalPractice)
             })),
-            taxableIncomePercentage: Math.round(parseFloat(taxablePercentage) || 0)
+            taxableIncomePercentage: CalculationService.parseAndRoundWhole(taxablePercentage)
         };
         setBusinessIncome(businessIncome);
         onClose();
