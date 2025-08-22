@@ -1,7 +1,16 @@
 import { Text, Separator, Flex, IconButton, Tooltip } from '@radix-ui/themes';
+import { useState } from 'react';
 import { IoIosInformationCircleOutline } from "react-icons/io";
 
 const TaxableIncomeCalculation = () => {
+    const [solarRelief, setSolarRelief] = useState("");
+
+    const handleInputChange = (value: string) => {
+        if (value.match(/^\d*\.?\d{0,2}$/)) {
+            setSolarRelief(value);
+        }
+    };
+
     return (
         <div className="h-full flex flex-col">
             <Text className='text-white pl-3' size="4" weight="bold">Taxable income calculation</Text>
@@ -64,7 +73,18 @@ const TaxableIncomeCalculation = () => {
                             </tr>
                             <tr className="border-b border-gray-700">
                                 <td className="py-3 px-4">Solar relief</td>
-                                <td className="py-3 px-4 text-right">(0.00)</td>
+                                <td className="py-3 px-4 text-right flex justify-end">
+                                    <div className="bg-surface-2 rounded-lg px-4 py-2 w-[200px]">
+                                        <input
+                                            type="text"
+                                            value={solarRelief}
+                                            onChange={(e) => handleInputChange(e.target.value)}
+                                            className="bg-transparent text-white text-right outline-none w-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                            placeholder='0.00'
+                                        />
+
+                                    </div>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
