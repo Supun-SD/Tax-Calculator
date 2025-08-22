@@ -12,30 +12,34 @@ interface TaxSlab {
 }
 
 const GrossIncomeTax = () => {
+    const { totalTaxableIncome } = useCalculationContext();
+    const { settings, loading } = useSettingsContext();
 
-    const totalTaxableIncome = 2500000.00;
-    const { settings } = useSettingsContext();
-
-    const [taxableIncome, setTaxableIncome] = useState<number>(2850000);
     const [foreignIncome, setForeignIncome] = useState<number>(0);
     const [foreignIncomeInput, setForeignIncomeInput] = useState<string>('');
     const [taxSlabs, setTaxSlabs] = useState<TaxSlab[]>([]);
     const [totalTax, setTotalTax] = useState<number>(0);
     const [foreignIncomeTax, setForeignIncomeTax] = useState<number>(0);
 
-    const taxSlabRates = [
-        { slab: "1st", value: 500000.00, rate: 0.06, maxAmount: 500000 },
-        { slab: "2nd", value: 500000.00, rate: 0.12, maxAmount: 500000 },
-        { slab: "3rd", value: 500000.00, rate: 0.18, maxAmount: 500000 },
-        { slab: "4th", value: 500000.00, rate: 0.24, maxAmount: 500000 },
-        { slab: "5th", value: 500000.00, rate: 0.30, maxAmount: 500000 },
-        { slab: "Remaining", value: 254000.00, rate: 0.36, maxAmount: Infinity }
-    ];
+    // Get tax rates from settings
+    const getTaxSlabRates = () => {
+        if (!settings?.taxRates) return [];
+
+        return [
+            { slab: "1st", value: 500000.00, rate: settings.taxRates.first / 100, maxAmount: 500000 },
+            { slab: "2nd", value: 500000.00, rate: settings.taxRates.second / 100, maxAmount: 500000 },
+            { slab: "3rd", value: 500000.00, rate: settings.taxRates.third / 100, maxAmount: 500000 },
+            { slab: "4th", value: 500000.00, rate: settings.taxRates.fourth / 100, maxAmount: 500000 },
+            { slab: "5th", value: 500000.00, rate: settings.taxRates.fifth / 100, maxAmount: 500000 },
+            { slab: "Remaining", value: 0, rate: settings.taxRates.other / 100, maxAmount: Infinity }
+        ];
+    };
 
     const calculateTax = (income: number) => {
         let remainingIncome = income;
         let totalTaxAmount = 0;
         const calculatedSlabs: TaxSlab[] = [];
+        const taxSlabRates = getTaxSlabRates();
 
         taxSlabRates.forEach((slab, index) => {
             let taxableAmount = 0;
@@ -58,7 +62,7 @@ const GrossIncomeTax = () => {
 
                 calculatedSlabs.push({
                     slab: slab.slab,
-                    value: Math.round(slab.value * 100) / 100,
+                    value: Math.round(taxableAmount * 100) / 100,
                     rate: slab.rate,
                     maxAmount: slab.maxAmount,
                     tax: Math.round(taxAmount * 100) / 100
@@ -82,12 +86,16 @@ const GrossIncomeTax = () => {
     };
 
     useEffect(() => {
-        calculateTax(taxableIncome);
-    }, [taxableIncome]);
+        if (settings && !loading) {
+            calculateTax(totalTaxableIncome);
+        }
+    }, [totalTaxableIncome, settings, loading]);
 
     useEffect(() => {
-        calculateForeignIncomeTax(foreignIncome);
-    }, [foreignIncome, settings]);
+        if (settings && !loading) {
+            calculateForeignIncomeTax(foreignIncome);
+        }
+    }, [foreignIncome, settings, loading]);
 
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('en-US', {
@@ -108,11 +116,46 @@ const GrossIncomeTax = () => {
         }
     };
 
+    // Show loading state while settings are loading
+    if (loading) {
+        return (
+            <div className="h-full flex flex-col">
+                <Text className='text-white pl-3' size="4" weight="bold">Gross income tax</Text>
+                <Separator className="w-full mt-3 bg-surface-2" />
+                <div className='text-white bg-surface mt-4 p-8 rounded-2xl flex-1 flex items-center justify-center'>
+                    <Text className="text-gray-400">Loading tax rates...</Text>
+                </div>
+            </div>
+        );
+    }
+
+    // Show error state if settings failed to load
+    if (!settings) {
+        return (
+            <div className="h-full flex flex-col">
+                <Text className='text-white pl-3' size="4" weight="bold">Gross income tax</Text>
+                <Separator className="w-full mt-3 bg-surface-2" />
+                <div className='text-white bg-surface mt-4 p-8 rounded-2xl flex-1 flex items-center justify-center'>
+                    <Text className="text-red-400">Failed to load tax settings</Text>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="h-full flex flex-col">
             <Text className='text-white pl-3' size="4" weight="bold">Gross income tax</Text>
             <Separator className="w-full mt-3 bg-surface-2" />
             <div className='text-white bg-surface mt-4 p-8 rounded-2xl flex-1 flex flex-col'>
+                {/* Message when total taxable income is 0 */}
+                {totalTaxableIncome === 0 && (
+                    <div className="mb-6 p-4 bg-blue-600/20 border border-blue-500/30 rounded-lg">
+                        <Text className="text-blue-300 text-center">
+                            No taxable income available. Please add income sources to calculate gross income tax.
+                        </Text>
+                    </div>
+                )}
+
                 {/* Tax Slabs Table */}
                 <div className="overflow-x-auto flex-1">
                     <table className="w-full">
@@ -128,7 +171,7 @@ const GrossIncomeTax = () => {
                             {taxSlabs.map((slab, index) => (
                                 <tr key={index} className="border-b border-gray-700">
                                     <td className="py-3 px-4">{slab.slab}</td>
-                                    <td className="py-3 px-4">{slab.value.toFixed(2)}</td>
+                                    <td className="py-3 px-4">{formatCurrency(slab.value)}</td>
                                     <td className="py-3 px-4">{formatPercentage(slab.rate)}</td>
                                     <td className="py-3 px-4 text-right">{formatCurrency(slab.tax)}</td>
                                 </tr>

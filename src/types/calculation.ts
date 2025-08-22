@@ -21,6 +21,7 @@ interface CalculationData {
   sourceOfIncome: SourceOfIncome;
   deductionsFromAssessableIncome: DeductionsFromAssessableIncome;
   totalTaxableIncome: number;
+  grossIncomeTax: GrossIncomeTax;
 }
 
 interface DeductionsFromAssessableIncome {
@@ -120,4 +121,21 @@ export interface OtherIncome {
 interface OtherIncomeRecord {
   incomeType : string;
   value : number;
+}
+
+interface GrossIncomeTax {
+  total: number;
+  foreignIncome: {
+    total: number;
+    rate: number;
+    tax: number;
+  };
+  slabs: Array<GrossIncomeTaxSlab>;
+}
+
+interface GrossIncomeTaxSlab {
+  slab: string;
+  value: number;
+  rate: number;
+  tax: number;
 }
