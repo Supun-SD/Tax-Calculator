@@ -7,6 +7,7 @@ import { useBanks } from '../../../hooks/useBanks';
 import { Bank } from '../../../../types/bank';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { InterestIncome } from '../../../../types/calculation';
+import { useCalculationContext } from '../../../contexts/CalculationContext';
 
 interface InterestProps {
     isOpen: boolean;
@@ -25,6 +26,7 @@ interface InterestEntry {
 
 const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
     const { settings } = useSettingsContext();
+    const { interestIncome, setInterestIncome } = useCalculationContext();
 
     const [interestEntries, setInterestEntries] = useState<InterestEntry[]>([
         {
@@ -45,6 +47,40 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
 
     const { banks, loading: isBanksLoading } = useBanks();
 
+    // Load existing data when modal opens
+    useEffect(() => {
+        if (isOpen && interestIncome) {
+            const entries = interestIncome.incomes.map((income, index) => ({
+                id: index + 1,
+                bank: income.bank,
+                accountNumber: income.accountNumber || "",
+                certificateNumber: income.certificateNumber || "",
+                isJoint: income.isJoint,
+                grossInterest: income.grossInterest.toString(),
+                ait: income.ait
+            }));
+            setInterestEntries(entries.length > 0 ? entries : [{
+                id: 1,
+                bank: { id: 0, name: "Select Bank", tinNumber: "", createdAt: "", updatedAt: "" },
+                accountNumber: "",
+                certificateNumber: "",
+                isJoint: false,
+                grossInterest: "",
+                ait: 0
+            }]);
+        } else if (isOpen && !interestIncome) {
+            setInterestEntries([{
+                id: 1,
+                bank: { id: 0, name: "Select Bank", tinNumber: "", createdAt: "", updatedAt: "" },
+                accountNumber: "",
+                certificateNumber: "",
+                isJoint: false,
+                grossInterest: "",
+                ait: 0
+            }]);
+        }
+    }, [isOpen, interestIncome]);
+
     // Calculate totals and update AIT per entry
     useEffect(() => {
         let grossTotal = 0;
@@ -53,7 +89,7 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
         interestEntries.forEach(entry => {
             const gross = parseFloat(entry.grossInterest) || 0;
             const contribution = entry.isJoint ? gross / 2 : gross;
-            const aitAmount = Math.round((contribution * settings.reliefsAndAit.aitInterest)) / 100;
+            const aitAmount = Math.round((contribution * settings.reliefsAndAit.aitInterest) / 100 * 100) / 100; // Round to 2 decimal places
 
             entry.ait = aitAmount;
             grossTotal += contribution;
@@ -125,24 +161,24 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
 
     const handleDone = () => {
         const interestIncome: InterestIncome = {
-            totalGrossInterest,
-            totalAit: totalAIT,
+            totalGrossInterest: Math.round(totalGrossInterest * 100) / 100,
+            totalAit: Math.round(totalAIT * 100) / 100,
             incomes: interestEntries.map(e => {
-                const gross = parseFloat(e.grossInterest);
+                const gross = parseFloat(e.grossInterest) || 0;
                 const contribution = e.isJoint ? gross / 2 : gross;
                 return {
                     bank: e.bank,
                     accountNumber: e.accountNumber,
                     certificateNumber: e.certificateNumber,
                     isJoint: e.isJoint,
-                    grossInterest: parseFloat(gross.toFixed(2)),
-                    contribution: parseFloat(contribution.toFixed(2)),
-                    ait: e.ait
+                    grossInterest: Math.round(gross * 100) / 100,
+                    contribution: Math.round(contribution * 100) / 100,
+                    ait: Math.round(e.ait * 100) / 100
                 };
             })
         };
-        console.log(interestIncome);
-        //onClose();
+        setInterestIncome(interestIncome);
+        onClose();
     };
 
     return (
@@ -165,7 +201,7 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
                     <div className="text-center w-12">Joint</div>
                     <div className='text-end'>Gross Interest</div>
                     <div className='text-end'>Contribution</div>
-                    <div className='text-end pr-8'>AIT</div>
+                    <div className='text-end pr-8'>AIT({Math.round(settings.reliefsAndAit.aitInterest)}%)</div>
                 </div>
 
                 {/* Table Rows */}

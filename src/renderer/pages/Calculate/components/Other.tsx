@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Modal from "../../../components/Modal";
 import { IoAdd } from "react-icons/io5";
 import Button from '../../../components/Button';
 import { OtherIncome } from '../../../../types/calculation';
+import { useCalculationContext } from '../../../contexts/CalculationContext';
 
 interface OtherProps {
     isOpen: boolean;
@@ -16,19 +17,35 @@ interface OtherEntry {
 }
 
 const Other: React.FC<OtherProps> = ({ isOpen, onClose }) => {
+    const { otherIncome, setOtherIncome } = useCalculationContext();
     const [otherEntries, setOtherEntries] = useState<OtherEntry[]>([
         { id: 1, description: "", amount: "" }
     ]);
+
+    // Load existing data when modal opens
+    useEffect(() => {
+        if (isOpen && otherIncome) {
+            const entries = otherIncome.incomes.map((income, index) => ({
+                id: index + 1,
+                description: income.incomeType,
+                amount: income.value.toString()
+            }));
+            setOtherEntries(entries.length > 0 ? entries : [{ id: 1, description: "", amount: "" }]);
+        } else if (isOpen && !otherIncome) {
+            setOtherEntries([{ id: 1, description: "", amount: "" }]);
+        }
+    }, [isOpen, otherIncome]);
 
     const formatCurrency = (amount: number) =>
         new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
 
     // Update numeric fields with validation
     const updateEntry = (id: number, field: keyof OtherEntry, value: string) => {
-        if (!/^\d*\.?\d*$/.test(value) && value !== "") return; // only allow numbers or empty
-        setOtherEntries(prev =>
-            prev.map(entry => entry.id === id ? { ...entry, [field]: value } : entry)
-        );
+        if (value.match(/^\d*\.?\d{0,2}$/)) {
+            setOtherEntries(prev =>
+                prev.map(entry => entry.id === id ? { ...entry, [field]: value } : entry)
+            );
+        }
     };
 
     const handleDescriptionChange = (id: number, value: string) => {
@@ -56,13 +73,13 @@ const Other: React.FC<OtherProps> = ({ isOpen, onClose }) => {
 
     const handleDone = () => {
         const otherIncome: OtherIncome = {
-            total: Number(totalIncome.toFixed(2)),
+            total: Math.round(totalIncome * 100) / 100,
             incomes: otherEntries.map(entry => ({
                 incomeType: entry.description,
-                value: Number(parseFloat(entry.amount).toFixed(2))
+                value: Math.round((parseFloat(entry.amount) || 0) * 100) / 100
             }))
         };
-        console.log(otherIncome);
+        setOtherIncome(otherIncome);
         onClose();
     };
 

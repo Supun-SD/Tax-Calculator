@@ -58,6 +58,7 @@ const Modal: React.FC<ModalProps> = ({
             e.preventDefault();
           }
         }}
+        aria-describedby={undefined}
       >
         <Dialog.Close className="absolute right-4 top-4 cursor-pointer p-2">
           <div>

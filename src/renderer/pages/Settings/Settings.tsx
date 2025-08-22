@@ -125,7 +125,7 @@ const SettingsPage = () => {
 
     setReliefsAndAit((prev) => ({
       ...prev,
-      [field]: number,
+      [field]: Math.round(number),
     }));
   };
 
@@ -161,7 +161,7 @@ const SettingsPage = () => {
 
     setTaxRates((prev) => ({
       ...prev,
-      [field]: number,
+      [field]: Math.round(number),
     }));
   };
 

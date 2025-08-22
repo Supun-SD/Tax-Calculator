@@ -16,6 +16,10 @@ import Interest from './components/Interest';
 import Dividend from './components/Dividend';
 import Business from './components/Business';
 import Other from './components/Other';
+import { CalculationCreateReq } from '../../../types/calculation';
+import { Status } from '../../../types/enums/status';
+import { useCalculationContext } from '../../contexts/CalculationContext';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 
 // Modal registry for better scalability
 const MODAL_COMPONENTS = {
@@ -48,6 +52,9 @@ const Calculate = () => {
   const [openModal, setOpenModal] = useState<ModalType | null>(null);
   const [isSelectAccountModalOpen, setIsSelectAccountModalOpen] = useState(false);
 
+  const { settings } = useSettingsContext();
+  const { employmentIncome, rentalIncome, interestIncome, dividendIncome, businessIncome, otherIncome, totalTaxableIncome, calculationResult, solarRelief, assessableIncome } = useCalculationContext();
+
   const handleSelectAccount = (
     account: Account,
     startDate: string,
@@ -56,6 +63,39 @@ const Calculate = () => {
     setSelectedAccount(account);
     setAssessmentPeriod({ start: startDate, end: endDate });
     setIsSelectAccountModalOpen(false);
+  };
+
+  const handleSaveDraft = () => {
+    console.log('Saving draft');
+  };
+
+  const handleSubmit = () => {
+    const calculation: CalculationCreateReq = {
+      year: `${assessmentPeriod?.start}/${assessmentPeriod?.end}`,
+      status: Status.SUBMITTED,
+      account: selectedAccount,
+      calculationData: {
+        sourceOfIncome: {
+          employmentIncome: employmentIncome,
+          rentalIncome: rentalIncome,
+          interestIncome: interestIncome,
+          dividendIncome: dividendIncome,
+          businessIncome: businessIncome,
+          otherIncome: otherIncome,
+          totalAssessableIncome: assessableIncome
+        },
+        deductionsFromAssessableIncome: {
+          personalRelief: Number(settings.reliefsAndAit.personalRelief),
+          rentRelief: {
+            rate: settings.reliefsAndAit.rentRelief,
+            value: calculationResult?.breakdown.rentRelief
+          },
+          solarRelief: solarRelief
+        },
+        totalTaxableIncome: totalTaxableIncome
+      }
+    }
+    console.log(calculation);
   };
 
   return (
@@ -97,8 +137,8 @@ const Calculate = () => {
       </Grid>
 
       <Flex gap="3" mt="6" justify="end">
-        <Button variant='secondary' className='px-8'>Save Draft</Button>
-        <Button className='!px-12'>Submit</Button>
+        <Button variant='secondary' className='px-8' onClick={handleSaveDraft}>Save Draft</Button>
+        <Button className='!px-12' onClick={handleSubmit}>Submit</Button>
       </Flex>
 
       {/* Render modals dynamically */}

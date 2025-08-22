@@ -55,7 +55,6 @@ export const useBanks = (): UseBanksReturn => {
       showSuccess('Bank created successfully');
       return newBank;
     } catch (err: any) {
-      console.log(err);
       let errorMessage = 'Error creating bank';
       
       // Handle Axios error with response data

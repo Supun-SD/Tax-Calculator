@@ -1,9 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Text, Flex } from '@radix-ui/themes';
 import Modal from "../../../components/Modal";
 import { IoAdd } from "react-icons/io5";
 import Button from '../../../components/Button';
 import { RentalIncome } from '../../../../types/calculation';
+import { useCalculationContext } from '../../../contexts/CalculationContext';
 
 interface RentProps {
     isOpen: boolean;
@@ -19,26 +20,44 @@ interface IncomeEntry {
 }
 
 const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
+    const { rentalIncome, setRentalIncome } = useCalculationContext();
     const [incomeEntries, setIncomeEntries] = useState<IncomeEntry[]>([
         { id: 1, name: "", amount: "", multiplier: "1", product: 0 }
     ]);
+
+    // Load existing data when modal opens
+    useEffect(() => {
+        if (isOpen && rentalIncome) {
+            const entries = rentalIncome.incomes.map((income, index) => ({
+                id: index + 1,
+                name: income.name,
+                amount: income.value.toString(),
+                multiplier: income.multiplier.toString(),
+                product: income.total
+            }));
+            setIncomeEntries(entries.length > 0 ? entries : [{ id: 1, name: "", amount: "", multiplier: "1", product: 0 }]);
+        } else if (isOpen && !rentalIncome) {
+            setIncomeEntries([{ id: 1, name: "", amount: "", multiplier: "1", product: 0 }]);
+        }
+    }, [isOpen, rentalIncome]);
 
     // Helpers
     const formatCurrency = (amount: number) =>
         new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
 
     const updateEntry = (id: number, field: keyof IncomeEntry, value: string) => {
-        if (!/^\d*\.?\d*$/.test(value) && value !== "") return; // only allow numbers or empty
-        setIncomeEntries(prev =>
-            prev.map(entry => {
-                if (entry.id !== id) return entry;
-                const updated = { ...entry, [field]: value };
-                const amount = parseFloat(updated.amount) || 0;
-                const multiplier = parseFloat(updated.multiplier) || 0;
-                updated.product = amount * multiplier;
-                return updated;
-            })
-        );
+        if (value.match(/^\d*\.?\d{0,2}$/)) {
+            setIncomeEntries(prev =>
+                prev.map(entry => {
+                    if (entry.id !== id) return entry;
+                    const updated = { ...entry, [field]: value };
+                    const amount = parseFloat(updated.amount) || 0;
+                    const multiplier = parseFloat(updated.multiplier) || 0;
+                    updated.product = amount * multiplier;
+                    return updated;
+                })
+            );
+        }
     };
 
     const handleNameChange = (id: number, value: string) => {
@@ -65,22 +84,22 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
 
     const handleDone = () => {
         const rentalIncome: RentalIncome = {
-            total: Number(totalIncome.toFixed(2)),
+            total: Math.round(totalIncome * 100) / 100,
             incomes: incomeEntries.map(entry => {
-                const amount = Number(entry.amount);
-                const multiplier = Number(entry.multiplier) || 0;
-                const product = Number(entry.product.toFixed(2));
+                const amount = parseFloat(entry.amount) || 0;
+                const multiplier = parseFloat(entry.multiplier) || 0;
+                const product = parseFloat(entry.product.toString()) || 0;
 
                 return {
                     name: entry.name,
-                    value: Number(amount.toFixed(2)),
-                    multiplier: Number(multiplier),
-                    total: product
+                    value: Math.round(amount * 100) / 100,
+                    multiplier: Math.round(multiplier),
+                    total: Math.round(product * 100) / 100
                 };
             })
         };
 
-        console.log(rentalIncome);
+        setRentalIncome(rentalIncome);
         onClose();
     };
 

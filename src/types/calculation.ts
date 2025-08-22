@@ -10,6 +10,13 @@ export interface Calculation {
   calculationData: CalculationData;
 }
 
+export interface CalculationCreateReq {
+  year: string;
+  status: Status;
+  account: Account;
+  calculationData: CalculationData;
+}
+
 interface CalculationData {
   sourceOfIncome: SourceOfIncome;
   deductionsFromAssessableIncome: DeductionsFromAssessableIncome;
@@ -18,8 +25,10 @@ interface CalculationData {
 
 interface DeductionsFromAssessableIncome {
   personalRelief: number;
-  rentReliefRate: number;
-  rentRelief: number;
+  rentRelief: {
+    rate: number;
+    value: number;
+  };
   solarRelief: number;
 }
 
@@ -111,46 +120,4 @@ export interface OtherIncome {
 interface OtherIncomeRecord {
   incomeType : string;
   value : number;
-}
-
-interface GrossIncomeTax {
-  total : number;
-  first: {
-    value : number;
-    rate : number;
-    tax : number;
-  },
-  second: {
-    value : number;
-    rate : number;
-    tax : number;
-  },
-  third: {
-    value : number;
-    rate : number;
-    tax : number;
-  },
-  fourth: {
-    value : number;
-    rate : number;
-    tax : number;
-  },
-  fifth: {
-    value : number;
-    rate : number;
-    tax : number;
-  }, 
-  remaining : {
-    value : number;
-    rate : number;
-    tax : number;
-  }
-}
-
-interface Qrt {
-  total: number;
-  first: number;
-  second: number;
-  third: number;
-  fourth: number;
 }

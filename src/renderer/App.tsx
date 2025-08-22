@@ -8,6 +8,7 @@ import Banks from './pages/Banks/Banks';
 import Settings from './pages/Settings/Settings';
 import { ToastContainer } from 'react-toastify';
 import { SettingsProvider } from './contexts/SettingsContext';
+import { CalculationProvider } from './contexts/CalculationContext';
 
 const App = () => {
   return (
@@ -15,7 +16,7 @@ const App = () => {
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/calculate" element={<Calculate />} />
+          <Route path="/calculate" element={<CalculationProvider><Calculate /></CalculationProvider>} />
           <Route path="/accounts" element={<Accounts />} />
           <Route path="/history" element={<History />} />
           <Route path="/banks" element={<Banks />} />
@@ -29,7 +30,7 @@ const App = () => {
         />,
         document.body
       )}
-    </SettingsProvider>
+    </SettingsProvider >
   );
 };
 

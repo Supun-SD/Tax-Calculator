@@ -1,8 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import Modal from "../../../components/Modal";
 import { IoAdd } from "react-icons/io5";
 import Button from '../../../components/Button';
 import { BusinessIncome } from '../../../../types/calculation';
+import { useCalculationContext } from '../../../contexts/CalculationContext';
 
 interface BusinessProps {
     isOpen: boolean;
@@ -17,21 +18,40 @@ interface BusinessEntry {
 }
 
 const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
+    const { businessIncome, setBusinessIncome } = useCalculationContext();
     const [businessEntries, setBusinessEntries] = useState<BusinessEntry[]>([
         { id: 1, hospital: "", amount: "", professionalPractice: "" }
     ]);
 
     const [taxablePercentage, setTaxablePercentage] = useState<string>("");
 
+    // Load existing data when modal opens
+    useEffect(() => {
+        if (isOpen && businessIncome) {
+            const entries = businessIncome.incomes.map((income, index) => ({
+                id: index + 1,
+                hospital: income.hospitalName,
+                amount: income.value.toString(),
+                professionalPractice: income.professionalPractice.toString()
+            }));
+            setBusinessEntries(entries.length > 0 ? entries : [{ id: 1, hospital: "", amount: "", professionalPractice: "" }]);
+            setTaxablePercentage(businessIncome.taxableIncomePercentage.toString());
+        } else if (isOpen && !businessIncome) {
+            setBusinessEntries([{ id: 1, hospital: "", amount: "", professionalPractice: "" }]);
+            setTaxablePercentage("");
+        }
+    }, [isOpen, businessIncome]);
+
     const formatCurrency = (amount: number) =>
         new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
 
     // Update a numeric field
     const updateEntry = (id: number, field: keyof BusinessEntry, value: string) => {
-        if (!/^\d*\.?\d*$/.test(value) && value !== "") return;
-        setBusinessEntries(prev =>
-            prev.map(entry => entry.id === id ? { ...entry, [field]: value } : entry)
-        );
+        if (value.match(/^\d*\.?\d{0,2}$/)) {
+            setBusinessEntries(prev =>
+                prev.map(entry => entry.id === id ? { ...entry, [field]: value } : entry)
+            );
+        }
     };
 
     const handleHospitalChange = (id: number, value: string) => {
@@ -69,17 +89,17 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
 
     const handleDone = () => {
         const businessIncome: BusinessIncome = {
-            total: Number(totalAmount.toFixed(2)),
-            professionalPracticeTotal: Number(totalProfessionalPractice.toFixed(2)),
+            total: Math.round(totalAmount * 100) / 100,
+            professionalPracticeTotal: Math.round(totalProfessionalPractice * 100) / 100,
             incomes: businessEntries.map(entry => ({
                 hospitalName: entry.hospital,
-                value: Number(parseFloat(entry.amount).toFixed(2)),
-                professionalPractice: Number(parseFloat(entry.professionalPractice).toFixed(2))
+                value: Math.round((parseFloat(entry.amount) || 0) * 100) / 100,
+                professionalPractice: Math.round((parseFloat(entry.professionalPractice) || 0) * 100) / 100
             })),
-            taxableIncomePercentage: Number(parseFloat(taxablePercentage).toFixed(2))
+            taxableIncomePercentage: Math.round(parseFloat(taxablePercentage) || 0)
         };
-        console.log(businessIncome);
-        //onClose();
+        setBusinessIncome(businessIncome);
+        onClose();
     };
 
     return (

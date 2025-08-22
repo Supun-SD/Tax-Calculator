@@ -21,7 +21,7 @@ const TotalPayableTax = () => {
     useEffect(() => {
         const totalComponents = taxComponents.reduce((sum, component) => sum + component.amount, 0);
         const finalBalance = totalComponents - deduction;
-        setBalancePayable(finalBalance);
+        setBalancePayable(Math.round(finalBalance * 100) / 100);
     }, [taxComponents, deduction]);
 
     const formatCurrency = (amount: number) => {
@@ -32,7 +32,7 @@ const TotalPayableTax = () => {
     };
 
     const formatPercentage = (percentage: number) => {
-        return `${percentage}%`;
+        return `${Math.round(percentage)}%`;
     };
 
     return (

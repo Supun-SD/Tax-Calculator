@@ -1,9 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Text, Flex } from '@radix-ui/themes';
 import Modal from "../../../components/Modal";
 import { IoAdd } from "react-icons/io5";
 import Button from '../../../components/Button';
 import { EmploymentIncome } from '../../../../types/calculation';
+import { useCalculationContext } from '../../../contexts/CalculationContext';
 
 interface EmploymentProps {
     isOpen: boolean;
@@ -20,26 +21,45 @@ interface IncomeEntry {
 }
 
 const Employment: React.FC<EmploymentProps> = ({ isOpen, onClose }) => {
+    const { employmentIncome, setEmploymentIncome } = useCalculationContext();
     const [incomeEntries, setIncomeEntries] = useState<IncomeEntry[]>([
         { id: 1, name: "", amount: "", multiplier: "1", appit: "", product: 0 }
     ]);
+
+    // Load existing data when modal opens
+    useEffect(() => {
+        if (isOpen && employmentIncome) {
+            const entries = employmentIncome.incomes.map((income, index) => ({
+                id: index + 1,
+                name: income.name,
+                amount: income.value.toString(),
+                multiplier: income.multiplier.toString(),
+                appit: income.appit.toString(),
+                product: income.total
+            }));
+            setIncomeEntries(entries.length > 0 ? entries : [{ id: 1, name: "", amount: "", multiplier: "1", appit: "", product: 0 }]);
+        } else if (isOpen && !employmentIncome) {
+            setIncomeEntries([{ id: 1, name: "", amount: "", multiplier: "1", appit: "", product: 0 }]);
+        }
+    }, [isOpen, employmentIncome]);
 
     // Helpers
     const formatCurrency = (amount: number) =>
         new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
 
     const updateEntry = (id: number, field: keyof IncomeEntry, value: string) => {
-        if (!/^\d*\.?\d*$/.test(value) && value !== "") return; // only allow numbers or empty
-        setIncomeEntries(prev =>
-            prev.map(entry => {
-                if (entry.id !== id) return entry;
-                const updated = { ...entry, [field]: value };
-                const amount = parseFloat(updated.amount) || 0;
-                const multiplier = parseFloat(updated.multiplier) || 0;
-                updated.product = amount * multiplier;
-                return updated;
-            })
-        );
+        if (value.match(/^\d*\.?\d{0,2}$/)) {
+            setIncomeEntries(prev =>
+                prev.map(entry => {
+                    if (entry.id !== id) return entry;
+                    const updated = { ...entry, [field]: value };
+                    const amount = parseFloat(updated.amount) || 0;
+                    const multiplier = parseFloat(updated.multiplier) || 0;
+                    updated.product = amount * multiplier;
+                    return updated;
+                })
+            );
+        }
     };
 
     const handleNameChange = (id: number, value: string) => {
@@ -54,7 +74,12 @@ const Employment: React.FC<EmploymentProps> = ({ isOpen, onClose }) => {
     };
 
     const removeEntry = (id: number) => {
-        if (incomeEntries.length > 1) setIncomeEntries(prev => prev.filter(entry => entry.id !== id));
+        if (incomeEntries.length > 1) {
+            setIncomeEntries(prev => {
+                const updated = prev.filter(entry => entry.id !== id);
+                return updated;
+            });
+        }
     };
 
     const isDoneDisabled = useMemo(() => incomeEntries.some(entry => entry.name === "" || entry.amount === "" || entry.multiplier === "" || entry.appit === ""), [incomeEntries]);
@@ -65,8 +90,8 @@ const Employment: React.FC<EmploymentProps> = ({ isOpen, onClose }) => {
 
     const handleDone = () => {
         const employmentIncome: EmploymentIncome = {
-            total: Number(totalIncome.toFixed(2)),
-            appitTotal: Number(totalAppit.toFixed(2)),
+            total: Math.round(totalIncome * 100) / 100,
+            appitTotal: Math.round(totalAppit * 100) / 100,
             incomes: incomeEntries.map(entry => {
                 const amount = parseFloat(entry.amount) || 0;
                 const multiplier = parseFloat(entry.multiplier) || 0;
@@ -75,15 +100,15 @@ const Employment: React.FC<EmploymentProps> = ({ isOpen, onClose }) => {
 
                 return {
                     name: entry.name,
-                    value: Number(amount.toFixed(2)),
-                    multiplier: Number(multiplier),
-                    appit: Number(appit.toFixed(2)),
-                    total: Number((product).toFixed(2))
+                    value: Math.round(amount * 100) / 100,
+                    multiplier: Math.round(multiplier),
+                    appit: Math.round(appit * 100) / 100,
+                    total: Math.round(product * 100) / 100
                 };
             })
         };
-        console.log(employmentIncome);
-        //onClose();
+        setEmploymentIncome(employmentIncome);
+        onClose();
     };
 
     return (

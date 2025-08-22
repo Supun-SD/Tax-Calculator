@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Text, Separator } from '@radix-ui/themes';
+import { CalculationService } from '../../../services/calculationService';
 
 const BalancelPayableTax = () => {
     const [quarterlyValues, setQuarterlyValues] = useState({
@@ -12,15 +13,19 @@ const BalancelPayableTax = () => {
 
     useEffect(() => {
         const sum = quarterlyValues.qrt1 + quarterlyValues.qrt2 + quarterlyValues.qrt3 + quarterlyValues.qrt4;
-        setTotal(sum);
+        setTotal(Math.round(sum * 100) / 100); // Round to 2 decimal places
     }, [quarterlyValues]);
 
     const handleInputChange = (quarter: keyof typeof quarterlyValues, value: string) => {
         const numValue = parseFloat(value) || 0;
         setQuarterlyValues(prev => ({
             ...prev,
-            [quarter]: numValue
+            [quarter]: Math.round(numValue * 100) / 100 // Round to 2 decimal places
         }));
+    };
+
+    const formatCurrency = (amount: number) => {
+        return CalculationService.formatCurrency(amount);
     };
 
     return (
@@ -91,7 +96,7 @@ const BalancelPayableTax = () => {
                     <div className="flex justify-between items-center">
                         <Text className="text-white font-semibold">Balance payable tax</Text>
                         <Text className="text-white font-bold text-lg">
-                            Rs. 4,500,000.00
+                            Rs. {formatCurrency(total)}
                         </Text>
                     </div>
                 </div>

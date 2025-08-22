@@ -133,13 +133,13 @@ const SelectAccountModal: React.FC<SelectAccountModalProps> = ({
 
         {/* Account Details */}
         <div className="grid grid-cols-2 gap-3 text-black">
-          <div className="flex flex-col">
+          <div className="flex flex-col bg-white rounded-lg px-6 py-4">
             <Text size="3" className="font-medium">
               Name
             </Text>
             <Text size="3">{selectedAccount ? selectedAccount.name : '-'}</Text>
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col bg-white rounded-lg px-6 py-4">
             <Text size="3" className="font-medium">
               TIN Number
             </Text>
