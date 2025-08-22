@@ -5,7 +5,8 @@ import {
     InterestIncome,
     DividendIncome,
     BusinessIncome,
-    OtherIncome
+    OtherIncome,
+    GrossIncomeTax
 } from '../../types/calculation';
 import { CalculationService, IncomeData, CalculationResult } from '../services/calculationService';
 import { useSettingsContext } from './SettingsContext';
@@ -28,12 +29,14 @@ interface CalculationContextType {
     setBusinessIncome: (income: BusinessIncome | null) => void;
     setOtherIncome: (income: OtherIncome | null) => void;
     setSolarRelief: (relief: number) => void;
+    setGrossIncomeTax: (taxData: GrossIncomeTax) => void;
     clearAllIncome: () => void;
 
     // Calculated values
     calculationResult: CalculationResult | null;
     assessableIncome: number;
     totalTaxableIncome: number;
+    grossIncomeTax: GrossIncomeTax | null;
 }
 
 const CalculationContext = createContext<CalculationContextType | undefined>(undefined);
@@ -53,6 +56,7 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
     const [businessIncome, setBusinessIncome] = useState<BusinessIncome | null>(null);
     const [otherIncome, setOtherIncome] = useState<OtherIncome | null>(null);
     const [solarRelief, setSolarRelief] = useState<number>(0);
+    const [grossIncomeTax, setGrossIncomeTax] = useState<GrossIncomeTax | null>(null);
 
     // Calculate results when income data or settings change
     const calculationResult = useMemo(() => {
@@ -94,6 +98,7 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
         setBusinessIncome(null);
         setOtherIncome(null);
         setSolarRelief(0);
+        setGrossIncomeTax(null);
     };
 
     const value: CalculationContextType = {
@@ -114,12 +119,14 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
         setBusinessIncome,
         setOtherIncome,
         setSolarRelief,
+        setGrossIncomeTax,
         clearAllIncome,
 
         // Calculated values
         calculationResult,
         assessableIncome,
-        totalTaxableIncome
+        totalTaxableIncome,
+        grossIncomeTax
     };
 
     return (

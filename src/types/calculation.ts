@@ -123,7 +123,7 @@ interface OtherIncomeRecord {
   value : number;
 }
 
-interface GrossIncomeTax {
+export interface GrossIncomeTax {
   total: number;
   foreignIncome: {
     total: number;

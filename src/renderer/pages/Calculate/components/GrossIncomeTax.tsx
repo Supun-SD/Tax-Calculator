@@ -12,7 +12,7 @@ interface TaxSlab {
 }
 
 const GrossIncomeTax = () => {
-    const { totalTaxableIncome } = useCalculationContext();
+    const { totalTaxableIncome, setGrossIncomeTax } = useCalculationContext();
     const { settings, loading } = useSettingsContext();
 
     const [foreignIncome, setForeignIncome] = useState<number>(0);
@@ -96,6 +96,26 @@ const GrossIncomeTax = () => {
             calculateForeignIncomeTax(foreignIncome);
         }
     }, [foreignIncome, settings, loading]);
+
+    // Update context with gross income tax data whenever it changes
+    useEffect(() => {
+        if (settings && !loading) {
+            setGrossIncomeTax({
+                total: totalTax + foreignIncomeTax,
+                foreignIncome: {
+                    total: foreignIncome,
+                    rate: settings?.reliefsAndAit?.foreignIncomeTaxRate || 0,
+                    tax: foreignIncomeTax
+                },
+                slabs: taxSlabs.map(slab => ({
+                    slab: slab.slab,
+                    value: slab.value,
+                    rate: slab.rate,
+                    tax: slab.tax
+                }))
+            });
+        }
+    }, [totalTax, foreignIncomeTax, foreignIncome, taxSlabs, settings, loading, setGrossIncomeTax]);
 
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('en-US', {

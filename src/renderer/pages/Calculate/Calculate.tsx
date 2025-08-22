@@ -53,7 +53,19 @@ const Calculate = () => {
   const [isSelectAccountModalOpen, setIsSelectAccountModalOpen] = useState(false);
 
   const { settings } = useSettingsContext();
-  const { employmentIncome, rentalIncome, interestIncome, dividendIncome, businessIncome, otherIncome, totalTaxableIncome, calculationResult, solarRelief, assessableIncome } = useCalculationContext();
+  const {
+    employmentIncome,
+    rentalIncome,
+    interestIncome,
+    dividendIncome,
+    businessIncome,
+    otherIncome,
+    totalTaxableIncome,
+    calculationResult,
+    solarRelief,
+    assessableIncome,
+    grossIncomeTax
+  } = useCalculationContext();
 
   const handleSelectAccount = (
     account: Account,
@@ -92,7 +104,16 @@ const Calculate = () => {
           },
           solarRelief: solarRelief
         },
-        totalTaxableIncome: totalTaxableIncome
+        totalTaxableIncome: totalTaxableIncome,
+        grossIncomeTax: grossIncomeTax || {
+          total: 0,
+          foreignIncome: {
+            total: 0,
+            rate: 0,
+            tax: 0
+          },
+          slabs: []
+        }
       }
     }
     console.log(calculation);
