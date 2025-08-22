@@ -1,4 +1,3 @@
-import React from 'react';
 import { Text, Separator, Flex, IconButton, Tooltip } from '@radix-ui/themes';
 import { IoIosInformationCircleOutline } from "react-icons/io";
 

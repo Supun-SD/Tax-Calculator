@@ -8,7 +8,6 @@ import { Account } from '../../../types/account';
 import AccountModal from './components/AccountModal';
 import ViewAccountModal from './components/ViewAccountModal';
 import { AlertDialog, Flex } from '@radix-ui/themes';
-import { useToast } from '../../hooks/useToast';
 import { useAccounts } from '../../hooks/useAccounts';
 import { ClipLoader } from 'react-spinners';
 

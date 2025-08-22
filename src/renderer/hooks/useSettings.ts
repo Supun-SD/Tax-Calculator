@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Settings } from '../../types/settings';
 import { settingsService } from '../services/settingsService';
 import { useToast } from './useToast';

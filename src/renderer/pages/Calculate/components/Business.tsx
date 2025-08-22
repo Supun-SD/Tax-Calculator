@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import Modal from "../../../components/Modal";
-import { IoAdd, IoClose } from "react-icons/io5";
+import { IoAdd } from "react-icons/io5";
 import Button from '../../../components/Button';
+import { BusinessIncome } from '../../../../types/calculation';
 
 interface BusinessProps {
     isOpen: boolean;
@@ -11,122 +12,74 @@ interface BusinessProps {
 interface BusinessEntry {
     id: number;
     hospital: string;
-    amount: number;
+    amount: string;
+    professionalPractice: string;
 }
 
 const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
     const [businessEntries, setBusinessEntries] = useState<BusinessEntry[]>([
-        {
-            id: 1,
-            hospital: "",
-            amount: 0
-        }
+        { id: 1, hospital: "", amount: "", professionalPractice: "" }
     ]);
 
-    const [totalIncome, setTotalIncome] = useState<number>(0);
-    const [taxablePercentage, setTaxablePercentage] = useState<number>(35);
+    const [taxablePercentage, setTaxablePercentage] = useState<string>("");
 
-    useEffect(() => {
-        const total = businessEntries.reduce((sum, entry) => sum + entry.amount, 0);
-        setTotalIncome(total);
-    }, [businessEntries]);
+    const formatCurrency = (amount: number) =>
+        new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
 
-    const handleHospitalChange = (id: number, value: string) => {
-        setBusinessEntries(prev => prev.map(entry =>
-            entry.id === id ? { ...entry, hospital: value } : entry
-        ));
+    // Update a numeric field
+    const updateEntry = (id: number, field: keyof BusinessEntry, value: string) => {
+        if (!/^\d*\.?\d*$/.test(value) && value !== "") return;
+        setBusinessEntries(prev =>
+            prev.map(entry => entry.id === id ? { ...entry, [field]: value } : entry)
+        );
     };
 
-    const handleAmountChange = (id: number, value: string) => {
-        // Allow empty string
-        if (value === '') {
-            setBusinessEntries(prev => prev.map(entry =>
-                entry.id === id ? { ...entry, amount: 0 } : entry
-            ));
-            return;
-        }
-
-        // Only allow numbers and decimal point
-        const cleanValue = value.replace(/[^0-9.]/g, '');
-        const parts = cleanValue.split('.');
-        if (parts.length > 2) return;
-
-        // Limit decimal places to 2
-        if (parts[1] && parts[1].length > 2) return;
-
-        // If ends with '.' → keep as is (don't parse yet)
-        if (cleanValue.endsWith('.')) {
-            setBusinessEntries(prev => prev.map(entry =>
-                entry.id === id ? { ...entry, amount: cleanValue as unknown as number } : entry
-            ));
-            return;
-        }
-
-        // Parse when it's a complete number
-        const numValue = parseFloat(cleanValue);
-        if (isNaN(numValue)) return;
-
-        const roundedValue = Math.round(numValue * 100) / 100;
-
-        setBusinessEntries(prev => prev.map(entry =>
-            entry.id === id ? { ...entry, amount: roundedValue } : entry
-        ));
+    const handleHospitalChange = (id: number, value: string) => {
+        setBusinessEntries(prev =>
+            prev.map(entry => entry.id === id ? { ...entry, hospital: value } : entry)
+        );
     };
 
     const handleTaxablePercentageChange = (value: string) => {
-        // Allow empty string
-        if (value === '') {
-            setTaxablePercentage(0);
-            return;
-        }
-
-        // Only allow numbers and decimal point
-        const cleanValue = value.replace(/[^0-9.]/g, '');
-        const parts = cleanValue.split('.');
-        if (parts.length > 2) return;
-
-        // Limit decimal places to 2
-        if (parts[1] && parts[1].length > 2) return;
-
-        // If ends with '.' → keep as is (don't parse yet)
-        if (cleanValue.endsWith('.')) {
-            setTaxablePercentage(cleanValue as unknown as number);
-            return;
-        }
-
-        // Parse when it's a complete number
-        const numValue = parseFloat(cleanValue);
-        if (isNaN(numValue)) return;
-
-        const roundedValue = Math.round(numValue * 100) / 100;
-        setTaxablePercentage(roundedValue);
+        if (!/^\d*\.?\d*$/.test(value) && value !== "") return;
+        setTaxablePercentage(value);
     };
 
     const addNewEntry = () => {
-        const newId = Math.max(...businessEntries.map(entry => entry.id)) + 1;
-        const newEntry: BusinessEntry = {
-            id: newId,
-            hospital: "",
-            amount: 0
-        };
-        setBusinessEntries(prev => [...prev, newEntry]);
+        const newId = businessEntries.length ? Math.max(...businessEntries.map(e => e.id)) + 1 : 1;
+        setBusinessEntries(prev => [...prev, { id: newId, hospital: "", amount: "", professionalPractice: "" }]);
     };
 
     const removeEntry = (id: number) => {
-        if (businessEntries.length > 1) {
-            setBusinessEntries(prev => prev.filter(entry => entry.id !== id));
-        }
+        if (businessEntries.length > 1) setBusinessEntries(prev => prev.filter(entry => entry.id !== id));
     };
 
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }).format(amount);
-    };
+    // Totals
+    const totalAmount = useMemo(() =>
+        businessEntries.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0), [businessEntries]);
+
+    const totalProfessionalPractice = useMemo(() =>
+        businessEntries.reduce((sum, e) => sum + (parseFloat(e.professionalPractice) || 0), 0), [businessEntries]);
+
+    const isDoneDisabled = useMemo(() =>
+        businessEntries.some(e => e.hospital === "" || e.amount === "" || e.professionalPractice === "") ||
+        taxablePercentage === "",
+        [businessEntries, taxablePercentage]
+    );
 
     const handleDone = () => {
-        onClose();
+        const businessIncome: BusinessIncome = {
+            total: Number(totalAmount.toFixed(2)),
+            professionalPracticeTotal: Number(totalProfessionalPractice.toFixed(2)),
+            incomes: businessEntries.map(entry => ({
+                hospitalName: entry.hospital,
+                value: Number(parseFloat(entry.amount).toFixed(2)),
+                professionalPractice: Number(parseFloat(entry.professionalPractice).toFixed(2))
+            })),
+            taxableIncomePercentage: Number(parseFloat(taxablePercentage).toFixed(2))
+        };
+        console.log(businessIncome);
+        //onClose();
     };
 
     return (
@@ -134,88 +87,101 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
             isOpen={isOpen}
             onClose={onClose}
             title="Business Income"
-            maxWidth="600px"
+            maxWidth="900px"
             actions={[
-                {
-                    label: 'Cancel',
-                    onClick: onClose,
-                    variant: 'secondary',
-                    className: 'bg-gray-300 text-black hover:bg-gray-400',
-                },
-                {
-                    label: 'Done',
-                    onClick: handleDone,
-                    variant: 'primary',
-                },
+                { label: 'Cancel', onClick: onClose, variant: 'secondary', className: 'bg-gray-300 text-black hover:bg-gray-400' },
+                { label: 'Done', onClick: handleDone, variant: 'primary', disabled: isDoneDisabled }
             ]}
         >
             <div className="space-y-6">
-                {/* Income Entries */}
-                <div className="space-y-4">
-                    {businessEntries.map((entry) => (
-                        <div key={entry.id} className="flex items-center gap-4">
-                            {/* Hospital Input */}
-                            <div className="bg-white rounded-lg border border-gray-300 flex-1">
-                                <input
-                                    type="text"
-                                    value={entry.hospital}
-                                    onChange={(e) => handleHospitalChange(entry.id, e.target.value)}
-                                    className="w-full bg-transparent text-gray-800 px-3 py-2 outline-none"
-                                    placeholder="Hospital Name"
-                                />
-                            </div>
-
-                            {/* Amount Input */}
-                            <div className="bg-white rounded-lg border border-gray-300 flex-1">
-                                <input
-                                    type="text"
-                                    value={entry.amount === 0 ? "" : entry.amount.toString()}
-                                    onChange={(e) => handleAmountChange(entry.id, e.target.value)}
-                                    className="w-full bg-transparent text-gray-800 px-3 py-2 outline-none text-right"
-                                    placeholder="0.00"
-                                />
-                            </div>
-
-                            {/* Remove Button (only show if more than 1 entry) */}
-                            {businessEntries.length > 1 && (
-                                <button
-                                    onClick={() => removeEntry(entry.id)}
-                                    className="text-gray-600 hover:text-gray-800 p-1"
-                                >
-                                    <IoClose size={16} color='red' />
-                                </button>
-                            )}
-                        </div>
-                    ))}
+                <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                        <thead>
+                            <tr className="text-black font-bold text-sm">
+                                <th className="p-2 text-left">Hospital</th>
+                                <th className="p-2 text-right">Amount</th>
+                                <th className="p-2 text-right">Professional Practice</th>
+                                <th className="p-2 w-6"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {businessEntries.map(entry => (
+                                <tr key={entry.id} className="h-14">
+                                    <td className="p-2">
+                                        <div className="bg-white rounded-lg px-4 py-2">
+                                            <input
+                                                type="text"
+                                                value={entry.hospital}
+                                                onChange={e => handleHospitalChange(entry.id, e.target.value)}
+                                                className="bg-transparent text-black w-full outline-none"
+                                                placeholder="Hospital Name"
+                                            />
+                                        </div>
+                                    </td>
+                                    <td className="p-2 text-right">
+                                        <div className="bg-white rounded-lg px-4 py-2">
+                                            <input
+                                                type="text"
+                                                inputMode="decimal"
+                                                value={entry.amount}
+                                                onChange={e => updateEntry(entry.id, "amount", e.target.value)}
+                                                className="bg-transparent text-black w-full text-end outline-none"
+                                                placeholder="0.00"
+                                            />
+                                        </div>
+                                    </td>
+                                    <td className="p-2 text-right">
+                                        <div className="bg-white rounded-lg px-4 py-2">
+                                            <input
+                                                type="text"
+                                                inputMode="decimal"
+                                                value={entry.professionalPractice}
+                                                onChange={e => updateEntry(entry.id, "professionalPractice", e.target.value)}
+                                                className="bg-transparent text-black w-full text-end outline-none"
+                                                placeholder="0.00"
+                                            />
+                                        </div>
+                                    </td>
+                                    <td className="p-2 text-center">
+                                        {businessEntries.length > 1 && (
+                                            <button
+                                                onClick={() => removeEntry(entry.id)}
+                                                className="text-red-500 hover:text-red-700 text-lg font-bold w-6 h-6 flex items-center justify-center"
+                                            >
+                                                ×
+                                            </button>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td className="p-2 font-bold text-black text-lg">Total</td>
+                                <td className="p-2 font-bold text-white text-lg text-end"><div className='bg-popup-title-bg rounded-xl px-4 py-2'>{formatCurrency(totalAmount)}</div></td>
+                                <td className="p-2 font-bold text-white text-lg text-end"><div className='bg-popup-title-bg rounded-xl px-4 py-2'>{formatCurrency(totalProfessionalPractice)}</div></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
 
                 {/* Add Button */}
                 <div className="flex justify-end">
-                    <Button onClick={addNewEntry} icon={IoAdd} size='sm' className='px-6'>
-                        Add
-                    </Button>
+                    <Button onClick={addNewEntry} icon={IoAdd} size="sm" className="px-6">Add</Button>
                 </div>
 
-                {/* Total Section */}
-                <div className="flex justify-between items-center">
-                    <div className="text-gray-700 font-medium">Total</div>
-                    <div className="bg-white rounded-lg px-6 py-3">
-                        <div className="text-xl font-bold text-gray-800">
-                            {formatCurrency(totalIncome)}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Percentage for Taxable Income */}
+                {/* Taxable Percentage */}
                 <div className="flex justify-between items-center">
                     <div className="text-gray-700 font-medium">Percentage for taxable income</div>
                     <div className="bg-white rounded-lg border border-gray-300 px-4 py-2">
                         <div className="flex items-center">
                             <input
                                 type="text"
-                                value={taxablePercentage === 0 ? "" : taxablePercentage.toString()}
-                                onChange={(e) => handleTaxablePercentageChange(e.target.value)}
-                                className="w-20 bg-transparent text-gray-800 text-center outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                inputMode="decimal"
+                                value={taxablePercentage}
+                                onChange={e => handleTaxablePercentageChange(e.target.value)}
+                                className="w-20 bg-transparent text-gray-800 text-center outline-none"
                                 placeholder="0"
                             />
                             <span className="text-gray-600 ml-1">%</span>

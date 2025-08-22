@@ -97,7 +97,7 @@ const Calculate = () => {
       </Grid>
 
       <Flex gap="3" mt="6" justify="end">
-        <Button variant='secondary'>Save Draft</Button>
+        <Button variant='secondary' className='px-8'>Save Draft</Button>
         <Button className='!px-12'>Submit</Button>
       </Flex>
 

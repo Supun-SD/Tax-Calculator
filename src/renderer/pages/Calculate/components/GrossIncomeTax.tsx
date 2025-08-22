@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Text, Separator, Grid } from '@radix-ui/themes';
+import { useState, useEffect } from 'react';
+import { Text, Separator } from '@radix-ui/themes';
 
 interface TaxSlab {
     slab: string;

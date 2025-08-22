@@ -5,7 +5,7 @@ export interface Settings {
   taxRates: TaxRates;
 }
 
-interface ReliefsAndAit {
+export interface ReliefsAndAit {
   personalRelief: number;
   rentRelief: number;
   aitInterest: number;
@@ -14,7 +14,7 @@ interface ReliefsAndAit {
   foreignIncomeTaxRate: number;
 }
 
-interface TaxRates {
+export interface TaxRates {
   first: number;
   second: number;
   third: number;

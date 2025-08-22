@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import Modal from "../../../components/Modal";
-import { IoAdd, IoClose } from "react-icons/io5";
+import { IoAdd } from "react-icons/io5";
 import Button from '../../../components/Button';
+import { OtherIncome } from '../../../../types/calculation';
 
 interface OtherProps {
     isOpen: boolean;
@@ -11,91 +12,57 @@ interface OtherProps {
 interface OtherEntry {
     id: number;
     description: string;
-    amount: number;
+    amount: string;
 }
 
 const Other: React.FC<OtherProps> = ({ isOpen, onClose }) => {
     const [otherEntries, setOtherEntries] = useState<OtherEntry[]>([
-        {
-            id: 1,
-            description: "",
-            amount: 0
-        }
+        { id: 1, description: "", amount: "" }
     ]);
 
-    const [totalIncome, setTotalIncome] = useState<number>(0);
+    const formatCurrency = (amount: number) =>
+        new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
 
-    useEffect(() => {
-        const total = otherEntries.reduce((sum, entry) => sum + entry.amount, 0);
-        setTotalIncome(total);
-    }, [otherEntries]);
-
-    const handleDescriptionChange = (id: number, value: string) => {
-        setOtherEntries(prev => prev.map(entry =>
-            entry.id === id ? { ...entry, description: value } : entry
-        ));
+    // Update numeric fields with validation
+    const updateEntry = (id: number, field: keyof OtherEntry, value: string) => {
+        if (!/^\d*\.?\d*$/.test(value) && value !== "") return; // only allow numbers or empty
+        setOtherEntries(prev =>
+            prev.map(entry => entry.id === id ? { ...entry, [field]: value } : entry)
+        );
     };
 
-    const handleAmountChange = (id: number, value: string) => {
-        // Allow empty string
-        if (value === '') {
-            setOtherEntries(prev => prev.map(entry =>
-                entry.id === id ? { ...entry, amount: 0 } : entry
-            ));
-            return;
-        }
-
-        // Only allow numbers and decimal point
-        const cleanValue = value.replace(/[^0-9.]/g, '');
-        const parts = cleanValue.split('.');
-        if (parts.length > 2) return;
-
-        // Limit decimal places to 2
-        if (parts[1] && parts[1].length > 2) return;
-
-        // If ends with '.' → keep as is (don't parse yet)
-        if (cleanValue.endsWith('.')) {
-            setOtherEntries(prev => prev.map(entry =>
-                entry.id === id ? { ...entry, amount: cleanValue as unknown as number } : entry
-            ));
-            return;
-        }
-
-        // Parse when it's a complete number
-        const numValue = parseFloat(cleanValue);
-        if (isNaN(numValue)) return;
-
-        const roundedValue = Math.round(numValue * 100) / 100;
-
-        setOtherEntries(prev => prev.map(entry =>
-            entry.id === id ? { ...entry, amount: roundedValue } : entry
-        ));
+    const handleDescriptionChange = (id: number, value: string) => {
+        setOtherEntries(prev =>
+            prev.map(entry => entry.id === id ? { ...entry, description: value } : entry)
+        );
     };
 
     const addNewEntry = () => {
-        const newId = Math.max(...otherEntries.map(entry => entry.id)) + 1;
-        const newEntry: OtherEntry = {
-            id: newId,
-            description: "",
-            amount: 0
-        };
-        setOtherEntries(prev => [...prev, newEntry]);
+        const newId = otherEntries.length ? Math.max(...otherEntries.map(e => e.id)) + 1 : 1;
+        setOtherEntries(prev => [...prev, { id: newId, description: "", amount: "" }]);
     };
 
     const removeEntry = (id: number) => {
-        if (otherEntries.length > 1) {
-            setOtherEntries(prev => prev.filter(entry => entry.id !== id));
-        }
+        if (otherEntries.length > 1) setOtherEntries(prev => prev.filter(entry => entry.id !== id));
     };
 
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }).format(amount);
-    };
+    // Totals
+    const totalIncome = useMemo(() =>
+        otherEntries.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0), [otherEntries]);
+
+    const isDoneDisabled = useMemo(() =>
+        otherEntries.some(e => e.description === "" || e.amount === ""), [otherEntries]
+    );
 
     const handleDone = () => {
+        const otherIncome: OtherIncome = {
+            total: Number(totalIncome.toFixed(2)),
+            incomes: otherEntries.map(entry => ({
+                incomeType: entry.description,
+                value: Number(parseFloat(entry.amount).toFixed(2))
+            }))
+        };
+        console.log(otherIncome);
         onClose();
     };
 
@@ -106,73 +73,72 @@ const Other: React.FC<OtherProps> = ({ isOpen, onClose }) => {
             title="Other Income"
             maxWidth="600px"
             actions={[
-                {
-                    label: 'Cancel',
-                    onClick: onClose,
-                    variant: 'secondary',
-                    className: 'bg-gray-300 text-black hover:bg-gray-400',
-                },
-                {
-                    label: 'Done',
-                    onClick: handleDone,
-                    variant: 'primary',
-                },
+                { label: 'Cancel', onClick: onClose, variant: 'secondary', className: 'bg-gray-300 text-black hover:bg-gray-400' },
+                { label: 'Done', onClick: handleDone, variant: 'primary', disabled: isDoneDisabled }
             ]}
         >
             <div className="space-y-6">
-                {/* Income Entries */}
-                <div className="space-y-4">
-                    {otherEntries.map((entry) => (
-                        <div key={entry.id} className="flex items-center gap-4">
-                            {/* Description Input */}
-                            <div className="bg-white rounded-lg border border-gray-300 flex-1">
-                                <input
-                                    type="text"
-                                    value={entry.description}
-                                    onChange={(e) => handleDescriptionChange(entry.id, e.target.value)}
-                                    className="w-full bg-transparent text-gray-800 px-3 py-2 outline-none"
-                                    placeholder="Income type"
-                                />
-                            </div>
-
-                            {/* Amount Input */}
-                            <div className="bg-white rounded-lg border border-gray-300 flex-1">
-                                <input
-                                    type="text"
-                                    value={entry.amount === 0 ? "" : entry.amount.toString()}
-                                    onChange={(e) => handleAmountChange(entry.id, e.target.value)}
-                                    className="w-full bg-transparent text-gray-800 px-3 py-2 outline-none text-right"
-                                    placeholder="0.00"
-                                />
-                            </div>
-
-                            {/* Remove Button (only show if more than 1 entry) */}
-                            {otherEntries.length > 1 && (
-                                <button
-                                    onClick={() => removeEntry(entry.id)}
-                                    className="text-gray-600 hover:text-gray-800 p-1"
-                                >
-                                    <IoClose size={16} color='red' />
-                                </button>
-                            )}
-                        </div>
-                    ))}
+                <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                        <thead>
+                            <tr className="text-black font-bold text-sm">
+                                <th className="p-2 text-left">Description</th>
+                                <th className="p-2 text-right">Amount</th>
+                                <th className="p-2 w-6"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {otherEntries.map(entry => (
+                                <tr key={entry.id} className="h-14">
+                                    <td className="p-2">
+                                        <div className="bg-white rounded-lg px-4 py-2">
+                                            <input
+                                                type="text"
+                                                value={entry.description}
+                                                onChange={e => handleDescriptionChange(entry.id, e.target.value)}
+                                                className="bg-transparent text-black w-full outline-none"
+                                                placeholder="Income type"
+                                            />
+                                        </div>
+                                    </td>
+                                    <td className="p-2 text-right">
+                                        <div className="bg-white rounded-lg px-4 py-2">
+                                            <input
+                                                type="text"
+                                                inputMode="decimal"
+                                                value={entry.amount}
+                                                onChange={e => updateEntry(entry.id, "amount", e.target.value)}
+                                                className="bg-transparent text-black w-full text-end outline-none"
+                                                placeholder="0.00"
+                                            />
+                                        </div>
+                                    </td>
+                                    <td className="p-2 text-center">
+                                        {otherEntries.length > 1 && (
+                                            <button
+                                                onClick={() => removeEntry(entry.id)}
+                                                className="text-red-500 hover:text-red-700 text-lg font-bold w-6 h-6 flex items-center justify-center"
+                                            >
+                                                ×
+                                            </button>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td className="p-2 font-bold text-black text-lg">Total</td>
+                                <td className="p-2 font-bold text-white text-lg text-end"><div className='bg-popup-title-bg rounded-xl px-4 py-2'>{formatCurrency(totalIncome)}</div></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
 
                 {/* Add Button */}
                 <div className="flex justify-end">
-                    <Button onClick={addNewEntry} icon={IoAdd} size='sm' className='px-6'>
-                        Add
-                    </Button>
-                </div>
-
-                {/* Total Display */}
-                <div className="flex justify-end">
-                    <div className="bg-white rounded-lg px-6 py-3">
-                        <div className="text-xl font-bold text-gray-800">
-                            {formatCurrency(totalIncome)}
-                        </div>
-                    </div>
+                    <Button onClick={addNewEntry} icon={IoAdd} size="sm" className="px-6">Add</Button>
                 </div>
             </div>
         </Modal>

@@ -1,7 +1,6 @@
 import Modal from '../../../components/Modal';
 import { Flex, Separator, Text, Button } from '@radix-ui/themes';
 import { Account } from '../../../../types/account';
-import { Calculation } from '../../../../types/calculation';
 import { RiAccountCircleFill } from 'react-icons/ri';
 import { calculations } from '../../../../../mockdata/calculations';
 import CalculationCard from './CalculationCard';
@@ -19,7 +18,7 @@ const ViewAccountModal: React.FC<ViewAccountModalProps> = ({
 }) => {
   // Filter calculations for this account
   const accountCalculations = calculations.filter(
-    (calc: Calculation) => calc.account.id === account?.id
+    (calc: any) => calc.account.id === account?.id
   );
 
   return (

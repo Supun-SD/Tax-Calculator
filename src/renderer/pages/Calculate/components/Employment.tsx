@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Text, Flex } from '@radix-ui/themes';
 import Modal from "../../../components/Modal";
 import { IoAdd } from "react-icons/io5";
 import Button from '../../../components/Button';
+import { EmploymentIncome } from '../../../../types/calculation';
 
 interface EmploymentProps {
     isOpen: boolean;
@@ -12,80 +13,77 @@ interface EmploymentProps {
 interface IncomeEntry {
     id: number;
     name: string;
-    amount: number;
-    multiplier: number;
+    amount: string;
+    multiplier: string;
+    appit: string;
     product: number;
 }
 
 const Employment: React.FC<EmploymentProps> = ({ isOpen, onClose }) => {
     const [incomeEntries, setIncomeEntries] = useState<IncomeEntry[]>([
-        { id: 1, name: "", amount: 0, multiplier: 1, product: 0 }
+        { id: 1, name: "", amount: "", multiplier: "1", appit: "", product: 0 }
     ]);
-    const [totalIncome, setTotalIncome] = useState<number>(0);
 
-    useEffect(() => {
-        const total = incomeEntries.reduce((sum, entry) => sum + entry.product, 0);
-        setTotalIncome(total);
-    }, [incomeEntries]);
+    // Helpers
+    const formatCurrency = (amount: number) =>
+        new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
 
-    const handleNameChange = (id: number, value: string) => {
-        setIncomeEntries(prev => prev.map(entry => {
-            if (entry.id === id) {
-                return { ...entry, name: value }
-            }
-            return entry;
-        }))
-    }
-
-    const handleAmountChange = (id: number, value: string) => {
-        const numValue = parseFloat(value) || 0;
-        setIncomeEntries(prev => prev.map(entry => {
-            if (entry.id === id) {
-                const product = numValue * entry.multiplier;
-                return { ...entry, amount: numValue, product };
-            }
-            return entry;
-        }));
+    const updateEntry = (id: number, field: keyof IncomeEntry, value: string) => {
+        if (!/^\d*\.?\d*$/.test(value) && value !== "") return; // only allow numbers or empty
+        setIncomeEntries(prev =>
+            prev.map(entry => {
+                if (entry.id !== id) return entry;
+                const updated = { ...entry, [field]: value };
+                const amount = parseFloat(updated.amount) || 0;
+                const multiplier = parseFloat(updated.multiplier) || 0;
+                updated.product = amount * multiplier;
+                return updated;
+            })
+        );
     };
 
-    const handleMultiplierChange = (id: number, value: string) => {
-        const numValue = parseFloat(value) || 0;
-        setIncomeEntries(prev => prev.map(entry => {
-            if (entry.id === id) {
-                const product = entry.amount * numValue;
-                return { ...entry, multiplier: numValue, product };
-            }
-            return entry;
-        }));
+    const handleNameChange = (id: number, value: string) => {
+        setIncomeEntries(prev =>
+            prev.map(entry => entry.id === id ? { ...entry, name: value } : entry)
+        );
     };
 
     const addNewEntry = () => {
-        const newId = Math.max(...incomeEntries.map(entry => entry.id)) + 1;
-        const newEntry: IncomeEntry = {
-            id: newId,
-            name: "",
-            amount: 0,
-            multiplier: 1,
-            product: 0
-        };
-        setIncomeEntries(prev => [...prev, newEntry]);
+        const newId = incomeEntries.length ? Math.max(...incomeEntries.map(e => e.id)) + 1 : 1;
+        setIncomeEntries(prev => [...prev, { id: newId, name: "", amount: "", multiplier: "1", appit: "", product: 0 }]);
     };
 
     const removeEntry = (id: number) => {
-        if (incomeEntries.length > 1) {
-            setIncomeEntries(prev => prev.filter(entry => entry.id !== id));
-        }
+        if (incomeEntries.length > 1) setIncomeEntries(prev => prev.filter(entry => entry.id !== id));
     };
 
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }).format(amount);
-    };
+    const isDoneDisabled = useMemo(() => incomeEntries.some(entry => entry.name === "" || entry.amount === "" || entry.multiplier === "" || entry.appit === ""), [incomeEntries]);
+
+    // Totals
+    const totalIncome = useMemo(() => incomeEntries.reduce((sum, e) => sum + e.product, 0), [incomeEntries]);
+    const totalAppit = useMemo(() => incomeEntries.reduce((sum, e) => sum + (parseFloat(e.appit) || 0), 0), [incomeEntries]);
 
     const handleDone = () => {
-        onClose();
+        const employmentIncome: EmploymentIncome = {
+            total: Number(totalIncome.toFixed(2)),
+            appitTotal: Number(totalAppit.toFixed(2)),
+            incomes: incomeEntries.map(entry => {
+                const amount = parseFloat(entry.amount) || 0;
+                const multiplier = parseFloat(entry.multiplier) || 0;
+                const appit = parseFloat(entry.appit) || 0;
+                const product = amount * multiplier;
+
+                return {
+                    name: entry.name,
+                    value: Number(amount.toFixed(2)),
+                    multiplier: Number(multiplier),
+                    appit: Number(appit.toFixed(2)),
+                    total: Number((product).toFixed(2))
+                };
+            })
+        };
+        console.log(employmentIncome);
+        //onClose();
     };
 
     return (
@@ -93,7 +91,7 @@ const Employment: React.FC<EmploymentProps> = ({ isOpen, onClose }) => {
             isOpen={isOpen}
             onClose={onClose}
             title="Employment Income"
-            maxWidth="750px"
+            maxWidth="900px"
             actions={[
                 {
                     label: 'Cancel',
@@ -105,81 +103,123 @@ const Employment: React.FC<EmploymentProps> = ({ isOpen, onClose }) => {
                     label: 'Done',
                     onClick: handleDone,
                     variant: 'primary',
+                    disabled: isDoneDisabled,
                 },
             ]}
         >
             <div className="space-y-6">
-                {/* Income Entries */}
-                <div className="space-y-4">
-                    {incomeEntries.map((entry) => (
-                        <div key={entry.id} className="flex items-center gap-3">
-                            {/* Name Input */}
-                            <div className="bg-white rounded-lg px-4 py-2 flex-[2]">
-                                <input
-                                    type="text"
-                                    value={entry.name}
-                                    onChange={(e) => handleNameChange(entry.id, e.target.value)}
-                                    className="bg-transparent text-black w-full outline-none"
-                                    placeholder='Name'
-                                />
-                            </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                        <thead>
+                            <tr className="text-black font-bold text-sm">
+                                <th className="p-2 text-left">Name</th>
+                                <th className="p-2 text-left">Amount</th>
+                                <th className="p-2 text-center">Multiplier</th>
+                                <th className="p-2 text-center">Product</th>
+                                <th className="p-2 text-center">APPIT</th>
+                                <th className="p-2 w-6"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {incomeEntries.map(entry => (
+                                <tr key={entry.id} className="h-14">
+                                    {/* Name */}
+                                    <td className="p-2">
+                                        <div className="bg-white rounded-lg px-4 py-2">
+                                            <input
+                                                type="text"
+                                                value={entry.name}
+                                                onChange={e => handleNameChange(entry.id, e.target.value)}
+                                                className="bg-transparent text-black w-full outline-none"
+                                                placeholder="Name"
+                                            />
+                                        </div>
+                                    </td>
 
-                            {/* Amount Input */}
-                            <div className="bg-white rounded-lg px-4 py-2 flex-[1]">
-                                <input
-                                    type="number"
-                                    value={entry.amount}
-                                    onChange={(e) => handleAmountChange(entry.id, e.target.value)}
-                                    className="bg-transparent text-black w-full outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                    step="0.01"
-                                />
-                            </div>
+                                    {/* Amount */}
+                                    <td className="p-2">
+                                        <div className="bg-white rounded-lg px-4 py-2">
+                                            <input
+                                                type="text"
+                                                inputMode="decimal"
+                                                value={entry.amount}
+                                                onChange={e => updateEntry(entry.id, "amount", e.target.value)}
+                                                className="bg-transparent text-black w-full text-end outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                placeholder="0.00"
+                                            />
+                                        </div>
+                                    </td>
 
-                            {/* Multiplier */}
-                            <div className="bg-gray-500 rounded-lg px-3 py-2">
-                                <input
-                                    type="number"
-                                    value={entry.multiplier}
-                                    onChange={(e) => handleMultiplierChange(entry.id, e.target.value)}
-                                    className="bg-transparent text-white text-center w-12 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                    min="1"
-                                />
-                            </div>
+                                    {/* Multiplier */}
+                                    <td className="p-2 text-center">
+                                        <div className="bg-gray-500 rounded-lg px-3 py-2 inline-block">
+                                            <input
+                                                type="text"
+                                                inputMode="decimal"
+                                                value={entry.multiplier}
+                                                onChange={e => updateEntry(entry.id, "multiplier", e.target.value)}
+                                                className="bg-transparent text-white text-center w-12 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                placeholder=""
+                                            />
+                                        </div>
+                                    </td>
 
-                            {/* Product Display */}
-                            <div className="bg-white rounded-lg px-4 py-2 flex-1">
-                                <Text className="text-black text-center font-semibold">
-                                    {formatCurrency(entry.product)}
-                                </Text>
-                            </div>
+                                    {/* Product */}
+                                    <td className="p-2 text-center">
+                                        <div className="bg-white rounded-lg px-4 py-2">
+                                            <Text className="text-black text-center font-semibold">
+                                                {formatCurrency(entry.product)}
+                                            </Text>
+                                        </div>
+                                    </td>
 
-                            {/* Remove Button (only show if more than 1 entry) */}
-                            {incomeEntries.length > 1 && (
-                                <button
-                                    onClick={() => removeEntry(entry.id)}
-                                    className="text-red-500 hover:text-red-700 text-lg font-bold w-6 h-6 flex items-center justify-center"
-                                >
-                                    ×
-                                </button>
-                            )}
-                        </div>
-                    ))}
+                                    {/* APPIT */}
+                                    <td className="p-2 text-center">
+                                        <div className="bg-white rounded-lg px-4 py-2">
+                                            <input
+                                                type="text"
+                                                inputMode="decimal"
+                                                value={entry.appit}
+                                                onChange={e => updateEntry(entry.id, "appit", e.target.value)}
+                                                className="bg-transparent text-black text-end w-full outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                placeholder="0.00"
+                                            />
+                                        </div>
+                                    </td>
+
+                                    {/* Remove */}
+                                    <td className="p-2 text-center">
+                                        {incomeEntries.length > 1 && (
+                                            <button
+                                                onClick={() => removeEntry(entry.id)}
+                                                className="text-red-500 hover:text-red-700 text-lg font-bold w-6 h-6 flex items-center justify-center"
+                                            >
+                                                ×
+                                            </button>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+
+                        {/* Totals */}
+                        <tfoot>
+                            <tr>
+                                <td className="p-2 font-bold text-black text-lg" colSpan={3}><div className='px-4 py-2'>Total</div></td>
+                                <td className="p-2 font-bold text-white text-lg text-center"><div className='bg-popup-title-bg rounded-xl px-4 py-2'>{formatCurrency(totalIncome)}</div></td>
+                                <td className="p-2 font-bold text-white text-lg text-end"><div className='bg-popup-title-bg rounded-xl px-4 py-2'>{formatCurrency(totalAppit)}</div></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
 
                 {/* Add Button */}
-                <Flex justify='end'>
-                    <Button onClick={addNewEntry} icon={IoAdd} size='sm' className='px-6'>Add</Button>
+                <Flex justify="end">
+                    <Button onClick={addNewEntry} icon={IoAdd} size="sm" className="px-6">
+                        Add
+                    </Button>
                 </Flex>
-
-                {/* Total Income */}
-                <div className="rounded-lg p-4 bg-white justify-between flex px-10">
-                    <Text className="text-black text-center font-bold text-lg">
-                        Total
-                    </Text>
-                    <Text className="text-black text-center font-bold text-lg">
-                        {formatCurrency(totalIncome)}
-                    </Text>
-                </div>
             </div>
         </Modal>
     );

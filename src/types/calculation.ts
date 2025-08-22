@@ -1,32 +1,26 @@
 import { Account } from './account';
 import { Bank } from './bank';
+import { Status } from './enums/status';
 
 export interface Calculation {
   id: number;
-  dateAndTime: Date;
   year: string;
+  status: Status;
   account: Account;
   calculationData: CalculationData;
-  status: 'submitted' | 'draft';
 }
 
 interface CalculationData {
+  sourceOfIncome: SourceOfIncome;
+  deductionsFromAssessableIncome: DeductionsFromAssessableIncome;
+  totalTaxableIncome: number;
+}
+
+interface DeductionsFromAssessableIncome {
   personalRelief: number;
   rentReliefRate: number;
+  rentRelief: number;
   solarRelief: number;
-  aitOnRentRate: number;
-  aitOnInterestRate: number;
-  appitRate: number;
-
-  sourceOfIncome: SourceOfIncome;
-  
-  assessableIncome: number;
-  taxableIncome: number;
-  grossIncomeTax: GrossIncomeTax;
-  qrt: Qrt;
-
-  totalPayableTax: number;
-  balancePayableTax: number;
 }
 
 interface SourceOfIncome {
@@ -36,10 +30,10 @@ interface SourceOfIncome {
   dividendIncome : DividendIncome,
   businessIncome : BusinessIncome,
   otherIncome : OtherIncome,
-  total : number;
+  totalAssessableIncome : number;
 }
 
-interface EmploymentIncome {
+export interface EmploymentIncome {
   total : number;
   appitTotal: number;
   incomes : Array<EmploymentIncomeRecord>
@@ -48,12 +42,12 @@ interface EmploymentIncome {
 interface EmploymentIncomeRecord {
   name: string;
   value : number;
-  repetition : number;
+  multiplier : number;
   appit: number;
   total : number;
 }
 
-interface RentalIncome {
+export interface RentalIncome {
   total : number;
   incomes : Array<RentalIncomeRecord>
 }
@@ -61,11 +55,11 @@ interface RentalIncome {
 interface RentalIncomeRecord {
   name: string;
   value : number;
-  repetition : number;
+  multiplier : number;
   total : number;
 }
 
-interface InterestIncome {
+export interface InterestIncome {
   totalGrossInterest : number;
   totalAit : number;
   incomes : Array<InterestIncomeRecord>;
@@ -77,10 +71,11 @@ interface InterestIncomeRecord {
   certificateNumber?: string;
   isJoint: boolean;
   grossInterest: number;
+  contribution: number; 
   ait: number;
 }
 
-interface DividendIncome {
+export interface DividendIncome {
   totalGrossDividend: number;
   totalAit: number;
   totalExempted: number;
@@ -95,7 +90,7 @@ interface DividendIncomeRecord {
   exempted: number;
 }
 
-interface BusinessIncome {
+export interface BusinessIncome {
   total : number;
   professionalPracticeTotal: number;
   incomes : Array<BusinessIncomeRecord>;
@@ -108,7 +103,7 @@ interface BusinessIncomeRecord {
   professionalPractice: number;
 }
 
-interface OtherIncome {
+export interface OtherIncome {
   total : number;
   incomes : Array<OtherIncomeRecord>;
 }

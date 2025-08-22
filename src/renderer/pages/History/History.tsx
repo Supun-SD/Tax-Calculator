@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import Navigation from '../../components/Navigation';
-import { Calculation } from '../../../types/calculation';
 import { DataTable, Column } from '../../components/DataTable';
 import { calculations } from '../../../../mockdata/calculations';
 
@@ -9,7 +8,7 @@ const History = () => {
     'submitted'
   );
 
-  const columns: Column<Calculation>[] = [
+  const columns: Column<any>[] = [
     {
       key: 'dateAndTime',
       header: 'Date',
@@ -60,12 +59,12 @@ const History = () => {
     },
   ];
 
-  const handleEdit = (calculation: Calculation) => {
+  const handleEdit = (calculation: any) => {
     // TODO: Implement edit functionality
     // Placeholder for edit functionality
   };
 
-  const handleDelete = (calculation: Calculation) => {
+  const handleDelete = (calculation: any) => {
     // TODO: Implement delete functionality
     // Placeholder for delete functionality
   };

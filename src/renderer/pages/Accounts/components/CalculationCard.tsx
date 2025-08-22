@@ -1,5 +1,4 @@
 import React from 'react';
-import { Calculation } from '../../../../types/calculation';
 import { Button, Flex, Text } from '@radix-ui/themes';
 import {
   RiCalculatorLine,
@@ -9,21 +8,21 @@ import {
 } from 'react-icons/ri';
 
 interface CalculationCardProps {
-  calculation: Calculation;
+  calculation: any;
 }
 
 const CalculationCard: React.FC<CalculationCardProps> = ({ calculation }) => {
-  const handleViewCalculation = (calculation: Calculation) => {
+  const handleViewCalculation = (calculation: any) => {
     console.log('View calculation:', calculation);
     // TODO: Implement view calculation logic
   };
 
-  const handleEditCalculation = (calculation: Calculation) => {
+  const handleEditCalculation = (calculation: any) => {
     console.log('Edit calculation:', calculation);
     // TODO: Implement edit calculation logic
   };
 
-  const handleDownloadCalculation = (calculation: Calculation) => {
+  const handleDownloadCalculation = (calculation: any) => {
     console.log('Download calculation:', calculation);
     // TODO: Implement download calculation logic
   };
