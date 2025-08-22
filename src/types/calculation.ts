@@ -22,6 +22,8 @@ interface CalculationData {
   deductionsFromAssessableIncome: DeductionsFromAssessableIncome;
   totalTaxableIncome: number;
   grossIncomeTax: GrossIncomeTax;
+  payableTax: PayableTax;
+  balancePayableTax: BalancePayableTax;
 }
 
 interface DeductionsFromAssessableIncome {
@@ -138,4 +140,27 @@ interface GrossIncomeTaxSlab {
   value: number;
   rate: number;
   tax: number;
+}
+
+interface PayableTax {
+  total: number;
+  aitRent: {
+    total: number;
+    rate: number;
+  }
+  aitInterest: {
+    total: number;
+    rate: number;
+  }
+  appit: number;
+}
+
+interface BalancePayableTax {
+  total: number;
+  quarterly: {
+    one: number;
+    two: number;
+    three: number;
+    four: number;
+  };
 }

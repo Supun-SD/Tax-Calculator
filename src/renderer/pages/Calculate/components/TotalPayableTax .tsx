@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Text, Separator } from '@radix-ui/themes';
+import { useCalculationContext } from '../../../contexts/CalculationContext';
+import { useSettingsContext } from '../../../contexts/SettingsContext';
 
 interface TaxComponent {
     name: string;
@@ -9,20 +11,45 @@ interface TaxComponent {
 }
 
 const TotalPayableTax = () => {
-    const [taxComponents, setTaxComponents] = useState<TaxComponent[]>([
-        { name: "AIT - Rent", percentage: 5, amount: 450000.00 },
-        { name: "AIT - Interest", percentage: 5, amount: 450000.00 },
-        { name: "APPIT", percentage: 5, amount: 450000.00 }
-    ]);
+    const {
+        grossIncomeTax,
+        totalPayableTax,
+        payableTaxBreakdown
+    } = useCalculationContext();
+    const { settings } = useSettingsContext();
 
-    const [deduction, setDeduction] = useState<number>(450000.00);
-    const [balancePayable, setBalancePayable] = useState<number>(1950000.00);
+    const [taxComponents, setTaxComponents] = useState<TaxComponent[]>([]);
+    const [deduction, setDeduction] = useState<number>(0);
 
     useEffect(() => {
-        const totalComponents = taxComponents.reduce((sum, component) => sum + component.amount, 0);
-        const finalBalance = totalComponents - deduction;
-        setBalancePayable(Math.round(finalBalance * 100) / 100);
-    }, [taxComponents, deduction]);
+        if (!settings || !grossIncomeTax) return;
+
+        const grossIncomeTaxAmount = grossIncomeTax.total || 0;
+        const whtRentRate = settings.reliefsAndAit.whtRent || 0;
+        const aitInterestRate = settings.reliefsAndAit.aitInterest || 0;
+
+        // Update tax components for display
+        const components: TaxComponent[] = [
+            {
+                name: "AIT - Rent",
+                percentage: whtRentRate,
+                amount: -payableTaxBreakdown.rentWhtDeduction
+            },
+            {
+                name: "AIT - Interest",
+                percentage: aitInterestRate,
+                amount: -payableTaxBreakdown.totalAit
+            },
+            {
+                name: "APPIT Total",
+                percentage: 0,
+                amount: -payableTaxBreakdown.appitTotal
+            }
+        ];
+
+        setTaxComponents(components);
+        setDeduction(payableTaxBreakdown.rentWhtDeduction + payableTaxBreakdown.totalAit + payableTaxBreakdown.appitTotal);
+    }, [grossIncomeTax, payableTaxBreakdown, settings]);
 
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('en-US', {
@@ -49,22 +76,27 @@ const TotalPayableTax = () => {
                                 className="flex justify-between items-center py-2"
                             >
                                 <Text className="text-white flex-1">{component.name}</Text>
-                                {component.name === "APPIT" ? (
-                                    <div></div>
-                                ) : (
+                                {component.percentage > 0 ? (
                                     <Text className="text-white text-center flex-1">{formatPercentage(component.percentage)}</Text>
+                                ) : (
+                                    <div className="flex-1"></div>
                                 )}
-                                <Text className="text-white text-right flex-1">{formatCurrency(component.amount)}</Text>
+                                <Text className={`text-white text-right flex-1 ${component.amount < 0 ? 'text-red-400' : ''}`}>
+                                    {component.amount < 0 ? `(${formatCurrency(Math.abs(component.amount))})` : formatCurrency(component.amount)}
+                                </Text>
                             </div>
                         ))}
                     </div>
 
-                    {/* Deduction */}
-                    <div className="mt-4 flex justify-end">
-                        <Text className="text-white text-right">
-                            ({formatCurrency(deduction)})
-                        </Text>
-                    </div>
+                    {/* Total Deductions */}
+                    {deduction > 0 && (
+                        <div className="mt-4 flex justify-end">
+                            <div className="text-white text-right gap-8 flex bg-gray-600/30 rounded-lg p-4">
+                                <Text className="text-white text-right">Total Deductions:</Text>
+                                <Text className="text-white text-right">({formatCurrency(deduction)})</Text>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Balance Payable Tax */}
@@ -72,7 +104,7 @@ const TotalPayableTax = () => {
                     <div className="flex justify-between items-center">
                         <Text className="text-white font-semibold">Total payable tax</Text>
                         <Text className="text-white font-bold text-lg">
-                            {formatCurrency(balancePayable)}
+                            {formatCurrency(totalPayableTax)}
                         </Text>
                     </div>
                 </div>

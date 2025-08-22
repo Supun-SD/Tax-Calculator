@@ -1,27 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Text, Separator } from '@radix-ui/themes';
 import { CalculationService } from '../../../services/calculationService';
+import { useCalculationContext } from '../../../contexts/CalculationContext';
 
 const BalancelPayableTax = () => {
-    const [quarterlyValues, setQuarterlyValues] = useState({
-        qrt1: 25000.00,
-        qrt2: 0.00,
-        qrt3: 0.00,
-        qrt4: 0.00
-    });
-    const [total, setTotal] = useState(25000.00);
+    const { quarterlyPayments, setQuarterlyPayments, balancePayableTax } = useCalculationContext();
+    const [quarterlyPaymentsInput, setQuarterlyPaymentsInput] = useState(quarterlyPayments);
 
-    useEffect(() => {
-        const sum = quarterlyValues.qrt1 + quarterlyValues.qrt2 + quarterlyValues.qrt3 + quarterlyValues.qrt4;
-        setTotal(Math.round(sum * 100) / 100); // Round to 2 decimal places
-    }, [quarterlyValues]);
+    const handleInputChange = (quarter: keyof typeof quarterlyPayments, value: string) => {
+        const cleanValue = value.replace(/[^\d.]/g, '');
 
-    const handleInputChange = (quarter: keyof typeof quarterlyValues, value: string) => {
-        const numValue = parseFloat(value) || 0;
-        setQuarterlyValues(prev => ({
-            ...prev,
-            [quarter]: Math.round(numValue * 100) / 100 // Round to 2 decimal places
-        }));
+        const parts = cleanValue.split('.');
+        if (parts.length > 2) {
+            return;
+        }
+
+        if (parts.length === 2 && parts[1].length > 2) {
+            return;
+        }
+
+        setQuarterlyPaymentsInput({
+            ...quarterlyPaymentsInput,
+            [quarter]: cleanValue
+        });
+
+        setQuarterlyPayments({
+            one: Number(quarterlyPaymentsInput.one),
+            two: Number(quarterlyPaymentsInput.two),
+            three: Number(quarterlyPaymentsInput.three),
+            four: Number(quarterlyPaymentsInput.four)
+        });
     };
 
     const formatCurrency = (amount: number) => {
@@ -39,11 +47,11 @@ const BalancelPayableTax = () => {
                         <Text className="text-white">1st QRT</Text>
                         <div className="bg-surface-2 rounded-lg px-4 py-2 min-w-[120px]">
                             <input
-                                type="number"
-                                value={quarterlyValues.qrt1}
-                                onChange={(e) => handleInputChange('qrt1', e.target.value)}
-                                className="bg-transparent text-white text-right w-full outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                step="0.01"
+                                type="text"
+                                value={quarterlyPaymentsInput.one || ''}
+                                onChange={(e) => handleInputChange('one', e.target.value)}
+                                placeholder="0.00"
+                                className="bg-transparent text-white text-right w-full outline-none"
                             />
                         </div>
                     </div>
@@ -53,11 +61,11 @@ const BalancelPayableTax = () => {
                         <Text className="text-white">2nd QRT</Text>
                         <div className="bg-surface-2 rounded-lg px-4 py-2 min-w-[120px]">
                             <input
-                                type="number"
-                                value={quarterlyValues.qrt2}
-                                onChange={(e) => handleInputChange('qrt2', e.target.value)}
-                                className="bg-transparent text-white text-right w-full outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                step="0.01"
+                                type="text"
+                                value={quarterlyPaymentsInput.two || ''}
+                                onChange={(e) => handleInputChange('two', e.target.value)}
+                                placeholder="0.00"
+                                className="bg-transparent text-white text-right w-full outline-none"
                             />
                         </div>
                     </div>
@@ -67,11 +75,11 @@ const BalancelPayableTax = () => {
                         <Text className="text-white">3rd QRT</Text>
                         <div className="bg-surface-2 rounded-lg px-4 py-2 min-w-[120px]">
                             <input
-                                type="number"
-                                value={quarterlyValues.qrt3}
-                                onChange={(e) => handleInputChange('qrt3', e.target.value)}
-                                className="bg-transparent text-white text-right w-full outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                step="0.01"
+                                type="text"
+                                value={quarterlyPaymentsInput.three || ''}
+                                onChange={(e) => handleInputChange('three', e.target.value)}
+                                placeholder="0.00"
+                                className="bg-transparent text-white text-right w-full outline-none"
                             />
                         </div>
                     </div>
@@ -81,11 +89,11 @@ const BalancelPayableTax = () => {
                         <Text className="text-white">4th QRT</Text>
                         <div className="bg-surface-2 rounded-lg px-4 py-2 min-w-[120px]">
                             <input
-                                type="number"
-                                value={quarterlyValues.qrt4}
-                                onChange={(e) => handleInputChange('qrt4', e.target.value)}
-                                className="bg-transparent text-white text-right w-full outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                step="0.01"
+                                type="text"
+                                value={quarterlyPaymentsInput.four || ''}
+                                onChange={(e) => handleInputChange('four', e.target.value)}
+                                placeholder="0.00"
+                                className="bg-transparent text-white text-right w-full outline-none"
                             />
                         </div>
                     </div>
@@ -96,7 +104,7 @@ const BalancelPayableTax = () => {
                     <div className="flex justify-between items-center">
                         <Text className="text-white font-semibold">Balance payable tax</Text>
                         <Text className="text-white font-bold text-lg">
-                            Rs. {formatCurrency(total)}
+                            Rs. {formatCurrency(balancePayableTax)}
                         </Text>
                     </div>
                 </div>

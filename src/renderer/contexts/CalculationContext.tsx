@@ -30,6 +30,7 @@ interface CalculationContextType {
     setOtherIncome: (income: OtherIncome | null) => void;
     setSolarRelief: (relief: number) => void;
     setGrossIncomeTax: (taxData: GrossIncomeTax) => void;
+    setQuarterlyPayments: (quarterly: { one: number; two: number; three: number; four: number }) => void;
     clearAllIncome: () => void;
 
     // Calculated values
@@ -37,6 +38,19 @@ interface CalculationContextType {
     assessableIncome: number;
     totalTaxableIncome: number;
     grossIncomeTax: GrossIncomeTax | null;
+    totalPayableTax: number;
+    payableTaxBreakdown: {
+        rentWhtDeduction: number;
+        totalAit: number;
+        appitTotal: number;
+    };
+    balancePayableTax: number;
+    quarterlyPayments: {
+        one: number;
+        two: number;
+        three: number;
+        four: number;
+    };
 }
 
 const CalculationContext = createContext<CalculationContextType | undefined>(undefined);
@@ -57,6 +71,7 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
     const [otherIncome, setOtherIncome] = useState<OtherIncome | null>(null);
     const [solarRelief, setSolarRelief] = useState<number>(0);
     const [grossIncomeTax, setGrossIncomeTax] = useState<GrossIncomeTax | null>(null);
+    const [quarterlyPayments, setQuarterlyPayments] = useState<{ one: number; two: number; three: number; four: number }>({ one: 0, two: 0, three: 0, four: 0 });
 
     // Calculate results when income data or settings change
     const calculationResult = useMemo(() => {
@@ -90,6 +105,55 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
     const assessableIncome = CalculationService.roundToTwoDecimals(calculationResult?.assessableIncome || 0);
     const totalTaxableIncome = CalculationService.roundToTwoDecimals(calculationResult?.totalTaxableIncome || 0);
 
+    // Calculate total payable tax
+    const totalPayableTaxCalculation = useMemo(() => {
+        if (!settings || !grossIncomeTax) {
+            return {
+                totalPayableTax: 0,
+                payableTaxBreakdown: {
+                    rentWhtDeduction: 0,
+                    totalAit: 0,
+                    appitTotal: 0
+                }
+            };
+        }
+
+        const grossIncomeTaxAmount = grossIncomeTax.total || 0;
+        const rentIncome = rentalIncome?.total || 0;
+        const whtRentRate = settings.reliefsAndAit.whtRent || 0;
+        const aitInterestRate = settings.reliefsAndAit.aitInterest || 0;
+        const totalAit = interestIncome?.totalAit || 0;
+        const appitTotal = employmentIncome?.appitTotal || 0;
+
+        // Calculate rent WHT deduction
+        const rentWhtDeduction = (rentIncome * whtRentRate) / 100;
+
+        // Calculate total payable tax
+        const totalPayableTax = grossIncomeTaxAmount - rentWhtDeduction - totalAit - appitTotal;
+
+        return {
+            totalPayableTax: totalPayableTax,
+            payableTaxBreakdown: {
+                rentWhtDeduction: CalculationService.roundToTwoDecimals(rentWhtDeduction),
+                totalAit: CalculationService.roundToTwoDecimals(totalAit),
+                appitTotal: CalculationService.roundToTwoDecimals(appitTotal)
+            }
+        };
+    }, [grossIncomeTax, rentalIncome, interestIncome, employmentIncome, settings]);
+
+    // Calculate balance payable tax
+    const balancePayableTaxCalculation = useMemo(() => {
+        if (!settings || !grossIncomeTax) {
+            return 0;
+        }
+
+        const totalPayableTax = totalPayableTaxCalculation.totalPayableTax;
+        const quarterlyPaymentsSum = quarterlyPayments.one + quarterlyPayments.two + quarterlyPayments.three + quarterlyPayments.four;
+        const balancePayableTax = totalPayableTax - quarterlyPaymentsSum;
+
+        return CalculationService.roundToTwoDecimals(balancePayableTax);
+    }, [totalPayableTaxCalculation.totalPayableTax, quarterlyPayments, settings]);
+
     const clearAllIncome = () => {
         setEmploymentIncome(null);
         setRentalIncome(null);
@@ -99,6 +163,7 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
         setOtherIncome(null);
         setSolarRelief(0);
         setGrossIncomeTax(null);
+        setQuarterlyPayments({ one: 0, two: 0, three: 0, four: 0 });
     };
 
     const value: CalculationContextType = {
@@ -120,13 +185,18 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
         setOtherIncome,
         setSolarRelief,
         setGrossIncomeTax,
+        setQuarterlyPayments,
         clearAllIncome,
 
         // Calculated values
         calculationResult,
         assessableIncome,
         totalTaxableIncome,
-        grossIncomeTax
+        grossIncomeTax,
+        totalPayableTax: totalPayableTaxCalculation.totalPayableTax,
+        payableTaxBreakdown: totalPayableTaxCalculation.payableTaxBreakdown,
+        balancePayableTax: balancePayableTaxCalculation,
+        quarterlyPayments: quarterlyPayments
     };
 
     return (

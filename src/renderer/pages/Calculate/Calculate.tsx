@@ -67,7 +67,11 @@ const Calculate = () => {
     calculationResult,
     solarRelief,
     assessableIncome,
-    grossIncomeTax
+    grossIncomeTax,
+    totalPayableTax,
+    payableTaxBreakdown,
+    balancePayableTax,
+    quarterlyPayments
   } = useCalculationContext();
 
   const handleSelectAccount = (
@@ -117,14 +121,27 @@ const Calculate = () => {
           solarRelief: solarRelief
         },
         totalTaxableIncome: totalTaxableIncome,
-        grossIncomeTax: grossIncomeTax || {
-          total: 0,
-          foreignIncome: {
-            total: 0,
-            rate: 0,
-            tax: 0
+        grossIncomeTax: grossIncomeTax,
+        payableTax: {
+          total: totalPayableTax,
+          aitRent: {
+            total: payableTaxBreakdown.rentWhtDeduction,
+            rate: settings.reliefsAndAit.whtRent
           },
-          slabs: []
+          aitInterest: {
+            total: payableTaxBreakdown.totalAit,
+            rate: settings.reliefsAndAit.aitInterest
+          },
+          appit: payableTaxBreakdown.appitTotal
+        },
+        balancePayableTax: {
+          total: balancePayableTax,
+          quarterly: {
+            one: quarterlyPayments.one,
+            two: quarterlyPayments.two,
+            three: quarterlyPayments.three,
+            four: quarterlyPayments.four
+          }
         }
       }
     }
