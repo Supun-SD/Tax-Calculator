@@ -20,6 +20,7 @@ import { CalculationCreateReq } from '../../../types/calculation';
 import { Status } from '../../../types/enums/status';
 import { useCalculationContext } from '../../contexts/CalculationContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
+import { useToast } from '../../hooks/useToast';
 
 // Modal registry for better scalability
 const MODAL_COMPONENTS = {
@@ -52,6 +53,8 @@ const Calculate = () => {
   const [openModal, setOpenModal] = useState<ModalType | null>(null);
   const [isSelectAccountModalOpen, setIsSelectAccountModalOpen] = useState(false);
 
+  const { showError } = useToast();
+
   const { settings } = useSettingsContext();
   const {
     employmentIncome,
@@ -78,10 +81,19 @@ const Calculate = () => {
   };
 
   const handleSaveDraft = () => {
+    if (selectedAccount === null || assessmentPeriod === null) {
+      showError('Please select an account and assessment period');
+      return;
+    }
     console.log('Saving draft');
   };
 
   const handleSubmit = () => {
+    if (selectedAccount === null || assessmentPeriod === null) {
+      showError('Please select an account and assessment period');
+      return;
+    }
+
     const calculation: CalculationCreateReq = {
       year: `${assessmentPeriod?.start}/${assessmentPeriod?.end}`,
       status: Status.SUBMITTED,
