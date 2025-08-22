@@ -17,7 +17,10 @@ interface InterestProps {
 
 interface InterestEntry {
     id: number;
-    bank: Bank;
+    bank: {
+        name: string;
+        tinNumber: string;
+    };
     accountNumber: string;
     certificateNumber: string;
     isJoint: boolean;
@@ -32,7 +35,7 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
     const [interestEntries, setInterestEntries] = useState<InterestEntry[]>([
         {
             id: 1,
-            bank: { id: 0, name: "Select Bank", tinNumber: "", createdAt: "", updatedAt: "" },
+            bank: { name: "Select Bank", tinNumber: "" },
             accountNumber: "",
             certificateNumber: "",
             isJoint: false,
@@ -62,7 +65,7 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
             }));
             setInterestEntries(entries.length > 0 ? entries : [{
                 id: 1,
-                bank: { id: 0, name: "Select Bank", tinNumber: "", createdAt: "", updatedAt: "" },
+                bank: { name: "Select Bank", tinNumber: "" },
                 accountNumber: "",
                 certificateNumber: "",
                 isJoint: false,
@@ -72,7 +75,7 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
         } else if (isOpen && !interestIncome) {
             setInterestEntries([{
                 id: 1,
-                bank: { id: 0, name: "Select Bank", tinNumber: "", createdAt: "", updatedAt: "" },
+                bank: { name: "Select Bank", tinNumber: "" },
                 accountNumber: "",
                 certificateNumber: "",
                 isJoint: false,
@@ -118,7 +121,7 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
 
     const handleBankChange = (id: number, bank: Bank) => {
         setInterestEntries(prev =>
-            prev.map(entry => entry.id === id ? { ...entry, bank } : entry)
+            prev.map(entry => entry.id === id ? { ...entry, bank: { name: bank.name, tinNumber: bank.tinNumber } } : entry)
         );
         setActiveBankDropdown(null);
         setBankSearchTerm("");
@@ -127,8 +130,8 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
     const addNewEntry = () => {
         const newId = interestEntries.length ? Math.max(...interestEntries.map(e => e.id)) + 1 : 1;
         const lastEntry = interestEntries[interestEntries.length - 1];
-        const defaultBank = { id: 0, name: "Select Bank", tinNumber: "", createdAt: "", updatedAt: "" };
-        const selectedBank = lastEntry?.bank.id ? lastEntry.bank : defaultBank;
+        const defaultBank = { name: "Select Bank", tinNumber: "" };
+        const selectedBank = lastEntry?.bank.name !== "Select Bank" ? lastEntry.bank : defaultBank;
 
         setInterestEntries(prev => [
             ...prev,
@@ -154,7 +157,7 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
 
     const isDoneDisabled = useMemo(() => {
         return interestEntries.some(entry =>
-            entry.bank.id === 0 ||
+            entry.bank.name === "Select Bank" ||
             (!entry.accountNumber && !entry.certificateNumber) ||
             entry.grossInterest === ""
         );
@@ -221,7 +224,7 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
                                             onClick={() => setActiveBankDropdown(activeBankDropdown === entry.id ? null : entry.id)}
                                             className="w-full bg-transparent text-gray-800 px-3 py-2 outline-none cursor-pointer flex items-center justify-between min-w-0"
                                         >
-                                            <span className={`${entry.bank.id === 0 ? "text-gray-400" : "text-gray-800"} truncate`}>
+                                            <span className={`${entry.bank.name === "Select Bank" ? "text-gray-400" : "text-gray-800"} truncate`}>
                                                 {entry.bank.name}
                                             </span>
                                             <IoChevronDown size={16} className="flex-shrink-0" />

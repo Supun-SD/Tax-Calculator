@@ -7,7 +7,7 @@ import Header from './components/Header';
 import TaxableIncomeCalculation from './components/TaxableIncomeCalculation';
 import GrossIncomeTax from './components/GrossIncomeTax';
 import BalancelPayableTax from './components/BalancelPayableTax';
-import TotalPayableTax from './components/TotalPayableTax ';
+import TotalPayableTax from './components/TotalPayableTax';
 import Button from '../../components/Button';
 import { MdOutlineOpenInNew } from "react-icons/md";
 import Employment from './components/Employment';

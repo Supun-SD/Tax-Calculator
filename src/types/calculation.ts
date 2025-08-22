@@ -78,7 +78,10 @@ export interface InterestIncome {
 }
 
 interface InterestIncomeRecord {
-  bank: Bank;
+  bank: {
+    name: string;
+    tinNumber: string;
+  };
   accountNumber?: string;
   certificateNumber?: string;
   isJoint: boolean;
