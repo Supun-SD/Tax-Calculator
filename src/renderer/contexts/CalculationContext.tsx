@@ -78,6 +78,24 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
     const [isLoading, setIsLoading] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
 
+    const calculateAndUpdateTotalTaxableIncome = useCallback((calculation: Calculation | CalculationReq) => {
+        const totalAssessableIncome = calculation.calculationData.sourceOfIncome.totalAssessableIncome;
+        const personalRelief = calculation.calculationData.settings.reliefsAndAit.personalRelief;
+        const rentRelief = calculation.calculationData.deductionsFromAssessableIncome.rentRelief;
+        const solarRelief = calculation.calculationData.deductionsFromAssessableIncome.solarRelief;
+
+        const totalTaxableIncome = Math.max(0, totalAssessableIncome - personalRelief - rentRelief - solarRelief);
+
+        const updatedCalculation = {
+            ...calculation,
+            calculationData: {
+                ...calculation.calculationData,
+                totalTaxableIncome
+            }
+        };
+        setCurrentCalculation(updatedCalculation);
+    }, []);
+
     const createNewCalculation = useCallback(async (isEditing: boolean, calculationId?: number) => {
         setIsLoading(true);
         try {
@@ -165,8 +183,10 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
                 }
             };
             setCurrentCalculation(updatedCalculation);
+
+            calculateAndUpdateTotalTaxableIncome(updatedCalculation);
         }
-    }, [currentCalculation]);
+    }, [currentCalculation, calculateAndUpdateTotalTaxableIncome]);
 
     const updateRentalIncome = useCallback((rentalIncome: RentalIncome | null) => {
         if (currentCalculation) {
@@ -191,11 +211,12 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
                     }
                 }
             };
-            setCurrentCalculation(updatedCalculation);
+
+            let finalCalculation = updatedCalculation;
 
             if (rentalIncome) {
                 const rentReliefAmount = (rentalIncome.total * currentCalculation.calculationData.settings.reliefsAndAit.rentRelief) / 100;
-                const updatedCalculationWithRentRelief = {
+                finalCalculation = {
                     ...updatedCalculation,
                     calculationData: {
                         ...updatedCalculation.calculationData,
@@ -205,9 +226,8 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
                         }
                     }
                 };
-                setCurrentCalculation(updatedCalculationWithRentRelief);
             } else {
-                const updatedCalculationWithZeroRentRelief = {
+                finalCalculation = {
                     ...updatedCalculation,
                     calculationData: {
                         ...updatedCalculation.calculationData,
@@ -217,10 +237,13 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
                         }
                     }
                 };
-                setCurrentCalculation(updatedCalculationWithZeroRentRelief);
             }
+
+            setCurrentCalculation(finalCalculation);
+
+            calculateAndUpdateTotalTaxableIncome(finalCalculation);
         }
-    }, [currentCalculation]);
+    }, [currentCalculation, calculateAndUpdateTotalTaxableIncome]);
 
     const updateInterestIncome = useCallback((interestIncome: InterestIncome | null) => {
         if (currentCalculation) {
@@ -246,8 +269,10 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
                 }
             };
             setCurrentCalculation(updatedCalculation);
+
+            calculateAndUpdateTotalTaxableIncome(updatedCalculation);
         }
-    }, [currentCalculation]);
+    }, [currentCalculation, calculateAndUpdateTotalTaxableIncome]);
 
     const updateDividendIncome = useCallback((dividendIncome: DividendIncome | null) => {
         if (currentCalculation) {
@@ -273,8 +298,10 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
                 }
             };
             setCurrentCalculation(updatedCalculation);
+
+            calculateAndUpdateTotalTaxableIncome(updatedCalculation);
         }
-    }, [currentCalculation]);
+    }, [currentCalculation, calculateAndUpdateTotalTaxableIncome]);
 
     const updateBusinessIncome = useCallback((businessIncome: BusinessIncome | null) => {
         if (currentCalculation) {
@@ -300,8 +327,10 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
                 }
             };
             setCurrentCalculation(updatedCalculation);
+
+            calculateAndUpdateTotalTaxableIncome(updatedCalculation);
         }
-    }, [currentCalculation]);
+    }, [currentCalculation, calculateAndUpdateTotalTaxableIncome]);
 
     const updateOtherIncome = useCallback((otherIncome: OtherIncome | null) => {
         if (currentCalculation) {
@@ -327,8 +356,10 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
                 }
             };
             setCurrentCalculation(updatedCalculation);
+
+            calculateAndUpdateTotalTaxableIncome(updatedCalculation);
         }
-    }, [currentCalculation]);
+    }, [currentCalculation, calculateAndUpdateTotalTaxableIncome]);
 
     const recalculateTotalAssessableIncome = useCallback(() => {
         if (currentCalculation) {
@@ -353,8 +384,10 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
                 }
             };
             setCurrentCalculation(updatedCalculation);
+
+            calculateAndUpdateTotalTaxableIncome(updatedCalculation);
         }
-    }, [currentCalculation]);
+    }, [currentCalculation, calculateAndUpdateTotalTaxableIncome]);
 
     const updateSolarRelief = useCallback((solarRelief: number) => {
         if (currentCalculation) {
@@ -369,8 +402,10 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
                 }
             };
             setCurrentCalculation(updatedCalculation);
+
+            calculateAndUpdateTotalTaxableIncome(updatedCalculation);
         }
-    }, [currentCalculation]);
+    }, [currentCalculation, calculateAndUpdateTotalTaxableIncome]);
 
     const value = useMemo(() => ({
         currentCalculation,
