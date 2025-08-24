@@ -18,15 +18,14 @@ interface OtherEntry {
 }
 
 const Other: React.FC<OtherProps> = ({ isOpen, onClose }) => {
-    const { otherIncome, updateIncomeData } = useCalculationContext();
-    const [otherEntries, setOtherEntries] = useState<OtherEntry[]>([
-        { id: 1, description: "", amount: "" }
-    ]);
+    const { currentCalculation, updateOtherIncome } = useCalculationContext();
+    const [otherEntries, setOtherEntries] = useState<OtherEntry[]>([]);
 
-    // Load existing data when modal opens
+    const otherIncome = currentCalculation?.calculationData?.sourceOfIncome?.otherIncome;
+
     useEffect(() => {
         if (isOpen && otherIncome) {
-            const entries = otherIncome.incomes.map((income, index) => ({
+            const entries = otherIncome.incomes.map((income: any, index: number) => ({
                 id: index + 1,
                 description: income.incomeType,
                 amount: income.value.toString()
@@ -40,7 +39,6 @@ const Other: React.FC<OtherProps> = ({ isOpen, onClose }) => {
     const formatCurrency = (amount: number) =>
         CalculationService.formatCurrency(amount);
 
-    // Update numeric fields with validation
     const updateEntry = (id: number, field: keyof OtherEntry, value: string) => {
         if (value.match(/^\d*\.?\d{0,2}$/)) {
             setOtherEntries(prev =>
@@ -64,7 +62,6 @@ const Other: React.FC<OtherProps> = ({ isOpen, onClose }) => {
         if (otherEntries.length > 1) setOtherEntries(prev => prev.filter(entry => entry.id !== id));
     };
 
-    // Totals
     const totalIncome = useMemo(() =>
         otherEntries.reduce((sum, e) => sum + CalculationService.parseAndRound(e.amount), 0), [otherEntries]);
 
@@ -80,7 +77,7 @@ const Other: React.FC<OtherProps> = ({ isOpen, onClose }) => {
                 value: CalculationService.parseAndRound(entry.amount)
             }))
         };
-        updateIncomeData('otherIncome', otherIncome);
+        updateOtherIncome(otherIncome);
         onClose();
     };
 

@@ -19,24 +19,22 @@ interface BusinessEntry {
 }
 
 const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
-    const { businessIncome, updateIncomeData } = useCalculationContext();
-    const [businessEntries, setBusinessEntries] = useState<BusinessEntry[]>([
-        { id: 1, hospital: "", amount: "", professionalPractice: "" }
-    ]);
-
+    const { currentCalculation, updateBusinessIncome } = useCalculationContext();
+    const [businessEntries, setBusinessEntries] = useState<BusinessEntry[]>([]);
     const [taxablePercentage, setTaxablePercentage] = useState<string>("");
 
-    // Load existing data when modal opens
+    const businessIncome = currentCalculation?.calculationData?.sourceOfIncome?.businessIncome;
+
     useEffect(() => {
         if (isOpen && businessIncome) {
-            const entries = businessIncome.incomes.map((income, index) => ({
+            const entries = businessIncome.incomes.map((income: any, index: number) => ({
                 id: index + 1,
                 hospital: income.hospitalName,
                 amount: income.value.toString(),
                 professionalPractice: income.professionalPractice.toString()
             }));
             setBusinessEntries(entries.length > 0 ? entries : [{ id: 1, hospital: "", amount: "", professionalPractice: "" }]);
-            setTaxablePercentage(businessIncome.taxableIncomePercentage.toString());
+            setTaxablePercentage(businessIncome.assessableIncomePercentage.toString());
         } else if (isOpen && !businessIncome) {
             setBusinessEntries([{ id: 1, hospital: "", amount: "", professionalPractice: "" }]);
             setTaxablePercentage("");
@@ -46,7 +44,6 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
     const formatCurrency = (amount: number) =>
         CalculationService.formatCurrency(amount);
 
-    // Update a numeric field
     const updateEntry = (id: number, field: keyof BusinessEntry, value: string) => {
         if (value.match(/^\d*\.?\d{0,2}$/)) {
             setBusinessEntries(prev =>
@@ -62,8 +59,9 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
     };
 
     const handleTaxablePercentageChange = (value: string) => {
-        if (!/^\d*\.?\d*$/.test(value) && value !== "") return;
-        setTaxablePercentage(value);
+        if (value.match(/^\d*\.?\d{0,2}$/)) {
+            setTaxablePercentage(value);
+        }
     };
 
     const addNewEntry = () => {
@@ -75,7 +73,6 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
         if (businessEntries.length > 1) setBusinessEntries(prev => prev.filter(entry => entry.id !== id));
     };
 
-    // Totals
     const totalAmount = useMemo(() =>
         businessEntries.reduce((sum, e) => sum + CalculationService.parseAndRound(e.amount), 0), [businessEntries]);
 
@@ -84,11 +81,14 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
 
     const isDoneDisabled = useMemo(() =>
         businessEntries.some(e => e.hospital === "" || e.amount === "" || e.professionalPractice === "") ||
-        taxablePercentage === "",
+        taxablePercentage === "" || taxablePercentage === "0",
         [businessEntries, taxablePercentage]
     );
 
     const handleDone = () => {
+        const assessableIncomePercentage = CalculationService.parseAndRoundWhole(taxablePercentage);
+        const amountForAssessableIncome = CalculationService.parseAndRound((totalAmount * assessableIncomePercentage) / 100);
+
         const businessIncome: BusinessIncome = {
             total: CalculationService.parseAndRound(totalAmount),
             professionalPracticeTotal: CalculationService.parseAndRound(totalProfessionalPractice),
@@ -97,9 +97,11 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
                 value: CalculationService.parseAndRound(entry.amount),
                 professionalPractice: CalculationService.parseAndRound(entry.professionalPractice)
             })),
-            taxableIncomePercentage: CalculationService.parseAndRoundWhole(taxablePercentage)
+            amountForAssessableIncome,
+            assessableIncomePercentage
         };
-        updateIncomeData('businessIncome', businessIncome);
+
+        updateBusinessIncome(businessIncome);
         onClose();
     };
 
@@ -195,18 +197,21 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
                 {/* Taxable Percentage */}
                 <div className="flex justify-between items-center">
                     <div className="text-gray-700 font-medium">Percentage for taxable income</div>
-                    <div className="bg-white rounded-lg border border-gray-300 px-4 py-2">
-                        <div className="flex items-center">
-                            <input
-                                type="text"
-                                inputMode="decimal"
-                                value={taxablePercentage}
-                                onChange={e => handleTaxablePercentageChange(e.target.value)}
-                                className="w-20 bg-transparent text-gray-800 text-center outline-none"
-                                placeholder="0"
-                            />
-                            <span className="text-gray-600 ml-1">%</span>
+                    <div className='flex items-center gap-5'>
+                        <div className="bg-white rounded-lg border border-gray-300 px-4 py-2">
+                            <div className="flex items-center">
+                                <input
+                                    type="text"
+                                    inputMode="decimal"
+                                    value={taxablePercentage}
+                                    onChange={e => handleTaxablePercentageChange(e.target.value)}
+                                    className="w-20 bg-transparent text-gray-800 text-center outline-none"
+                                    placeholder="0"
+                                />
+                                <span className="text-gray-600 ml-1">%</span>
+                            </div>
                         </div>
+                        <div className='bg-white rounded-lg border border-gray-300 px-4 py-2'>{formatCurrency(totalAmount * CalculationService.parseAndRound(taxablePercentage) / 100)}</div>
                     </div>
                 </div>
             </div>

@@ -52,7 +52,7 @@ export interface EmploymentIncome {
   incomes : Array<EmploymentIncomeRecord>
 }
 
-interface EmploymentIncomeRecord {
+export interface EmploymentIncomeRecord {
   name: string;
   value : number;
   multiplier : number;
@@ -65,7 +65,7 @@ export interface RentalIncome {
   incomes : Array<RentalIncomeRecord>
 }
 
-interface RentalIncomeRecord {
+export interface RentalIncomeRecord {
   name: string;
   value : number;
   multiplier : number;
@@ -78,7 +78,7 @@ export interface InterestIncome {
   incomes : Array<InterestIncomeRecord>;
 }
 
-interface InterestIncomeRecord {
+export interface InterestIncomeRecord {
   bank: {
     name: string;
     tinNumber: string;
@@ -98,7 +98,7 @@ export interface DividendIncome {
   incomes: Array<DividendIncomeRecord>;
 }
 
-interface DividendIncomeRecord {
+export interface DividendIncomeRecord {
   companyName: string;
   grossDividend: number;
   rate: number;
@@ -114,7 +114,7 @@ export interface BusinessIncome {
   assessableIncomePercentage: number;
 }
 
-interface BusinessIncomeRecord {
+export interface BusinessIncomeRecord {
   hospitalName: string;
   value : number;
   professionalPractice: number;
@@ -125,7 +125,7 @@ export interface OtherIncome {
   incomes : Array<OtherIncomeRecord>;
 }
 
-interface OtherIncomeRecord {
+export interface OtherIncomeRecord {
   incomeType : string;
   value : number;
 }

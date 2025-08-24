@@ -3,7 +3,7 @@ import { Text, Flex } from '@radix-ui/themes';
 import Modal from "../../../components/Modal";
 import { IoAdd } from "react-icons/io5";
 import Button from '../../../components/Button';
-import { RentalIncome } from '../../../../types/calculation';
+import { RentalIncome, RentalIncomeRecord } from '../../../../types/calculation';
 import { useCalculationContext } from '../../../contexts/CalculationContext';
 import { CalculationService } from '../../../services/calculationService';
 
@@ -21,40 +21,64 @@ interface IncomeEntry {
 }
 
 const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
-    const { rentalIncome, updateIncomeData } = useCalculationContext();
-    const [incomeEntries, setIncomeEntries] = useState<IncomeEntry[]>([
-        { id: 1, name: "", amount: "", multiplier: "1", product: 0 }
-    ]);
+    const { currentCalculation, updateRentalIncome } = useCalculationContext();
+    const [incomeEntries, setIncomeEntries] = useState<IncomeEntry[]>([]);
 
-    // Load existing data when modal opens
+    const rentalIncome = currentCalculation?.calculationData?.sourceOfIncome?.rentalIncome;
+
+    const isDoneDisabled = useMemo(
+        () =>
+            incomeEntries.some(
+                entry =>
+                    entry.name === "" ||
+                    entry.amount === "" ||
+                    entry.multiplier === "" ||
+                    entry.multiplier === "0" ||
+                    entry.amount === "0"
+            ),
+        [incomeEntries]
+    );
+
+    const totalIncome = useMemo(
+        () => incomeEntries.reduce((sum, e) => sum + e.product, 0),
+        [incomeEntries]
+    );
+
     useEffect(() => {
         if (isOpen && rentalIncome) {
-            const entries = rentalIncome.incomes.map((income, index) => ({
-                id: index + 1,
-                name: income.name,
-                amount: income.value.toString(),
-                multiplier: income.multiplier.toString(),
-                product: income.total
-            }));
-            setIncomeEntries(entries.length > 0 ? entries : [{ id: 1, name: "", amount: "", multiplier: "1", product: 0 }]);
+            const entries = rentalIncome.incomes.map(
+                (income: RentalIncomeRecord, index: number) => ({
+                    id: index + 1,
+                    name: income.name,
+                    amount: income.value.toString(),
+                    multiplier: income.multiplier.toString(),
+                    product: income.value * income.multiplier
+                })
+            );
+
+            setIncomeEntries(
+                entries.length > 0
+                    ? entries
+                    : [{ id: 1, name: "", amount: "", multiplier: "1", product: 0 }]
+            );
         } else if (isOpen && !rentalIncome) {
             setIncomeEntries([{ id: 1, name: "", amount: "", multiplier: "1", product: 0 }]);
         }
     }, [isOpen, rentalIncome]);
 
-    // Helpers
-    const formatCurrency = (amount: number) =>
-        CalculationService.formatCurrency(amount);
+    const formatCurrency = (amount: number) => CalculationService.formatCurrency(amount);
 
     const updateEntry = (id: number, field: keyof IncomeEntry, value: string) => {
         if (value.match(/^\d*\.?\d{0,2}$/)) {
             setIncomeEntries(prev =>
                 prev.map(entry => {
                     if (entry.id !== id) return entry;
+
                     const updated = { ...entry, [field]: value };
                     const amount = CalculationService.parseAndRound(updated.amount);
                     const multiplier = CalculationService.parseAndRound(updated.multiplier);
                     updated.product = amount * multiplier;
+
                     return updated;
                 })
             );
@@ -63,25 +87,26 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
 
     const handleNameChange = (id: number, value: string) => {
         setIncomeEntries(prev =>
-            prev.map(entry => entry.id === id ? { ...entry, name: value } : entry)
+            prev.map(entry => (entry.id === id ? { ...entry, name: value } : entry))
         );
     };
 
     const addNewEntry = () => {
-        const newId = incomeEntries.length ? Math.max(...incomeEntries.map(e => e.id)) + 1 : 1;
-        setIncomeEntries(prev => [...prev, { id: newId, name: "", amount: "", multiplier: "1", product: 0 }]);
+        const newId = incomeEntries.length
+            ? Math.max(...incomeEntries.map(e => e.id)) + 1
+            : 1;
+
+        setIncomeEntries(prev => [
+            ...prev,
+            { id: newId, name: "", amount: "", multiplier: "1", product: 0 }
+        ]);
     };
 
     const removeEntry = (id: number) => {
-        if (incomeEntries.length > 1) setIncomeEntries(prev => prev.filter(entry => entry.id !== id));
+        if (incomeEntries.length > 1) {
+            setIncomeEntries(prev => prev.filter(entry => entry.id !== id));
+        }
     };
-
-    const isDoneDisabled = useMemo(() =>
-        incomeEntries.some(entry => entry.name === "" || entry.amount === "" || entry.multiplier === ""),
-        [incomeEntries]
-    );
-
-    const totalIncome = useMemo(() => incomeEntries.reduce((sum, e) => sum + e.product, 0), [incomeEntries]);
 
     const handleDone = () => {
         const rentalIncome: RentalIncome = {
@@ -100,7 +125,7 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
             })
         };
 
-        updateIncomeData('rentalIncome', rentalIncome);
+        updateRentalIncome(rentalIncome);
         onClose();
     };
 

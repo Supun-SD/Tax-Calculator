@@ -19,8 +19,8 @@ import Business from './components/Business';
 import Other from './components/Other';
 import { ClipLoader } from 'react-spinners';
 import { useCalculationContext } from '../../contexts/CalculationContext';
+import { useToast } from '../../hooks/useToast';
 
-// Modal registry for better scalability
 const MODAL_COMPONENTS = {
   employment: Employment,
   rent: Rent,
@@ -32,7 +32,6 @@ const MODAL_COMPONENTS = {
 
 type ModalType = keyof typeof MODAL_COMPONENTS;
 
-// Button configuration for income sources
 const INCOME_SOURCE_BUTTONS: Array<{ key: ModalType; label: string }> = [
   { key: 'employment', label: 'Employment' },
   { key: 'rent', label: 'Rent' },
@@ -50,17 +49,30 @@ const Calculate = () => {
   const [isSelectAccountModalOpen, setIsSelectAccountModalOpen] = useState(false);
   const [showSubmitConfirmation, setShowSubmitConfirmation] = useState(false);
 
-  const { createNewCalculation, currentCalculation, isLoading } = useCalculationContext();
+  const { createNewCalculation, currentCalculation, isLoading, updateCalculationAccount } = useCalculationContext();
 
   const location = useLocation();
   const state = location.state as { isEditing?: boolean, calculationId?: number };
 
+  const { showError } = useToast();
+
   useEffect(() => {
-    const fetchCalculation = async () => {
-      await createNewCalculation(state?.isEditing ?? false, state?.calculationId);
-    };
-    fetchCalculation();
+    createNewCalculation(state?.isEditing ?? false, state?.calculationId);
   }, []);
+
+  useEffect(() => {
+    if (!currentCalculation) return;
+
+    if ("account" in currentCalculation) {
+      setSelectedAccount(currentCalculation.account);
+    }
+
+    if (currentCalculation.year) {
+      const [start, end] = currentCalculation.year.split('/');
+      setAssessmentPeriod({ start, end });
+    }
+  }, [currentCalculation]);
+
 
   const handleSelectAccount = (
     account: Account,
@@ -72,6 +84,9 @@ const Calculate = () => {
       start: startDate,
       end: endDate
     });
+    const year = `${startDate}/${endDate}`;
+    updateCalculationAccount(account.id, year);
+
     setIsSelectAccountModalOpen(false);
   };
 
@@ -81,14 +96,17 @@ const Calculate = () => {
   };
 
   const handleSubmitClick = () => {
+    if (!selectedAccount || !assessmentPeriod) {
+      showError('Please select an account and assessment period');
+      return;
+    }
     console.log(currentCalculation);
-    //setShowSubmitConfirmation(true);
+    // setShowSubmitConfirmation(true);
   };
 
   const handleSubmit = async () => {
-    // Dummy implementation
     console.log('Submitting calculation...');
-    navigate('/history');
+    //navigate('/history');
     setShowSubmitConfirmation(false);
   };
 
@@ -108,7 +126,7 @@ const Calculate = () => {
             selectedAccount={selectedAccount}
             assessmentPeriod={assessmentPeriod}
             onSelectAccount={() => setIsSelectAccountModalOpen(true)}
-            isEditing={false}
+            isEditing={state?.isEditing ?? false}
           />
 
           <div className="mt-8">

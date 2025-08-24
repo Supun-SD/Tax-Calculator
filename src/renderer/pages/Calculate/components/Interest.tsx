@@ -5,8 +5,7 @@ import Button from '../../../components/Button';
 import { ClipLoader } from 'react-spinners';
 import { useBanks } from '../../../hooks/useBanks';
 import { Bank } from '../../../../types/bank';
-import { useSettingsContext } from '../../../contexts/SettingsContext';
-import { InterestIncome } from '../../../../types/calculation';
+import { InterestIncome, InterestIncomeRecord } from '../../../../types/calculation';
 import { useCalculationContext } from '../../../contexts/CalculationContext';
 import { CalculationService } from '../../../services/calculationService';
 
@@ -29,21 +28,9 @@ interface InterestEntry {
 }
 
 const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
-    const { settings } = useSettingsContext();
-    const { interestIncome, updateIncomeData } = useCalculationContext();
+    const { currentCalculation, updateInterestIncome } = useCalculationContext();
 
-    const [interestEntries, setInterestEntries] = useState<InterestEntry[]>([
-        {
-            id: 1,
-            bank: { name: "Select Bank", tinNumber: "" },
-            accountNumber: "",
-            certificateNumber: "",
-            isJoint: false,
-            grossInterest: "",
-            ait: 0
-        }
-    ]);
-
+    const [interestEntries, setInterestEntries] = useState<InterestEntry[]>([]);
     const [totalGrossInterest, setTotalGrossInterest] = useState<number>(0);
     const [totalAIT, setTotalAIT] = useState<number>(0);
     const [bankSearchTerm, setBankSearchTerm] = useState<string>("");
@@ -51,27 +38,48 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
 
     const { banks, loading: isBanksLoading } = useBanks();
 
-    // Load existing data when modal opens
+    const interestIncome = currentCalculation?.calculationData?.sourceOfIncome?.interestIncome;
+    const aitRate: number = currentCalculation?.calculationData?.settings?.reliefsAndAit?.aitInterest;
+
+    const filteredBanks = banks.filter(bank =>
+        bank.name.toLowerCase().includes(bankSearchTerm.toLowerCase())
+    );
+
+    const isDoneDisabled = useMemo(() => {
+        return interestEntries.some(entry =>
+            entry.bank.name === "Select Bank" ||
+            (!entry.accountNumber && !entry.certificateNumber) ||
+            entry.grossInterest === ""
+        );
+    }, [interestEntries]);
+
     useEffect(() => {
         if (isOpen && interestIncome) {
-            const entries = interestIncome.incomes.map((income, index) => ({
-                id: index + 1,
-                bank: income.bank,
-                accountNumber: income.accountNumber || "",
-                certificateNumber: income.certificateNumber || "",
-                isJoint: income.isJoint,
-                grossInterest: income.grossInterest.toString(),
-                ait: income.ait
-            }));
-            setInterestEntries(entries.length > 0 ? entries : [{
-                id: 1,
-                bank: { name: "Select Bank", tinNumber: "" },
-                accountNumber: "",
-                certificateNumber: "",
-                isJoint: false,
-                grossInterest: "",
-                ait: 0
-            }]);
+            const entries = interestIncome.incomes.map(
+                (income: InterestIncomeRecord, index: number) => ({
+                    id: index + 1,
+                    bank: income.bank,
+                    accountNumber: income.accountNumber || "",
+                    certificateNumber: income.certificateNumber || "",
+                    isJoint: income.isJoint,
+                    grossInterest: income.grossInterest.toString(),
+                    ait: income.ait
+                })
+            );
+
+            setInterestEntries(
+                entries.length > 0
+                    ? entries
+                    : [{
+                        id: 1,
+                        bank: { name: "Select Bank", tinNumber: "" },
+                        accountNumber: "",
+                        certificateNumber: "",
+                        isJoint: false,
+                        grossInterest: "",
+                        ait: 0
+                    }]
+            );
         } else if (isOpen && !interestIncome) {
             setInterestEntries([{
                 id: 1,
@@ -85,7 +93,6 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
         }
     }, [isOpen, interestIncome]);
 
-    // Calculate totals and update AIT per entry
     useEffect(() => {
         let grossTotal = 0;
         let aitTotal = 0;
@@ -93,7 +100,7 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
         interestEntries.forEach(entry => {
             const gross = CalculationService.parseAndRound(entry.grossInterest);
             const contribution = entry.isJoint ? gross / 2 : gross;
-            const aitAmount = CalculationService.parseAndRound((contribution * settings.reliefsAndAit.aitInterest) / 100);
+            const aitAmount = CalculationService.parseAndRound((contribution * aitRate) / 100);
 
             entry.ait = aitAmount;
             grossTotal += contribution;
@@ -102,10 +109,9 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
 
         setTotalGrossInterest(CalculationService.parseAndRound(grossTotal));
         setTotalAIT(CalculationService.parseAndRound(aitTotal));
-    }, [interestEntries, settings.reliefsAndAit.aitInterest]);
+    }, [interestEntries, aitRate]);
 
-    const formatCurrency = (amount: number) =>
-        CalculationService.formatCurrency(amount);
+    const formatCurrency = (amount: number) => CalculationService.formatCurrency(amount);
 
     const updateEntry = (id: number, field: keyof InterestEntry, value: string) => {
         if (field === "grossInterest") {
@@ -115,23 +121,31 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
         }
 
         setInterestEntries(prev =>
-            prev.map(entry => entry.id === id ? { ...entry, [field]: value } : entry)
+            prev.map(entry => (entry.id === id ? { ...entry, [field]: value } : entry))
         );
     };
 
     const handleBankChange = (id: number, bank: Bank) => {
         setInterestEntries(prev =>
-            prev.map(entry => entry.id === id ? { ...entry, bank: { name: bank.name, tinNumber: bank.tinNumber } } : entry)
+            prev.map(entry =>
+                entry.id === id
+                    ? { ...entry, bank: { name: bank.name, tinNumber: bank.tinNumber } }
+                    : entry
+            )
         );
         setActiveBankDropdown(null);
         setBankSearchTerm("");
     };
 
     const addNewEntry = () => {
-        const newId = interestEntries.length ? Math.max(...interestEntries.map(e => e.id)) + 1 : 1;
+        const newId = interestEntries.length
+            ? Math.max(...interestEntries.map(e => e.id)) + 1
+            : 1;
+
         const lastEntry = interestEntries[interestEntries.length - 1];
         const defaultBank = { name: "Select Bank", tinNumber: "" };
-        const selectedBank = lastEntry?.bank.name !== "Select Bank" ? lastEntry.bank : defaultBank;
+        const selectedBank =
+            lastEntry?.bank.name !== "Select Bank" ? lastEntry.bank : defaultBank;
 
         setInterestEntries(prev => [
             ...prev,
@@ -153,16 +167,6 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
         }
     };
 
-    const filteredBanks = banks.filter(bank => bank.name.toLowerCase().includes(bankSearchTerm.toLowerCase()));
-
-    const isDoneDisabled = useMemo(() => {
-        return interestEntries.some(entry =>
-            entry.bank.name === "Select Bank" ||
-            (!entry.accountNumber && !entry.certificateNumber) ||
-            entry.grossInterest === ""
-        );
-    }, [interestEntries]);
-
     const handleDone = () => {
         const interestIncome: InterestIncome = {
             totalGrossInterest: CalculationService.parseAndRound(totalGrossInterest),
@@ -181,7 +185,7 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
                 };
             })
         };
-        updateIncomeData('interestIncome', interestIncome);
+        updateInterestIncome(interestIncome);
         onClose();
     };
 
@@ -205,7 +209,7 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
                     <div className="text-center w-12">Joint</div>
                     <div className='text-end'>Gross Interest</div>
                     <div className='text-end'>Contribution</div>
-                    <div className='text-end pr-8'>AIT({Math.round(settings.reliefsAndAit.aitInterest)}%)</div>
+                    <div className='text-end pr-8'>AIT({Math.round(aitRate)}%)</div>
                 </div>
 
                 {/* Table Rows */}

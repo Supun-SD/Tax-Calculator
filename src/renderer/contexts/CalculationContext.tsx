@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode, useMemo, useCallback } from 'react';
-import { Calculation, CalculationReq } from '../../types/calculation';
+import { Calculation, CalculationReq, EmploymentIncome, RentalIncome, InterestIncome, DividendIncome, BusinessIncome, OtherIncome } from '../../types/calculation';
 import { useSettingsContext } from './SettingsContext';
 import { Status } from '../../types/enums/status';
 import { useCalculations } from '../hooks/useCalculations';
@@ -7,8 +7,17 @@ import { useCalculations } from '../hooks/useCalculations';
 interface CalculationContextType {
     currentCalculation: Calculation | CalculationReq | null;
     setCurrentCalculation: (calculation: Calculation | CalculationReq | null) => void;
-    createNewCalculation: (isEditing: boolean, calculationId: number) => Promise<void>;
+    createNewCalculation: (isEditing: boolean, calculationId?: number) => Promise<void>;
+    updateCalculationAccount: (accountId: number, year: string) => void;
+    updateEmploymentIncome: (employmentIncome: EmploymentIncome | null) => void;
+    updateRentalIncome: (rentalIncome: RentalIncome | null) => void;
+    updateInterestIncome: (interestIncome: InterestIncome | null) => void;
+    updateDividendIncome: (dividendIncome: DividendIncome | null) => void;
+    updateBusinessIncome: (businessIncome: BusinessIncome | null) => void;
+    updateOtherIncome: (otherIncome: OtherIncome | null) => void;
+    updateTotalAssessableIncome: (totalAssessableIncome: number) => void;
     isLoading: boolean;
+    isEditing: boolean;
 }
 
 const CalculationContext = createContext<CalculationContextType | undefined>(undefined);
@@ -23,6 +32,7 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
     const { getCalculationById } = useCalculations();
     const [currentCalculation, setCurrentCalculation] = useState<Calculation | CalculationReq | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
 
     const createNewCalculation = useCallback(async (isEditing: boolean, calculationId?: number) => {
         setIsLoading(true);
@@ -30,13 +40,18 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
             if (isEditing && calculationId !== undefined) {
                 const calculation = await getCalculationById(calculationId);
                 setCurrentCalculation(calculation);
+                setIsEditing(true);
             } else {
+                setIsEditing(false);
                 const newCalculation: CalculationReq = {
                     year: '',
                     status: Status.DRAFT,
                     accountId: 0,
                     calculationData: {
-                        settings: settings,
+                        settings: {
+                            reliefsAndAit: settings.reliefsAndAit,
+                            taxRates: settings.taxRates
+                        },
                         sourceOfIncome: {
                             employmentIncome: null,
                             rentalIncome: null,
@@ -71,12 +86,156 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
         }
     }, [settings, getCalculationById]);
 
+    const updateCalculationAccount = useCallback((accountId: number, year: string) => {
+        if (currentCalculation) {
+            const updatedCalculation = {
+                ...currentCalculation,
+                accountId,
+                year
+            };
+            setCurrentCalculation(updatedCalculation);
+        }
+    }, [currentCalculation]);
+
+    const updateEmploymentIncome = useCallback((employmentIncome: EmploymentIncome | null) => {
+        if (currentCalculation) {
+            const updatedCalculation = {
+                ...currentCalculation,
+                calculationData: {
+                    ...currentCalculation.calculationData,
+                    sourceOfIncome: {
+                        ...currentCalculation.calculationData.sourceOfIncome,
+                        employmentIncome
+                    }
+                }
+            };
+            setCurrentCalculation(updatedCalculation);
+        }
+    }, [currentCalculation]);
+
+    const updateRentalIncome = useCallback((rentalIncome: RentalIncome | null) => {
+        if (currentCalculation) {
+            const updatedCalculation = {
+                ...currentCalculation,
+                calculationData: {
+                    ...currentCalculation.calculationData,
+                    sourceOfIncome: {
+                        ...currentCalculation.calculationData.sourceOfIncome,
+                        rentalIncome
+                    }
+                }
+            };
+            setCurrentCalculation(updatedCalculation);
+        }
+    }, [currentCalculation]);
+
+    const updateInterestIncome = useCallback((interestIncome: InterestIncome | null) => {
+        if (currentCalculation) {
+            const updatedCalculation = {
+                ...currentCalculation,
+                calculationData: {
+                    ...currentCalculation.calculationData,
+                    sourceOfIncome: {
+                        ...currentCalculation.calculationData.sourceOfIncome,
+                        interestIncome
+                    }
+                }
+            };
+            setCurrentCalculation(updatedCalculation);
+        }
+    }, [currentCalculation]);
+
+    const updateDividendIncome = useCallback((dividendIncome: DividendIncome | null) => {
+        if (currentCalculation) {
+            const updatedCalculation = {
+                ...currentCalculation,
+                calculationData: {
+                    ...currentCalculation.calculationData,
+                    sourceOfIncome: {
+                        ...currentCalculation.calculationData.sourceOfIncome,
+                        dividendIncome
+                    }
+                }
+            };
+            setCurrentCalculation(updatedCalculation);
+        }
+    }, [currentCalculation]);
+
+    const updateBusinessIncome = useCallback((businessIncome: BusinessIncome | null) => {
+        if (currentCalculation) {
+            const updatedCalculation = {
+                ...currentCalculation,
+                calculationData: {
+                    ...currentCalculation.calculationData,
+                    sourceOfIncome: {
+                        ...currentCalculation.calculationData.sourceOfIncome,
+                        businessIncome
+                    }
+                }
+            };
+            setCurrentCalculation(updatedCalculation);
+        }
+    }, [currentCalculation]);
+
+    const updateOtherIncome = useCallback((otherIncome: OtherIncome | null) => {
+        if (currentCalculation) {
+            const updatedCalculation = {
+                ...currentCalculation,
+                calculationData: {
+                    ...currentCalculation.calculationData,
+                    sourceOfIncome: {
+                        ...currentCalculation.calculationData.sourceOfIncome,
+                        otherIncome
+                    }
+                }
+            };
+            setCurrentCalculation(updatedCalculation);
+        }
+    }, [currentCalculation]);
+
+    const updateTotalAssessableIncome = useCallback((totalAssessableIncome: number) => {
+        if (currentCalculation) {
+            const updatedCalculation = {
+                ...currentCalculation,
+                calculationData: {
+                    ...currentCalculation.calculationData,
+                    sourceOfIncome: {
+                        ...currentCalculation.calculationData.sourceOfIncome,
+                        totalAssessableIncome
+                    }
+                }
+            };
+            setCurrentCalculation(updatedCalculation);
+        }
+    }, [currentCalculation]);
+
     const value = useMemo(() => ({
         currentCalculation,
         setCurrentCalculation,
         createNewCalculation,
+        updateCalculationAccount,
+        updateEmploymentIncome,
+        updateRentalIncome,
+        updateInterestIncome,
+        updateDividendIncome,
+        updateBusinessIncome,
+        updateOtherIncome,
+        updateTotalAssessableIncome,
         isLoading,
-    }), [currentCalculation, createNewCalculation, isLoading]);
+        isEditing,
+    }), [
+        currentCalculation,
+        createNewCalculation,
+        updateCalculationAccount,
+        updateEmploymentIncome,
+        updateRentalIncome,
+        updateInterestIncome,
+        updateDividendIncome,
+        updateBusinessIncome,
+        updateOtherIncome,
+        updateTotalAssessableIncome,
+        isLoading
+    ]);
 
     return (
         <CalculationContext.Provider value={value}>

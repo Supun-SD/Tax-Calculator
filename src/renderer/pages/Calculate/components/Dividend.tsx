@@ -2,7 +2,6 @@ import React, { useMemo, useState, useEffect } from 'react';
 import Modal from "../../../components/Modal";
 import { IoAdd } from "react-icons/io5";
 import Button from '../../../components/Button';
-import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { DividendIncome } from '../../../../types/calculation';
 import { useCalculationContext } from '../../../contexts/CalculationContext';
 import { CalculationService } from '../../../services/calculationService';
@@ -22,43 +21,87 @@ interface DividendEntry {
 }
 
 const Dividend: React.FC<DividendProps> = ({ isOpen, onClose }) => {
-    const { settings } = useSettingsContext();
-    const { dividendIncome, updateIncomeData } = useCalculationContext();
+    const { currentCalculation, updateDividendIncome } = useCalculationContext();
 
-    const [dividendEntries, setDividendEntries] = useState<DividendEntry[]>([
-        { id: 1, company: "", grossDividend: "", rate: Math.round(settings?.reliefsAndAit.aitDividend || 10).toString(), ait: 0, exempted: "" }
-    ]);
+    const [dividendEntries, setDividendEntries] = useState<DividendEntry[]>([]);
 
-    // Load existing data when modal opens
+    const dividendIncome = currentCalculation?.calculationData?.sourceOfIncome?.dividendIncome;
+    const aitRate: number = currentCalculation?.calculationData?.settings?.reliefsAndAit?.aitDividend;
+
+    const totalGrossDividend = useMemo(
+        () => dividendEntries.reduce((sum, e) => sum + CalculationService.parseAndRound(e.grossDividend), 0),
+        [dividendEntries]
+    );
+
+    const totalAit = useMemo(
+        () => dividendEntries.reduce((sum, e) => sum + e.ait, 0),
+        [dividendEntries]
+    );
+
+    const totalExempted = useMemo(
+        () => dividendEntries.reduce((sum, e) => sum + CalculationService.parseAndRound(e.exempted), 0),
+        [dividendEntries]
+    );
+
+    const isDoneDisabled = useMemo(
+        () =>
+            dividendEntries.some(
+                entry =>
+                    entry.company === "" ||
+                    entry.grossDividend === "" ||
+                    entry.rate === "" ||
+                    entry.rate === "0"
+            ),
+        [dividendEntries]
+    );
+
     useEffect(() => {
         if (isOpen && dividendIncome) {
-            const entries = dividendIncome.incomes.map((income, index) => ({
-                id: index + 1,
-                company: income.companyName,
-                grossDividend: income.grossDividend.toString(),
-                rate: income.rate.toString(),
-                ait: income.ait,
-                exempted: income.exempted.toString()
-            }));
-            setDividendEntries(entries.length > 0 ? entries : [{ id: 1, company: "", grossDividend: "", rate: Math.round(settings?.reliefsAndAit.aitDividend || 10).toString(), ait: 0, exempted: "" }]);
-        } else if (isOpen && !dividendIncome) {
-            setDividendEntries([{ id: 1, company: "", grossDividend: "", rate: Math.round(settings?.reliefsAndAit.aitDividend || 10).toString(), ait: 0, exempted: "" }]);
-        }
-    }, [isOpen, dividendIncome, settings?.reliefsAndAit.aitDividend]);
+            const entries = dividendIncome.incomes.map(
+                (income: any, index: number) => ({
+                    id: index + 1,
+                    company: income.companyName,
+                    grossDividend: income.grossDividend.toString(),
+                    rate: income.rate.toString(),
+                    ait: income.ait,
+                    exempted: income.exempted.toString()
+                })
+            );
 
-    const formatCurrency = (amount: number) =>
-        CalculationService.formatCurrency(amount);
+            setDividendEntries(
+                entries.length > 0
+                    ? entries
+                    : [{
+                        id: 1,
+                        company: "",
+                        grossDividend: "",
+                        rate: Math.round(aitRate).toString(),
+                        ait: 0,
+                        exempted: ""
+                    }]
+            );
+        } else if (isOpen && !dividendIncome) {
+            setDividendEntries([{
+                id: 1,
+                company: "",
+                grossDividend: "",
+                rate: Math.round(aitRate).toString(),
+                ait: 0,
+                exempted: ""
+            }]);
+        }
+    }, [isOpen, dividendIncome, aitRate]);
+
+    const formatCurrency = (amount: number) => CalculationService.formatCurrency(amount);
 
     const updateEntry = (id: number, field: keyof DividendEntry, value: string) => {
         if (value.match(/^\d*\.?\d{0,2}$/)) {
-
             setDividendEntries(prev =>
                 prev.map(entry => {
                     if (entry.id !== id) return entry;
 
                     const updated = { ...entry, [field]: value };
 
-                    // Only calculate AIT when gross dividend or rate changes
                     if (field === "grossDividend" || field === "rate") {
                         const gross = CalculationService.parseAndRound(updated.grossDividend);
                         const rate = CalculationService.parseAndRound(updated.rate);
@@ -66,7 +109,6 @@ const Dividend: React.FC<DividendProps> = ({ isOpen, onClose }) => {
                         updated.ait = aitAmount;
                     }
 
-                    // Handle exempted field separately - keep as string like gross dividend
                     if (field === "exempted") {
                         updated.exempted = value;
                     }
@@ -79,30 +121,33 @@ const Dividend: React.FC<DividendProps> = ({ isOpen, onClose }) => {
 
     const handleCompanyChange = (id: number, value: string) => {
         setDividendEntries(prev =>
-            prev.map(entry => entry.id === id ? { ...entry, company: value } : entry)
+            prev.map(entry => (entry.id === id ? { ...entry, company: value } : entry))
         );
     };
 
     const addNewEntry = () => {
-        const newId = dividendEntries.length ? Math.max(...dividendEntries.map(e => e.id)) + 1 : 1;
-        setDividendEntries(prev => [...prev, { id: newId, company: "", grossDividend: "", rate: Math.round(settings?.reliefsAndAit.aitDividend || 10).toString(), ait: 0, exempted: "" }]);
+        const newId = dividendEntries.length
+            ? Math.max(...dividendEntries.map(e => e.id)) + 1
+            : 1;
+
+        setDividendEntries(prev => [
+            ...prev,
+            {
+                id: newId,
+                company: "",
+                grossDividend: "",
+                rate: Math.round(aitRate).toString(),
+                ait: 0,
+                exempted: ""
+            }
+        ]);
     };
 
     const removeEntry = (id: number) => {
-        if (dividendEntries.length > 1) setDividendEntries(prev => prev.filter(entry => entry.id !== id));
+        if (dividendEntries.length > 1) {
+            setDividendEntries(prev => prev.filter(entry => entry.id !== id));
+        }
     };
-
-    const totalGrossDividend = useMemo(() =>
-        dividendEntries.reduce((sum, e) => sum + CalculationService.parseAndRound(e.grossDividend), 0), [dividendEntries]);
-
-    const isDoneDisabled = useMemo(() =>
-        dividendEntries.some(entry => entry.company === "" || entry.grossDividend === "" || entry.rate === ""), [dividendEntries]);
-
-    const totalAit = useMemo(() =>
-        dividendEntries.reduce((sum, e) => sum + e.ait, 0), [dividendEntries]);
-
-    const totalExempted = useMemo(() =>
-        dividendEntries.reduce((sum, e) => sum + CalculationService.parseAndRound(e.exempted), 0), [dividendEntries]);
 
     const handleDone = () => {
         const dividendIncome: DividendIncome = {
@@ -124,7 +169,7 @@ const Dividend: React.FC<DividendProps> = ({ isOpen, onClose }) => {
             })
         };
 
-        updateIncomeData('dividendIncome', dividendIncome);
+        updateDividendIncome(dividendIncome);
         onClose();
     };
 
@@ -191,7 +236,7 @@ const Dividend: React.FC<DividendProps> = ({ isOpen, onClose }) => {
                                                 value={entry.rate}
                                                 onChange={e => updateEntry(entry.id, "rate", e.target.value)}
                                                 className="bg-transparent text-black text-center w-16 outline-none"
-                                                placeholder={Math.round(settings?.reliefsAndAit.aitDividend || 0).toString()}
+                                                placeholder={Math.round(aitRate).toString()}
                                             />
                                             <span className="text-black pl-1">%</span>
                                         </div>
