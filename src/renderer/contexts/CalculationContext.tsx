@@ -4,6 +4,49 @@ import { useSettingsContext } from './SettingsContext';
 import { Status } from '../../types/enums/status';
 import { useCalculations } from '../hooks/useCalculations';
 
+const calculateTotalAssessableIncome = (
+    employmentIncome: EmploymentIncome | null,
+    rentalIncome: RentalIncome | null,
+    interestIncome: InterestIncome | null,
+    dividendIncome: DividendIncome | null,
+    businessIncome: BusinessIncome | null,
+    otherIncome: OtherIncome | null
+): number => {
+    let total = 0;
+
+    // Add employment income
+    if (employmentIncome) {
+        total += employmentIncome.total;
+    }
+
+    // Add rental income
+    if (rentalIncome) {
+        total += rentalIncome.total;
+    }
+
+    // Add interest income (gross interest)
+    if (interestIncome) {
+        total += interestIncome.totalGrossInterest;
+    }
+
+    // Add dividend income (gross dividend)
+    if (dividendIncome) {
+        total += dividendIncome.totalGrossDividend;
+    }
+
+    // Add business income (amount for assessable income)
+    if (businessIncome) {
+        total += businessIncome.amountForAssessableIncome;
+    }
+
+    // Add other income
+    if (otherIncome) {
+        total += otherIncome.total;
+    }
+
+    return total;
+};
+
 interface CalculationContextType {
     currentCalculation: Calculation | CalculationReq | null;
     setCurrentCalculation: (calculation: Calculation | CalculationReq | null) => void;
@@ -15,8 +58,7 @@ interface CalculationContextType {
     updateDividendIncome: (dividendIncome: DividendIncome | null) => void;
     updateBusinessIncome: (businessIncome: BusinessIncome | null) => void;
     updateOtherIncome: (otherIncome: OtherIncome | null) => void;
-    updateTotalAssessableIncome: (totalAssessableIncome: number) => void;
-    updateRentRelief: (rentRelief: number) => void;
+    recalculateTotalAssessableIncome: () => void;
     isLoading: boolean;
     isEditing: boolean;
 }
@@ -100,29 +142,24 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
 
     const updateEmploymentIncome = useCallback((employmentIncome: EmploymentIncome | null) => {
         if (currentCalculation) {
+            const sourceOfIncome = currentCalculation.calculationData.sourceOfIncome;
+            const totalAssessableIncome = calculateTotalAssessableIncome(
+                employmentIncome,
+                sourceOfIncome.rentalIncome,
+                sourceOfIncome.interestIncome,
+                sourceOfIncome.dividendIncome,
+                sourceOfIncome.businessIncome,
+                sourceOfIncome.otherIncome
+            );
+
             const updatedCalculation = {
                 ...currentCalculation,
                 calculationData: {
                     ...currentCalculation.calculationData,
                     sourceOfIncome: {
-                        ...currentCalculation.calculationData.sourceOfIncome,
-                        employmentIncome
-                    }
-                }
-            };
-            setCurrentCalculation(updatedCalculation);
-        }
-    }, [currentCalculation]);
-
-    const updateRentRelief = useCallback((rentRelief: number) => {
-        if (currentCalculation) {
-            const updatedCalculation = {
-                ...currentCalculation,
-                calculationData: {
-                    ...currentCalculation.calculationData,
-                    deductionsFromAssessableIncome: {
-                        ...currentCalculation.calculationData.deductionsFromAssessableIncome,
-                        rentRelief
+                        ...sourceOfIncome,
+                        employmentIncome,
+                        totalAssessableIncome
                     }
                 }
             };
@@ -132,13 +169,24 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
 
     const updateRentalIncome = useCallback((rentalIncome: RentalIncome | null) => {
         if (currentCalculation) {
+            const sourceOfIncome = currentCalculation.calculationData.sourceOfIncome;
+            const totalAssessableIncome = calculateTotalAssessableIncome(
+                sourceOfIncome.employmentIncome,
+                rentalIncome,
+                sourceOfIncome.interestIncome,
+                sourceOfIncome.dividendIncome,
+                sourceOfIncome.businessIncome,
+                sourceOfIncome.otherIncome
+            );
+
             const updatedCalculation = {
                 ...currentCalculation,
                 calculationData: {
                     ...currentCalculation.calculationData,
                     sourceOfIncome: {
-                        ...currentCalculation.calculationData.sourceOfIncome,
-                        rentalIncome
+                        ...sourceOfIncome,
+                        rentalIncome,
+                        totalAssessableIncome
                     }
                 }
             };
@@ -175,13 +223,24 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
 
     const updateInterestIncome = useCallback((interestIncome: InterestIncome | null) => {
         if (currentCalculation) {
+            const sourceOfIncome = currentCalculation.calculationData.sourceOfIncome;
+            const totalAssessableIncome = calculateTotalAssessableIncome(
+                sourceOfIncome.employmentIncome,
+                sourceOfIncome.rentalIncome,
+                interestIncome,
+                sourceOfIncome.dividendIncome,
+                sourceOfIncome.businessIncome,
+                sourceOfIncome.otherIncome
+            );
+
             const updatedCalculation = {
                 ...currentCalculation,
                 calculationData: {
                     ...currentCalculation.calculationData,
                     sourceOfIncome: {
-                        ...currentCalculation.calculationData.sourceOfIncome,
-                        interestIncome
+                        ...sourceOfIncome,
+                        interestIncome,
+                        totalAssessableIncome
                     }
                 }
             };
@@ -191,13 +250,24 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
 
     const updateDividendIncome = useCallback((dividendIncome: DividendIncome | null) => {
         if (currentCalculation) {
+            const sourceOfIncome = currentCalculation.calculationData.sourceOfIncome;
+            const totalAssessableIncome = calculateTotalAssessableIncome(
+                sourceOfIncome.employmentIncome,
+                sourceOfIncome.rentalIncome,
+                sourceOfIncome.interestIncome,
+                dividendIncome,
+                sourceOfIncome.businessIncome,
+                sourceOfIncome.otherIncome
+            );
+
             const updatedCalculation = {
                 ...currentCalculation,
                 calculationData: {
                     ...currentCalculation.calculationData,
                     sourceOfIncome: {
-                        ...currentCalculation.calculationData.sourceOfIncome,
-                        dividendIncome
+                        ...sourceOfIncome,
+                        dividendIncome,
+                        totalAssessableIncome
                     }
                 }
             };
@@ -207,13 +277,24 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
 
     const updateBusinessIncome = useCallback((businessIncome: BusinessIncome | null) => {
         if (currentCalculation) {
+            const sourceOfIncome = currentCalculation.calculationData.sourceOfIncome;
+            const totalAssessableIncome = calculateTotalAssessableIncome(
+                sourceOfIncome.employmentIncome,
+                sourceOfIncome.rentalIncome,
+                sourceOfIncome.interestIncome,
+                sourceOfIncome.dividendIncome,
+                businessIncome,
+                sourceOfIncome.otherIncome
+            );
+
             const updatedCalculation = {
                 ...currentCalculation,
                 calculationData: {
                     ...currentCalculation.calculationData,
                     sourceOfIncome: {
-                        ...currentCalculation.calculationData.sourceOfIncome,
-                        businessIncome
+                        ...sourceOfIncome,
+                        businessIncome,
+                        totalAssessableIncome
                     }
                 }
             };
@@ -223,13 +304,24 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
 
     const updateOtherIncome = useCallback((otherIncome: OtherIncome | null) => {
         if (currentCalculation) {
+            const sourceOfIncome = currentCalculation.calculationData.sourceOfIncome;
+            const totalAssessableIncome = calculateTotalAssessableIncome(
+                sourceOfIncome.employmentIncome,
+                sourceOfIncome.rentalIncome,
+                sourceOfIncome.interestIncome,
+                sourceOfIncome.dividendIncome,
+                sourceOfIncome.businessIncome,
+                otherIncome
+            );
+
             const updatedCalculation = {
                 ...currentCalculation,
                 calculationData: {
                     ...currentCalculation.calculationData,
                     sourceOfIncome: {
-                        ...currentCalculation.calculationData.sourceOfIncome,
-                        otherIncome
+                        ...sourceOfIncome,
+                        otherIncome,
+                        totalAssessableIncome
                     }
                 }
             };
@@ -237,14 +329,24 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
         }
     }, [currentCalculation]);
 
-    const updateTotalAssessableIncome = useCallback((totalAssessableIncome: number) => {
+    const recalculateTotalAssessableIncome = useCallback(() => {
         if (currentCalculation) {
+            const sourceOfIncome = currentCalculation.calculationData.sourceOfIncome;
+            const totalAssessableIncome = calculateTotalAssessableIncome(
+                sourceOfIncome.employmentIncome,
+                sourceOfIncome.rentalIncome,
+                sourceOfIncome.interestIncome,
+                sourceOfIncome.dividendIncome,
+                sourceOfIncome.businessIncome,
+                sourceOfIncome.otherIncome
+            );
+
             const updatedCalculation = {
                 ...currentCalculation,
                 calculationData: {
                     ...currentCalculation.calculationData,
                     sourceOfIncome: {
-                        ...currentCalculation.calculationData.sourceOfIncome,
+                        ...sourceOfIncome,
                         totalAssessableIncome
                     }
                 }
@@ -264,8 +366,7 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
         updateDividendIncome,
         updateBusinessIncome,
         updateOtherIncome,
-        updateTotalAssessableIncome,
-        updateRentRelief,
+        recalculateTotalAssessableIncome,
         isLoading,
         isEditing,
     }), [
@@ -278,8 +379,7 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
         updateDividendIncome,
         updateBusinessIncome,
         updateOtherIncome,
-        updateTotalAssessableIncome,
-        updateRentRelief,
+        recalculateTotalAssessableIncome,
         isLoading
     ]);
 

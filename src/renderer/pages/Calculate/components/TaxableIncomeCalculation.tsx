@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { Text, Separator, Flex, IconButton, Tooltip } from '@radix-ui/themes';
+import { Text, Separator, Flex, IconButton, Tooltip, Button } from '@radix-ui/themes';
 import { IoIosInformationCircleOutline } from "react-icons/io";
+import { IoRefresh } from "react-icons/io5";
 import { CalculationService } from '../../../services/calculationService';
 import { useCalculationContext } from '../../../contexts/CalculationContext';
 
 const TaxableIncomeCalculation = () => {
 
-    const { currentCalculation } = useCalculationContext();
+    const { currentCalculation, recalculateTotalAssessableIncome } = useCalculationContext();
 
     const [solarRelief, setSolarRelief] = useState<string>('');
 
@@ -72,7 +73,21 @@ const TaxableIncomeCalculation = () => {
                                 <td className="py-3 px-4 text-right">{CalculationService.formatCurrency(otherIncome)}</td>
                             </tr>
                             <tr className="border-b border-gray-700 bg-surface-2">
-                                <td className="py-3 px-4 font-semibold">Assessable income</td>
+                                <td className="py-3 px-4 font-semibold">
+                                    <Flex align="center" gap="2">
+                                        <Text>Assessable income</Text>
+                                        <Tooltip content="Click to manually recalculate total assessable income" className='bg-surface-2'>
+                                            <IconButton
+                                                variant="ghost"
+                                                size="1"
+                                                className="text-gray-400 hover:text-white"
+                                                onClick={recalculateTotalAssessableIncome}
+                                            >
+                                                <IoRefresh />
+                                            </IconButton>
+                                        </Tooltip>
+                                    </Flex>
+                                </td>
                                 <td className="py-3 px-4 text-right font-semibold">
                                     {CalculationService.formatCurrency(totalAssessableIncome)}
                                 </td>
