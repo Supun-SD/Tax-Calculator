@@ -16,6 +16,7 @@ interface CalculationContextType {
     updateBusinessIncome: (businessIncome: BusinessIncome | null) => void;
     updateOtherIncome: (otherIncome: OtherIncome | null) => void;
     updateTotalAssessableIncome: (totalAssessableIncome: number) => void;
+    updateRentRelief: (rentRelief: number) => void;
     isLoading: boolean;
     isEditing: boolean;
 }
@@ -113,6 +114,22 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
         }
     }, [currentCalculation]);
 
+    const updateRentRelief = useCallback((rentRelief: number) => {
+        if (currentCalculation) {
+            const updatedCalculation = {
+                ...currentCalculation,
+                calculationData: {
+                    ...currentCalculation.calculationData,
+                    deductionsFromAssessableIncome: {
+                        ...currentCalculation.calculationData.deductionsFromAssessableIncome,
+                        rentRelief
+                    }
+                }
+            };
+            setCurrentCalculation(updatedCalculation);
+        }
+    }, [currentCalculation]);
+
     const updateRentalIncome = useCallback((rentalIncome: RentalIncome | null) => {
         if (currentCalculation) {
             const updatedCalculation = {
@@ -126,6 +143,33 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
                 }
             };
             setCurrentCalculation(updatedCalculation);
+
+            if (rentalIncome) {
+                const rentReliefAmount = (rentalIncome.total * currentCalculation.calculationData.settings.reliefsAndAit.rentRelief) / 100;
+                const updatedCalculationWithRentRelief = {
+                    ...updatedCalculation,
+                    calculationData: {
+                        ...updatedCalculation.calculationData,
+                        deductionsFromAssessableIncome: {
+                            ...updatedCalculation.calculationData.deductionsFromAssessableIncome,
+                            rentRelief: rentReliefAmount
+                        }
+                    }
+                };
+                setCurrentCalculation(updatedCalculationWithRentRelief);
+            } else {
+                const updatedCalculationWithZeroRentRelief = {
+                    ...updatedCalculation,
+                    calculationData: {
+                        ...updatedCalculation.calculationData,
+                        deductionsFromAssessableIncome: {
+                            ...updatedCalculation.calculationData.deductionsFromAssessableIncome,
+                            rentRelief: 0
+                        }
+                    }
+                };
+                setCurrentCalculation(updatedCalculationWithZeroRentRelief);
+            }
         }
     }, [currentCalculation]);
 
@@ -221,6 +265,7 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
         updateBusinessIncome,
         updateOtherIncome,
         updateTotalAssessableIncome,
+        updateRentRelief,
         isLoading,
         isEditing,
     }), [
@@ -234,6 +279,7 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
         updateBusinessIncome,
         updateOtherIncome,
         updateTotalAssessableIncome,
+        updateRentRelief,
         isLoading
     ]);
 

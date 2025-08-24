@@ -8,7 +8,7 @@ const TaxableIncomeCalculation = () => {
 
     const { currentCalculation } = useCalculationContext();
 
-    const [solarRelief, setSolarRelief] = useState<string>('50000');
+    const [solarRelief, setSolarRelief] = useState<string>('');
 
     const handleSolarReliefChange = (value: string) => {
         if (value.match(/^\d*\.?\d{0,2}$/)) {
@@ -87,7 +87,7 @@ const TaxableIncomeCalculation = () => {
                                 <td className="py-3 px-4">
                                     <Flex align="center" gap="2">
                                         <Text>Rent relief</Text>
-                                        <Tooltip content="Rent relief is 15% of the rent income" className='bg-surface-2'>
+                                        <Tooltip content={`Rent relief is ${currentCalculation?.calculationData?.settings?.reliefsAndAit?.rentRelief}% of the rent income`} className='bg-surface-2'>
                                             <IconButton variant="ghost" size="1" className="text-gray-400 hover:text-white">
                                                 <IoIosInformationCircleOutline />
                                             </IconButton>
