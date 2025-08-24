@@ -139,7 +139,7 @@ export interface GrossIncomeTax {
   slabs: Array<GrossIncomeTaxSlab>;
 }
 
-interface GrossIncomeTaxSlab {
+export interface GrossIncomeTaxSlab {
   slab: string;
   value: number;
   rate: number;

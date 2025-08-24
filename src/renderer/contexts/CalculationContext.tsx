@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode, useMemo, useCallback } from 'react';
-import { Calculation, CalculationReq, EmploymentIncome, RentalIncome, InterestIncome, DividendIncome, BusinessIncome, OtherIncome } from '../../types/calculation';
+import { Calculation, CalculationReq, EmploymentIncome, RentalIncome, InterestIncome, DividendIncome, BusinessIncome, OtherIncome, GrossIncomeTaxSlab } from '../../types/calculation';
 import { useSettingsContext } from './SettingsContext';
 import { Status } from '../../types/enums/status';
 import { useCalculations } from '../hooks/useCalculations';
@@ -14,32 +14,26 @@ const calculateTotalAssessableIncome = (
 ): number => {
     let total = 0;
 
-    // Add employment income
     if (employmentIncome) {
         total += employmentIncome.total;
     }
 
-    // Add rental income
     if (rentalIncome) {
         total += rentalIncome.total;
     }
 
-    // Add interest income (gross interest)
     if (interestIncome) {
         total += interestIncome.totalGrossInterest;
     }
 
-    // Add dividend income (gross dividend)
     if (dividendIncome) {
         total += dividendIncome.totalGrossDividend;
     }
 
-    // Add business income (amount for assessable income)
     if (businessIncome) {
         total += businessIncome.amountForAssessableIncome;
     }
 
-    // Add other income
     if (otherIncome) {
         total += otherIncome.total;
     }
@@ -60,6 +54,7 @@ interface CalculationContextType {
     updateOtherIncome: (otherIncome: OtherIncome | null) => void;
     recalculateTotalAssessableIncome: () => void;
     updateSolarRelief: (solarRelief: number) => void;
+    updateForeignIncome: (foreignIncome: number) => void;
     isLoading: boolean;
     isEditing: boolean;
 }
@@ -91,6 +86,71 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
             calculationData: {
                 ...calculation.calculationData,
                 totalTaxableIncome
+            }
+        };
+        setCurrentCalculation(updatedCalculation);
+        calculateAndUpdateGrossIncomeTax(updatedCalculation);
+    }, []);
+
+    const calculateAndUpdateGrossIncomeTax = useCallback((calculation: Calculation | CalculationReq) => {
+        const totalTaxableIncome = calculation.calculationData.totalTaxableIncome;
+        const taxRates = calculation.calculationData.settings.taxRates;
+        const foreignIncome = calculation.calculationData.grossIncomeTax?.foreignIncome.total ?? 0;
+        const foreignIncomeTaxRate = calculation.calculationData.settings.reliefsAndAit.foreignIncomeTaxRate;
+
+        let slabs: Array<GrossIncomeTaxSlab> = [];
+        let totalTax = 0;
+
+        if (totalTaxableIncome > 0) {
+            const slabLimits = [
+                { limit: 500000, rate: taxRates.first, name: "First" },
+                { limit: 1000000, rate: taxRates.second, name: "Second" },
+                { limit: 1500000, rate: taxRates.third, name: "Third" },
+                { limit: 2000000, rate: taxRates.fourth, name: "Fourth" },
+                { limit: Infinity, rate: taxRates.fifth, name: "Fifth" }
+            ];
+
+            let remainingIncome = totalTaxableIncome;
+            let previousLimit = 0;
+
+            for (const slab of slabLimits) {
+                if (remainingIncome <= 0) break;
+
+                const slabAmount = Math.min(remainingIncome, slab.limit - previousLimit);
+                const slabTax = slabAmount * (slab.rate / 100);
+
+                if (slabAmount > 0) {
+                    slabs.push({
+                        slab: slab.name,
+                        value: slabAmount,
+                        rate: slab.rate,
+                        tax: slabTax
+                    });
+                    totalTax += slabTax;
+                }
+
+                remainingIncome -= slabAmount;
+                previousLimit = slab.limit;
+            }
+        }
+
+        const foreignIncomeTax = foreignIncome * (foreignIncomeTaxRate / 100);
+        totalTax += foreignIncomeTax;
+
+        const grossIncomeTax = {
+            total: totalTax,
+            foreignIncome: {
+                total: foreignIncome,
+                tax: foreignIncomeTax
+            },
+            slabs: slabs
+        };
+
+        const updatedCalculation = {
+            ...calculation,
+            calculationData: {
+                ...calculation.calculationData,
+                grossIncomeTax
             }
         };
         setCurrentCalculation(updatedCalculation);
@@ -407,6 +467,27 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
         }
     }, [currentCalculation, calculateAndUpdateTotalTaxableIncome]);
 
+    const updateForeignIncome = useCallback((foreignIncome: number) => {
+        if (currentCalculation) {
+            const updatedCalculation = {
+                ...currentCalculation,
+                calculationData: {
+                    ...currentCalculation.calculationData,
+                    grossIncomeTax: {
+                        ...currentCalculation.calculationData.grossIncomeTax,
+                        foreignIncome: {
+                            total: foreignIncome,
+                            tax: foreignIncome * (currentCalculation.calculationData.settings.reliefsAndAit.foreignIncomeTaxRate / 100)
+                        }
+                    }
+                }
+            };
+            setCurrentCalculation(updatedCalculation);
+
+            calculateAndUpdateGrossIncomeTax(updatedCalculation);
+        }
+    }, [currentCalculation, calculateAndUpdateGrossIncomeTax]);
+
     const value = useMemo(() => ({
         currentCalculation,
         setCurrentCalculation,
@@ -420,6 +501,7 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
         updateOtherIncome,
         recalculateTotalAssessableIncome,
         updateSolarRelief,
+        updateForeignIncome,
         isLoading,
         isEditing,
     }), [
@@ -434,6 +516,7 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
         updateOtherIncome,
         recalculateTotalAssessableIncome,
         updateSolarRelief,
+        updateForeignIncome,
         isLoading
     ]);
 
