@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Text, Separator, Flex, IconButton, Tooltip, Button } from '@radix-ui/themes';
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import { IoRefresh } from "react-icons/io5";
@@ -7,13 +7,24 @@ import { useCalculationContext } from '../../../contexts/CalculationContext';
 
 const TaxableIncomeCalculation = () => {
 
-    const { currentCalculation, recalculateTotalAssessableIncome } = useCalculationContext();
+    const { currentCalculation, recalculateTotalAssessableIncome, updateSolarRelief } = useCalculationContext();
 
     const [solarRelief, setSolarRelief] = useState<string>('');
+
+    useEffect(() => {
+        const currentSolarRelief = currentCalculation?.calculationData?.deductionsFromAssessableIncome?.solarRelief ?? '';
+        if (currentSolarRelief === 0) {
+            setSolarRelief('');
+        } else {
+            setSolarRelief(currentSolarRelief.toString());
+        }
+    }, [currentCalculation?.calculationData?.deductionsFromAssessableIncome?.solarRelief]);
 
     const handleSolarReliefChange = (value: string) => {
         if (value.match(/^\d*\.?\d{0,2}$/)) {
             setSolarRelief(value);
+            const numericValue = parseFloat(value) || 0;
+            updateSolarRelief(numericValue);
         }
     };
 

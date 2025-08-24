@@ -59,6 +59,7 @@ interface CalculationContextType {
     updateBusinessIncome: (businessIncome: BusinessIncome | null) => void;
     updateOtherIncome: (otherIncome: OtherIncome | null) => void;
     recalculateTotalAssessableIncome: () => void;
+    updateSolarRelief: (solarRelief: number) => void;
     isLoading: boolean;
     isEditing: boolean;
 }
@@ -355,6 +356,22 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
         }
     }, [currentCalculation]);
 
+    const updateSolarRelief = useCallback((solarRelief: number) => {
+        if (currentCalculation) {
+            const updatedCalculation = {
+                ...currentCalculation,
+                calculationData: {
+                    ...currentCalculation.calculationData,
+                    deductionsFromAssessableIncome: {
+                        ...currentCalculation.calculationData.deductionsFromAssessableIncome,
+                        solarRelief
+                    }
+                }
+            };
+            setCurrentCalculation(updatedCalculation);
+        }
+    }, [currentCalculation]);
+
     const value = useMemo(() => ({
         currentCalculation,
         setCurrentCalculation,
@@ -367,6 +384,7 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
         updateBusinessIncome,
         updateOtherIncome,
         recalculateTotalAssessableIncome,
+        updateSolarRelief,
         isLoading,
         isEditing,
     }), [
@@ -380,6 +398,7 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
         updateBusinessIncome,
         updateOtherIncome,
         recalculateTotalAssessableIncome,
+        updateSolarRelief,
         isLoading
     ]);
 
