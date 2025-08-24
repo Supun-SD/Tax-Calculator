@@ -2,38 +2,31 @@ import { useState } from 'react';
 import { Text, Separator, Flex, IconButton, Tooltip } from '@radix-ui/themes';
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import { CalculationService } from '../../../services/calculationService';
+import { useCalculationContext } from '../../../contexts/CalculationContext';
 
 const TaxableIncomeCalculation = () => {
-    // Dummy state values
+
+    const { currentCalculation } = useCalculationContext();
+
     const [solarRelief, setSolarRelief] = useState<string>('50000');
-
-    // Dummy income data
-    const dummyIncomeData = {
-        employmentIncome: 800000,
-        rentalIncome: 600000,
-        interestIncome: 150000,
-        dividendIncome: 200000,
-        businessIncome: 400000,
-        otherIncome: 100000
-    };
-
-    // Dummy relief data
-    const dummyReliefData = {
-        personalRelief: 1200000,
-        rentRelief: 90000, // 15% of rental income
-        solarRelief: 50000
-    };
-
-    // Dummy calculations
-    const assessableIncome = Object.values(dummyIncomeData).reduce((sum, income) => sum + income, 0);
-    const totalDeductions = dummyReliefData.personalRelief + dummyReliefData.rentRelief + dummyReliefData.solarRelief;
-    const totalTaxableIncome = assessableIncome - totalDeductions;
 
     const handleSolarReliefChange = (value: string) => {
         if (value.match(/^\d*\.?\d{0,2}$/)) {
             setSolarRelief(value);
         }
     };
+
+    const employmentIncome: number = currentCalculation?.calculationData?.sourceOfIncome?.employmentIncome?.total ?? 0;
+    const rentalIncome: number = currentCalculation?.calculationData?.sourceOfIncome?.rentalIncome?.total ?? 0;
+    const interestIncome: number = currentCalculation?.calculationData?.sourceOfIncome?.interestIncome?.totalGrossInterest ?? 0;
+    const dividendIncome: number = currentCalculation?.calculationData?.sourceOfIncome?.dividendIncome?.totalGrossDividend ?? 0;
+    const businessIncome: number = currentCalculation?.calculationData?.sourceOfIncome?.businessIncome?.amountForAssessableIncome ?? 0;
+    const businessIncomePercentage: number = currentCalculation?.calculationData?.sourceOfIncome?.businessIncome?.assessableIncomePercentage ?? 0;
+    const otherIncome: number = currentCalculation?.calculationData?.sourceOfIncome?.otherIncome?.total ?? 0;
+    const totalAssessableIncome: number = currentCalculation?.calculationData?.sourceOfIncome?.totalAssessableIncome ?? 0;
+    const personalRelief: number = currentCalculation?.calculationData?.settings?.reliefsAndAit?.personalRelief ?? 0;
+    const rentRelief: number = currentCalculation?.calculationData?.deductionsFromAssessableIncome?.rentRelief ?? 0;
+    const totalTaxableIncome: number = currentCalculation?.calculationData?.totalTaxableIncome ?? 0;
 
     return (
         <div className="h-full flex flex-col">
@@ -52,42 +45,42 @@ const TaxableIncomeCalculation = () => {
                         <tbody>
                             <tr className="border-b border-gray-700">
                                 <td className="py-3 px-4">Employment income</td>
-                                <td className="py-3 px-4 text-right">{CalculationService.formatCurrency(dummyIncomeData.employmentIncome)}</td>
+                                <td className="py-3 px-4 text-right">{CalculationService.formatCurrency(employmentIncome)}</td>
                             </tr>
                             <tr className="border-b border-gray-700">
                                 <td className="py-3 px-4">Rent income</td>
-                                <td className="py-3 px-4 text-right">{CalculationService.formatCurrency(dummyIncomeData.rentalIncome)}</td>
+                                <td className="py-3 px-4 text-right">{CalculationService.formatCurrency(rentalIncome)}</td>
                             </tr>
                             <tr className="border-b border-gray-700">
                                 <td className="py-3 px-4">Interest income</td>
-                                <td className="py-3 px-4 text-right">{CalculationService.formatCurrency(dummyIncomeData.interestIncome)}</td>
+                                <td className="py-3 px-4 text-right">{CalculationService.formatCurrency(interestIncome)}</td>
                             </tr>
                             <tr className="border-b border-gray-700">
                                 <td className="py-3 px-4">Dividend income</td>
-                                <td className="py-3 px-4 text-right">{CalculationService.formatCurrency(dummyIncomeData.dividendIncome)}</td>
+                                <td className="py-3 px-4 text-right">{CalculationService.formatCurrency(dividendIncome)}</td>
                             </tr>
                             <tr className="border-b border-gray-700">
                                 <td className="py-3 px-4">
-                                    Business income (25%)
+                                    Business income ({businessIncomePercentage}%)
                                 </td>
                                 <td className="py-3 px-4 text-right">
-                                    {CalculationService.formatCurrency((dummyIncomeData.businessIncome * 25) / 100)}
+                                    {CalculationService.formatCurrency(businessIncome)}
                                 </td>
                             </tr>
                             <tr className="border-b border-gray-700">
                                 <td className="py-3 px-4">Other income</td>
-                                <td className="py-3 px-4 text-right">{CalculationService.formatCurrency(dummyIncomeData.otherIncome)}</td>
+                                <td className="py-3 px-4 text-right">{CalculationService.formatCurrency(otherIncome)}</td>
                             </tr>
                             <tr className="border-b border-gray-700 bg-surface-2">
                                 <td className="py-3 px-4 font-semibold">Assessable income</td>
                                 <td className="py-3 px-4 text-right font-semibold">
-                                    {CalculationService.formatCurrency(assessableIncome)}
+                                    {CalculationService.formatCurrency(totalAssessableIncome)}
                                 </td>
                             </tr>
                             <tr className="border-b border-gray-700">
                                 <td className="py-3 px-4">Personal relief</td>
                                 <td className="py-3 px-4 text-right">
-                                    ({CalculationService.formatCurrency(dummyReliefData.personalRelief)})
+                                    ({CalculationService.formatCurrency(personalRelief)})
                                 </td>
                             </tr>
                             <tr className="border-b border-gray-700">
@@ -102,7 +95,7 @@ const TaxableIncomeCalculation = () => {
                                     </Flex>
                                 </td>
                                 <td className="py-3 px-4 text-right">
-                                    ({CalculationService.formatCurrency(dummyReliefData.rentRelief)})
+                                    ({CalculationService.formatCurrency(rentRelief)})
                                 </td>
                             </tr>
                             <tr className="border-b border-gray-700">
