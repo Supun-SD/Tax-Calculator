@@ -22,7 +22,7 @@ interface IncomeEntry {
 }
 
 const Employment: React.FC<EmploymentProps> = ({ isOpen, onClose }) => {
-    const { employmentIncome, setEmploymentIncome } = useCalculationContext();
+    const { employmentIncome, updateIncomeData } = useCalculationContext();
     const [incomeEntries, setIncomeEntries] = useState<IncomeEntry[]>([
         { id: 1, name: "", amount: "", multiplier: "1", appit: "", product: 0 }
     ]);
@@ -108,7 +108,7 @@ const Employment: React.FC<EmploymentProps> = ({ isOpen, onClose }) => {
                 };
             })
         };
-        setEmploymentIncome(employmentIncome);
+        updateIncomeData('employmentIncome', employmentIncome);
         onClose();
     };
 

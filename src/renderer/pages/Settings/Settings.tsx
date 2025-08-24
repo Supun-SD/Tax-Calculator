@@ -1,6 +1,6 @@
 import Navigation from '../../components/Navigation';
 import Input from '../../components/Input';
-import { TbFileImport, TbFileExport } from 'react-icons/tb';
+import { TbFileImport, TbFileExport, TbReload } from 'react-icons/tb';
 import { FiSave } from 'react-icons/fi';
 import Button from '../../components/Button';
 import { useState, useMemo, useEffect } from 'react';
@@ -15,7 +15,8 @@ const SettingsPage = () => {
     loading,
     error,
     isUpdating,
-    updateSettings
+    updateSettings,
+    refreshSettings
   } = useSettingsContext();
 
   const [reliefsAndAit, setReliefsAndAit] = useState({
@@ -210,8 +211,17 @@ const SettingsPage = () => {
     return (
       <div className="p-8">
         <Navigation title="Settings" />
-        <div className="mt-4 flex items-center justify-center">
-          <div className="text-red-500">Error: {error}</div>
+        <div className="mt-4 flex flex-col items-center justify-center gap-4">
+          <div className="text-red-500 text-center">Error: {error}</div>
+          <Button
+            type="button"
+            variant="secondary"
+            icon={TbReload}
+            onClick={() => refreshSettings()}
+            disabled={loading}
+          >
+            {loading ? 'Reloading...' : 'Reload Settings'}
+          </Button>
         </div>
       </div>
     );

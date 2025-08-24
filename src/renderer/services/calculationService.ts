@@ -1,12 +1,17 @@
+import axios from 'axios';
 import { 
   EmploymentIncome, 
   RentalIncome, 
   InterestIncome, 
   DividendIncome, 
   BusinessIncome, 
-  OtherIncome 
+  OtherIncome, 
+  CalculationOverview,
+  Calculation,
+  CalculationReq
 } from '../../types/calculation';
 import { Settings } from '../../types/settings';
+import { API_BASE_URL } from '../config/api';
 
 export interface IncomeData {
   employmentIncome?: EmploymentIncome;
@@ -155,4 +160,42 @@ export class CalculationService {
       maximumFractionDigits: 2 
     }).format(amount);
   }
+}
+
+const getAllCalculations = async (): Promise<CalculationOverview[]> => {
+  const response = await axios.get(`${API_BASE_URL}/calculation`);
+  return response.data.data;
+}
+
+const getCalculationById = async (id: number): Promise<Calculation> => {
+  const response = await axios.get(`${API_BASE_URL}/calculation/${id}`);
+  return response.data.data;
+}
+
+const createCalculation = async (calculation: CalculationReq): Promise<Calculation> => {
+  const response = await axios.post(`${API_BASE_URL}/calculation`, calculation);
+  return response.data.data;
+}
+
+const updateCalculation = async (id: number, calculation: CalculationReq): Promise<Calculation> => {
+  const response = await axios.put(`${API_BASE_URL}/calculation/${id}`, calculation);
+  return response.data.data;
+}
+
+const deleteCalculation = async (id: number): Promise<void> => {
+  await axios.delete(`${API_BASE_URL}/calculation/${id}`);
+}
+
+const getCalculationByAccountId = async (accountId: number): Promise<Calculation[]> => {
+  const response = await axios.get(`${API_BASE_URL}/calculation/account/${accountId}`);
+  return response.data.data;
+}
+
+export const calculationService = {
+  getAllCalculations,
+  getCalculationById,
+  createCalculation,
+  updateCalculation,
+  deleteCalculation,
+  getCalculationByAccountId
 }

@@ -1,3 +1,5 @@
+import { Calculation } from "./calculation";
+
 export interface Account {
   id: number;
   name: string;
@@ -5,6 +7,7 @@ export interface Account {
   tinNumber: number;
   createdAt: string;
   updatedAt: string;
+  calculations: Calculation[];
 }
 
 export interface AccountCreateReq {

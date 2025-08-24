@@ -23,7 +23,7 @@ const SelectAccountModal: React.FC<SelectAccountModalProps> = ({
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  const { accounts, loading, error } = useAccounts();
+  const { accounts, loading } = useAccounts();
 
   const years = useMemo(() => {
     const currentYear = new Date().getFullYear();
@@ -158,14 +158,21 @@ const SelectAccountModal: React.FC<SelectAccountModalProps> = ({
             <div className="relative flex-1">
               <select
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                onChange={(e) => {
+                  const selectedYear = e.target.value;
+                  setStartDate(selectedYear);
+                  if (selectedYear) {
+                    const nextYear = String(parseInt(selectedYear) + 1);
+                    setEndDate(nextYear);
+                  }
+                }}
                 className="w-full appearance-none rounded-lg border border-gray-300 bg-white px-3 py-2 text-black"
               >
                 <option value="" disabled>
                   Select year
                 </option>
                 {years.map((year) => (
-                  <option key={year} value={year}>
+                  <option key={`start-${year}`} value={year}>
                     {year}
                   </option>
                 ))}
@@ -182,7 +189,7 @@ const SelectAccountModal: React.FC<SelectAccountModalProps> = ({
                   Select year
                 </option>
                 {years.map((year) => (
-                  <option key={year} value={year}>
+                  <option key={`end-${year}`} value={year}>
                     {year}
                   </option>
                 ))}

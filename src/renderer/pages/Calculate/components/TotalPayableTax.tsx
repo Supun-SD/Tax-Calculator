@@ -1,55 +1,28 @@
-import { useState, useEffect } from 'react';
 import { Text, Separator } from '@radix-ui/themes';
-import { useCalculationContext } from '../../../contexts/CalculationContext';
-import { useSettingsContext } from '../../../contexts/SettingsContext';
-
-interface TaxComponent {
-    name: string;
-    percentage: number;
-    amount: number;
-    isHighlighted?: boolean;
-}
 
 const TotalPayableTax = () => {
-    const {
-        grossIncomeTax,
-        totalPayableTax,
-        payableTaxBreakdown
-    } = useCalculationContext();
-    const { settings } = useSettingsContext();
+    // Dummy tax components data
+    const dummyTaxComponents = [
+        {
+            name: "AIT - Rent",
+            percentage: 10,
+            amount: -45000
+        },
+        {
+            name: "AIT - Interest",
+            percentage: 15,
+            amount: -22500
+        },
+        {
+            name: "APPIT Total",
+            percentage: 0,
+            amount: -80000
+        }
+    ];
 
-    const [taxComponents, setTaxComponents] = useState<TaxComponent[]>([]);
-    const [deduction, setDeduction] = useState<number>(0);
-
-    useEffect(() => {
-        if (!settings || !grossIncomeTax) return;
-
-        const grossIncomeTaxAmount = grossIncomeTax.total || 0;
-        const whtRentRate = settings.reliefsAndAit.whtRent || 0;
-        const aitInterestRate = settings.reliefsAndAit.aitInterest || 0;
-
-        // Update tax components for display
-        const components: TaxComponent[] = [
-            {
-                name: "AIT - Rent",
-                percentage: whtRentRate,
-                amount: -payableTaxBreakdown.rentWhtDeduction
-            },
-            {
-                name: "AIT - Interest",
-                percentage: aitInterestRate,
-                amount: -payableTaxBreakdown.totalAit
-            },
-            {
-                name: "APPIT Total",
-                percentage: 0,
-                amount: -payableTaxBreakdown.appitTotal
-            }
-        ];
-
-        setTaxComponents(components);
-        setDeduction(payableTaxBreakdown.rentWhtDeduction + payableTaxBreakdown.totalAit + payableTaxBreakdown.appitTotal);
-    }, [grossIncomeTax, payableTaxBreakdown, settings]);
+    // Dummy calculations
+    const totalDeductions = dummyTaxComponents.reduce((sum, component) => sum + Math.abs(component.amount), 0);
+    const totalPayableTax = 810000; // Dummy total payable tax
 
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('en-US', {
@@ -70,7 +43,7 @@ const TotalPayableTax = () => {
                 {/* Tax Components Table */}
                 <div className="flex-1">
                     <div className="space-y-3">
-                        {taxComponents.map((component, index) => (
+                        {dummyTaxComponents.map((component, index) => (
                             <div
                                 key={index}
                                 className="flex justify-between items-center py-2"
@@ -89,11 +62,11 @@ const TotalPayableTax = () => {
                     </div>
 
                     {/* Total Deductions */}
-                    {deduction > 0 && (
+                    {totalDeductions > 0 && (
                         <div className="mt-4 flex justify-end">
                             <div className="text-white text-right gap-8 flex bg-gray-600/30 rounded-lg p-4">
                                 <Text className="text-white text-right">Total Deductions:</Text>
-                                <Text className="text-white text-right">({formatCurrency(deduction)})</Text>
+                                <Text className="text-white text-right">({formatCurrency(totalDeductions)})</Text>
                             </div>
                         </div>
                     )}

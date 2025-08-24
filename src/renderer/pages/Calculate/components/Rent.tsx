@@ -21,7 +21,7 @@ interface IncomeEntry {
 }
 
 const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
-    const { rentalIncome, setRentalIncome } = useCalculationContext();
+    const { rentalIncome, updateIncomeData } = useCalculationContext();
     const [incomeEntries, setIncomeEntries] = useState<IncomeEntry[]>([
         { id: 1, name: "", amount: "", multiplier: "1", product: 0 }
     ]);
@@ -100,7 +100,7 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
             })
         };
 
-        setRentalIncome(rentalIncome);
+        updateIncomeData('rentalIncome', rentalIncome);
         onClose();
     };
 

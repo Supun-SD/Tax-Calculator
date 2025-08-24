@@ -23,7 +23,7 @@ interface DividendEntry {
 
 const Dividend: React.FC<DividendProps> = ({ isOpen, onClose }) => {
     const { settings } = useSettingsContext();
-    const { dividendIncome, setDividendIncome } = useCalculationContext();
+    const { dividendIncome, updateIncomeData } = useCalculationContext();
 
     const [dividendEntries, setDividendEntries] = useState<DividendEntry[]>([
         { id: 1, company: "", grossDividend: "", rate: Math.round(settings?.reliefsAndAit.aitDividend || 10).toString(), ait: 0, exempted: "" }
@@ -124,7 +124,7 @@ const Dividend: React.FC<DividendProps> = ({ isOpen, onClose }) => {
             })
         };
 
-        setDividendIncome(dividendIncome);
+        updateIncomeData('dividendIncome', dividendIncome);
         onClose();
     };
 

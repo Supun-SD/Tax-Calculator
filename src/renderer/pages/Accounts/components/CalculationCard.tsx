@@ -47,16 +47,19 @@ const CalculationCard: React.FC<CalculationCardProps> = ({ calculation }) => {
         </Text>
       </Flex>
 
-      <Flex gap="4">
-        <Button
-          variant="ghost"
-          size="1"
-          onClick={() => handleViewCalculation(calculation)}
-          style={{ padding: '4px' }}
-          className="cursor-pointer text-black"
-        >
-          <RiEyeLine size={16} />
-        </Button>
+      <Flex gap="4" align="center">
+        {calculation.status === 'draft' && <div className='text-xs text-white bg-primary px-2 py-1 rounded-md'>Draft</div>}
+        {
+          calculation.status === 'submitted' && (<Button
+            variant="ghost"
+            size="1"
+            onClick={() => handleViewCalculation(calculation)}
+            style={{ padding: '4px' }}
+            className="cursor-pointer text-black"
+          >
+            <RiEyeLine size={16} />
+          </Button>
+          )}
         <Button
           variant="ghost"
           size="1"
@@ -66,15 +69,18 @@ const CalculationCard: React.FC<CalculationCardProps> = ({ calculation }) => {
         >
           <RiEditLine size={16} />
         </Button>
-        <Button
-          variant="ghost"
-          size="1"
-          onClick={() => handleDownloadCalculation(calculation)}
-          style={{ padding: '4px' }}
-          className="cursor-pointer text-black"
-        >
-          <RiDownloadLine size={16} />
-        </Button>
+        {
+          calculation.status === 'submitted' && (
+            <Button
+              variant="ghost"
+              size="1"
+              onClick={() => handleDownloadCalculation(calculation)}
+              style={{ padding: '4px' }}
+              className="cursor-pointer text-black"
+            >
+              <RiDownloadLine size={16} />
+            </Button>
+          )}
       </Flex>
     </Flex>
   );

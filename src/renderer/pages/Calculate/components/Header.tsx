@@ -8,12 +8,14 @@ interface HeaderProps {
   selectedAccount: Account | null;
   assessmentPeriod: { start: string; end: string } | null;
   onSelectAccount: () => void;
+  isEditing: boolean;
 }
 
 const Header: React.FC<HeaderProps> = ({
   selectedAccount,
   assessmentPeriod,
   onSelectAccount,
+  isEditing,
 }) => {
   return (
     <Flex align="center" justify="between" className="w-full rounded-2xl bg-surface-2 p-6 mb-8">
@@ -56,14 +58,16 @@ const Header: React.FC<HeaderProps> = ({
       )}
 
       {/* Select Account Button */}
-      <Button
-        icon={LuUser}
-        size="sm"
-        className="ml-6 px-6"
-        onClick={onSelectAccount}
-      >
-        Select account
-      </Button>
+      {!isEditing && (
+        <Button
+          icon={LuUser}
+          size="sm"
+          className="ml-6 px-6"
+          onClick={onSelectAccount}
+        >
+          Select account
+        </Button>
+      )}
     </Flex>
   );
 };

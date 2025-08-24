@@ -169,7 +169,7 @@ const Accounts = () => {
               <AlertDialog.Action>
                 <Button
                   variant="outline"
-                  className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
+                  className="border-red-600 text-red-600 bg-white hover:bg-red-600 hover:text-white"
                   onClick={handleConfirmDelete}
                 >
                   Delete Account

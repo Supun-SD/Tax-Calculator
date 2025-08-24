@@ -19,7 +19,7 @@ interface BusinessEntry {
 }
 
 const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
-    const { businessIncome, setBusinessIncome } = useCalculationContext();
+    const { businessIncome, updateIncomeData } = useCalculationContext();
     const [businessEntries, setBusinessEntries] = useState<BusinessEntry[]>([
         { id: 1, hospital: "", amount: "", professionalPractice: "" }
     ]);
@@ -99,7 +99,7 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
             })),
             taxableIncomePercentage: CalculationService.parseAndRoundWhole(taxablePercentage)
         };
-        setBusinessIncome(businessIncome);
+        updateIncomeData('businessIncome', businessIncome);
         onClose();
     };
 

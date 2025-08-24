@@ -1,38 +1,34 @@
 import { Account } from './account';
-import { Bank } from './bank';
 import { Status } from './enums/status';
+import { ReliefsAndAit, TaxRates } from './settings';
 
 export interface Calculation {
   id: number;
   year: string;
   status: Status;
+  accountId: number;
   account: Account;
+  createdAt: string;
+  updatedAt: string;
   calculationData: CalculationData;
 }
 
-export interface CalculationCreateReq {
-  year: string;
-  status: Status;
-  account: Account;
-  calculationData: CalculationData;
-}
+export type CalculationReq = Omit<Calculation, "id" | "createdAt" | "updatedAt" | "account">;
+export type CalculationOverview = Omit<Calculation, "calculationData">;
 
 interface CalculationData {
+  settings: CalculationSettings;
   sourceOfIncome: SourceOfIncome;
   deductionsFromAssessableIncome: DeductionsFromAssessableIncome;
   totalTaxableIncome: number;
   grossIncomeTax: GrossIncomeTax;
-  payableTax: PayableTax;
+  totalPayableTax: number;
   balancePayableTax: BalancePayableTax;
 }
 
-interface DeductionsFromAssessableIncome {
-  personalRelief: number;
-  rentRelief: {
-    rate: number;
-    value: number;
-  };
-  solarRelief: number;
+export interface CalculationSettings {
+  reliefsAndAit: ReliefsAndAit;
+  taxRates: TaxRates;
 }
 
 interface SourceOfIncome {
@@ -45,6 +41,11 @@ interface SourceOfIncome {
   totalAssessableIncome : number;
 }
 
+interface DeductionsFromAssessableIncome {
+  rentRelief: number;
+  solarRelief: number;
+}
+
 export interface EmploymentIncome {
   total : number;
   appitTotal: number;
@@ -55,8 +56,8 @@ interface EmploymentIncomeRecord {
   name: string;
   value : number;
   multiplier : number;
-  appit: number;
   total : number;
+  appit: number;
 }
 
 export interface RentalIncome {
@@ -94,7 +95,7 @@ export interface DividendIncome {
   totalGrossDividend: number;
   totalAit: number;
   totalExempted: number;
-  incomes: DividendIncomeRecord[];
+  incomes: Array<DividendIncomeRecord>;
 }
 
 interface DividendIncomeRecord {
@@ -106,10 +107,11 @@ interface DividendIncomeRecord {
 }
 
 export interface BusinessIncome {
-  total : number;
+  total: number;
   professionalPracticeTotal: number;
-  incomes : Array<BusinessIncomeRecord>;
-  taxableIncomePercentage : number;
+  incomes: Array<BusinessIncomeRecord>;
+  amountForAssessableIncome: number;
+  assessableIncomePercentage: number;
 }
 
 interface BusinessIncomeRecord {
@@ -132,7 +134,6 @@ export interface GrossIncomeTax {
   total: number;
   foreignIncome: {
     total: number;
-    rate: number;
     tax: number;
   };
   slabs: Array<GrossIncomeTaxSlab>;
@@ -143,19 +144,6 @@ interface GrossIncomeTaxSlab {
   value: number;
   rate: number;
   tax: number;
-}
-
-interface PayableTax {
-  total: number;
-  aitRent: {
-    total: number;
-    rate: number;
-  }
-  aitInterest: {
-    total: number;
-    rate: number;
-  }
-  appit: number;
 }
 
 interface BalancePayableTax {

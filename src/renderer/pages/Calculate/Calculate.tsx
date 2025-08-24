@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Navigation from '../../components/Navigation';
-import { Flex, Grid, Separator, Text } from '@radix-ui/themes';
+import { Flex, Grid, Separator, Text, AlertDialog } from '@radix-ui/themes';
 import { Account } from '../../../types/account';
 import SelectAccountModal from './components/SelectAccountModal';
 import Header from './components/Header';
@@ -16,12 +17,8 @@ import Interest from './components/Interest';
 import Dividend from './components/Dividend';
 import Business from './components/Business';
 import Other from './components/Other';
-import { CalculationCreateReq } from '../../../types/calculation';
-import { Status } from '../../../types/enums/status';
+import { ClipLoader } from 'react-spinners';
 import { useCalculationContext } from '../../contexts/CalculationContext';
-import { useSettingsContext } from '../../contexts/SettingsContext';
-import { useToast } from '../../hooks/useToast';
-import { CalculationService } from '../../services/calculationService';
 
 // Modal registry for better scalability
 const MODAL_COMPONENTS = {
@@ -46,34 +43,24 @@ const INCOME_SOURCE_BUTTONS: Array<{ key: ModalType; label: string }> = [
 ];
 
 const Calculate = () => {
-  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
-  const [assessmentPeriod, setAssessmentPeriod] = useState<{
-    start: string;
-    end: string;
-  } | null>(null);
+  const navigate = useNavigate();
   const [openModal, setOpenModal] = useState<ModalType | null>(null);
+  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
+  const [assessmentPeriod, setAssessmentPeriod] = useState<{ start: string, end: string } | null>(null);
   const [isSelectAccountModalOpen, setIsSelectAccountModalOpen] = useState(false);
+  const [showSubmitConfirmation, setShowSubmitConfirmation] = useState(false);
 
-  const { showError } = useToast();
+  const { createNewCalculation, currentCalculation, isLoading } = useCalculationContext();
 
-  const { settings } = useSettingsContext();
-  const {
-    employmentIncome,
-    rentalIncome,
-    interestIncome,
-    dividendIncome,
-    businessIncome,
-    otherIncome,
-    totalTaxableIncome,
-    calculationResult,
-    solarRelief,
-    assessableIncome,
-    grossIncomeTax,
-    totalPayableTax,
-    payableTaxBreakdown,
-    balancePayableTax,
-    quarterlyPayments
-  } = useCalculationContext();
+  const location = useLocation();
+  const state = location.state as { isEditing?: boolean, calculationId?: number };
+
+  useEffect(() => {
+    const fetchCalculation = async () => {
+      await createNewCalculation(state?.isEditing ?? false, state?.calculationId);
+    };
+    fetchCalculation();
+  }, []);
 
   const handleSelectAccount = (
     account: Account,
@@ -81,116 +68,96 @@ const Calculate = () => {
     endDate: string
   ) => {
     setSelectedAccount(account);
-    setAssessmentPeriod({ start: startDate, end: endDate });
+    setAssessmentPeriod({
+      start: startDate,
+      end: endDate
+    });
     setIsSelectAccountModalOpen(false);
   };
 
-  const handleSaveDraft = () => {
-    if (selectedAccount === null || assessmentPeriod === null) {
-      showError('Please select an account and assessment period');
-      return;
-    }
-    // TODO: Implement save draft functionality
+  const handleSaveDraft = async () => {
+    // Dummy implementation
+    console.log('Saving draft...');
   };
 
-  const handleSubmit = () => {
-    if (selectedAccount === null || assessmentPeriod === null) {
-      showError('Please select an account and assessment period');
-      return;
-    }
+  const handleSubmitClick = () => {
+    console.log(currentCalculation);
+    //setShowSubmitConfirmation(true);
+  };
 
-    const calculation: CalculationCreateReq = {
-      year: `${assessmentPeriod?.start}/${assessmentPeriod?.end}`,
-      status: Status.SUBMITTED,
-      account: selectedAccount,
-      calculationData: {
-        sourceOfIncome: {
-          employmentIncome: employmentIncome,
-          rentalIncome: rentalIncome,
-          interestIncome: interestIncome,
-          dividendIncome: dividendIncome,
-          businessIncome: businessIncome,
-          otherIncome: otherIncome,
-          totalAssessableIncome: assessableIncome
-        },
-        deductionsFromAssessableIncome: {
-          personalRelief: CalculationService.parseAndRound(settings.reliefsAndAit.personalRelief),
-          rentRelief: {
-            rate: settings.reliefsAndAit.rentRelief,
-            value: calculationResult?.breakdown.rentRelief
-          },
-          solarRelief: solarRelief
-        },
-        totalTaxableIncome: totalTaxableIncome,
-        grossIncomeTax: grossIncomeTax,
-        payableTax: {
-          total: totalPayableTax,
-          aitRent: {
-            total: payableTaxBreakdown.rentWhtDeduction,
-            rate: settings.reliefsAndAit.whtRent
-          },
-          aitInterest: {
-            total: payableTaxBreakdown.totalAit,
-            rate: settings.reliefsAndAit.aitInterest
-          },
-          appit: payableTaxBreakdown.appitTotal
-        },
-        balancePayableTax: {
-          total: balancePayableTax,
-          quarterly: {
-            one: quarterlyPayments.one,
-            two: quarterlyPayments.two,
-            three: quarterlyPayments.three,
-            four: quarterlyPayments.four
-          }
-        }
-      }
-    }
-    console.log(calculation);
+  const handleSubmit = async () => {
+    // Dummy implementation
+    console.log('Submitting calculation...');
+    navigate('/history');
+    setShowSubmitConfirmation(false);
+  };
+
+  const handleCancelSubmit = () => {
+    setShowSubmitConfirmation(false);
   };
 
   return (
     <div className="p-8">
       <Navigation title="Calculate" />
 
-      <Header
-        selectedAccount={selectedAccount}
-        assessmentPeriod={assessmentPeriod}
-        onSelectAccount={() => setIsSelectAccountModalOpen(true)}
-      />
+      {isLoading ? <div className="flex justify-center mt-32">
+        <ClipLoader color="gray" size={28} />
+      </div> :
+        <div className="mt-8">
+          <Header
+            selectedAccount={selectedAccount}
+            assessmentPeriod={assessmentPeriod}
+            onSelectAccount={() => setIsSelectAccountModalOpen(true)}
+            isEditing={false}
+          />
 
-      <Text className='text-white' size="6" weight="bold">Source of income</Text>
-      <Separator className="w-full mt-3 bg-surface-2" />
+          <div className="mt-8">
+            <Text className='text-white' size="6" weight="bold">Source of income</Text>
+            <Separator className="w-full mt-3 bg-surface-2" />
 
-      <Flex className='mt-5 gap-4'>
-        {INCOME_SOURCE_BUTTONS.map(({ key, label }) => (
-          <Button
-            key={key}
-            onClick={() => setOpenModal(key)}
-            icon={MdOutlineOpenInNew}
-            iconPosition='right'
-            variant='secondary'
-          >
-            {label}
-          </Button>
-        ))}
-      </Flex>
+            <Flex className='mt-5 gap-4'>
+              {INCOME_SOURCE_BUTTONS.map(({ key, label }) => (
+                <Button
+                  key={key}
+                  onClick={() => setOpenModal(key)}
+                  icon={MdOutlineOpenInNew}
+                  iconPosition='right'
+                  variant='secondary'
+                >
+                  {label}
+                </Button>
+              ))}
+            </Flex>
 
-      <Grid columns="2" gap="5" width="auto" className='mt-10'>
-        <div className="h-full">
-          <TaxableIncomeCalculation />
+            <Grid columns="2" gap="5" width="auto" className='mt-10'>
+              <div className="h-full">
+                <TaxableIncomeCalculation />
+              </div>
+              <div className="h-full">
+                <GrossIncomeTax />
+              </div>
+              <TotalPayableTax />
+              <BalancelPayableTax />
+            </Grid>
+
+            <Flex gap="3" mt="6" justify="end">
+              <Button
+                variant='secondary'
+                className='px-8'
+                onClick={handleSaveDraft}
+              >
+                Save Draft
+              </Button>
+              <Button
+                className='!px-12'
+                onClick={handleSubmitClick}
+              >
+                Submit
+              </Button>
+            </Flex>
+          </div>
         </div>
-        <div className="h-full">
-          <GrossIncomeTax />
-        </div>
-        <TotalPayableTax />
-        <BalancelPayableTax />
-      </Grid>
-
-      <Flex gap="3" mt="6" justify="end">
-        <Button variant='secondary' className='px-8' onClick={handleSaveDraft}>Save Draft</Button>
-        <Button className='!px-12' onClick={handleSubmit}>Submit</Button>
-      </Flex>
+      }
 
       {/* Render modals dynamically */}
       {openModal && MODAL_COMPONENTS[openModal] && React.createElement(MODAL_COMPONENTS[openModal], {
@@ -204,6 +171,32 @@ const Calculate = () => {
         onClose={() => setIsSelectAccountModalOpen(false)}
         onSelect={handleSelectAccount}
       />
+
+      {/* Submit Confirmation Dialog */}
+      <AlertDialog.Root open={showSubmitConfirmation}>
+        <AlertDialog.Content className="bg-popup-bg">
+          <AlertDialog.Title>Submit Calculation</AlertDialog.Title>
+          <AlertDialog.Description size="3">
+            Are you sure you want to submit this calculation for "{selectedAccount?.name}" ({assessmentPeriod?.start}/{assessmentPeriod?.end})?
+          </AlertDialog.Description>
+
+          <Flex gap="3" mt="6" justify="end" align="center">
+            <AlertDialog.Cancel>
+              <Button variant="secondary" onClick={handleCancelSubmit}>
+                Cancel
+              </Button>
+            </AlertDialog.Cancel>
+            <AlertDialog.Action>
+              <Button
+                className="!px-12"
+                onClick={handleSubmit}
+              >
+                Submit Calculation
+              </Button>
+            </AlertDialog.Action>
+          </Flex>
+        </AlertDialog.Content>
+      </AlertDialog.Root>
     </div>
   );
 };

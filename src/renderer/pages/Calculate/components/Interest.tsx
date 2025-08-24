@@ -30,7 +30,7 @@ interface InterestEntry {
 
 const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
     const { settings } = useSettingsContext();
-    const { interestIncome, setInterestIncome } = useCalculationContext();
+    const { interestIncome, updateIncomeData } = useCalculationContext();
 
     const [interestEntries, setInterestEntries] = useState<InterestEntry[]>([
         {
@@ -181,7 +181,7 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
                 };
             })
         };
-        setInterestIncome(interestIncome);
+        updateIncomeData('interestIncome', interestIncome);
         onClose();
     };
 

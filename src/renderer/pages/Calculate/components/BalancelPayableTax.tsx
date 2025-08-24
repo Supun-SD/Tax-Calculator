@@ -1,11 +1,20 @@
 import { useState } from 'react';
 import { Text, Separator } from '@radix-ui/themes';
 import { CalculationService } from '../../../services/calculationService';
-import { useCalculationContext } from '../../../contexts/CalculationContext';
 
 const BalancelPayableTax = () => {
-    const { quarterlyPayments, setQuarterlyPayments, balancePayableTax } = useCalculationContext();
-    const [quarterlyPaymentsInput, setQuarterlyPaymentsInput] = useState(quarterlyPayments);
+    // Dummy state values
+    const [quarterlyPayments, setQuarterlyPayments] = useState({
+        one: '150000',
+        two: '200000',
+        three: '180000',
+        four: '220000'
+    });
+
+    // Dummy calculations
+    const totalQuarterlyPayments = Object.values(quarterlyPayments).reduce((sum, payment) => sum + (parseFloat(payment) || 0), 0);
+    const totalPayableTax = 810000; // Dummy total payable tax
+    const balancePayableTax = totalPayableTax - totalQuarterlyPayments;
 
     const handleInputChange = (quarter: keyof typeof quarterlyPayments, value: string) => {
         const cleanValue = value.replace(/[^\d.]/g, '');
@@ -19,20 +28,10 @@ const BalancelPayableTax = () => {
             return;
         }
 
-        const updatedInputs = {
-            ...quarterlyPaymentsInput,
+        setQuarterlyPayments(prev => ({
+            ...prev,
             [quarter]: cleanValue
-        };
-
-        setQuarterlyPaymentsInput(updatedInputs);
-
-        // Update the context with the new values
-        setQuarterlyPayments({
-            one: CalculationService.parseAndRound(updatedInputs.one),
-            two: CalculationService.parseAndRound(updatedInputs.two),
-            three: CalculationService.parseAndRound(updatedInputs.three),
-            four: CalculationService.parseAndRound(updatedInputs.four)
-        });
+        }));
     };
 
     const formatCurrency = (amount: number) => {
@@ -51,7 +50,7 @@ const BalancelPayableTax = () => {
                         <div className="bg-surface-2 rounded-lg px-4 py-2 min-w-[120px]">
                             <input
                                 type="text"
-                                value={quarterlyPaymentsInput.one || ''}
+                                value={quarterlyPayments.one}
                                 onChange={(e) => handleInputChange('one', e.target.value)}
                                 placeholder="0.00"
                                 className="bg-transparent text-white text-right w-full outline-none"
@@ -65,7 +64,7 @@ const BalancelPayableTax = () => {
                         <div className="bg-surface-2 rounded-lg px-4 py-2 min-w-[120px]">
                             <input
                                 type="text"
-                                value={quarterlyPaymentsInput.two || ''}
+                                value={quarterlyPayments.two}
                                 onChange={(e) => handleInputChange('two', e.target.value)}
                                 placeholder="0.00"
                                 className="bg-transparent text-white text-right w-full outline-none"
@@ -79,7 +78,7 @@ const BalancelPayableTax = () => {
                         <div className="bg-surface-2 rounded-lg px-4 py-2 min-w-[120px]">
                             <input
                                 type="text"
-                                value={quarterlyPaymentsInput.three || ''}
+                                value={quarterlyPayments.three}
                                 onChange={(e) => handleInputChange('three', e.target.value)}
                                 placeholder="0.00"
                                 className="bg-transparent text-white text-right w-full outline-none"
@@ -93,7 +92,7 @@ const BalancelPayableTax = () => {
                         <div className="bg-surface-2 rounded-lg px-4 py-2 min-w-[120px]">
                             <input
                                 type="text"
-                                value={quarterlyPaymentsInput.four || ''}
+                                value={quarterlyPayments.four}
                                 onChange={(e) => handleInputChange('four', e.target.value)}
                                 placeholder="0.00"
                                 className="bg-transparent text-white text-right w-full outline-none"

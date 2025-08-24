@@ -18,7 +18,7 @@ interface OtherEntry {
 }
 
 const Other: React.FC<OtherProps> = ({ isOpen, onClose }) => {
-    const { otherIncome, setOtherIncome } = useCalculationContext();
+    const { otherIncome, updateIncomeData } = useCalculationContext();
     const [otherEntries, setOtherEntries] = useState<OtherEntry[]>([
         { id: 1, description: "", amount: "" }
     ]);
@@ -80,7 +80,7 @@ const Other: React.FC<OtherProps> = ({ isOpen, onClose }) => {
                 value: CalculationService.parseAndRound(entry.amount)
             }))
         };
-        setOtherIncome(otherIncome);
+        updateIncomeData('otherIncome', otherIncome);
         onClose();
     };
 

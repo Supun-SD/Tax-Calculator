@@ -1,122 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Text, Separator } from '@radix-ui/themes';
-import { useCalculationContext } from '../../../contexts/CalculationContext';
-import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { CalculationService } from '../../../services/calculationService';
 
-interface TaxSlab {
-    slab: string;
-    value: number;
-    rate: number;
-    maxAmount: number;
-    tax: number;
-}
-
 const GrossIncomeTax = () => {
-    const { totalTaxableIncome, setGrossIncomeTax } = useCalculationContext();
-    const { settings, loading } = useSettingsContext();
+    // Dummy state values
+    const [foreignIncome, setForeignIncome] = useState<string>('100000');
 
-    const [foreignIncome, setForeignIncome] = useState<number>(0);
-    const [foreignIncomeInput, setForeignIncomeInput] = useState<string>('');
-    const [taxSlabs, setTaxSlabs] = useState<TaxSlab[]>([]);
-    const [totalTax, setTotalTax] = useState<number>(0);
-    const [foreignIncomeTax, setForeignIncomeTax] = useState<number>(0);
+    // Dummy tax slabs data
+    const dummyTaxSlabs = [
+        { slab: "1st", value: 500000, rate: 0.06, tax: 30000 },
+        { slab: "2nd", value: 500000, rate: 0.12, tax: 60000 },
+        { slab: "3rd", value: 500000, rate: 0.18, tax: 90000 },
+        { slab: "4th", value: 500000, rate: 0.24, tax: 120000 },
+        { slab: "5th", value: 500000, rate: 0.30, tax: 150000 },
+        { slab: "Remaining", value: 1000000, rate: 0.36, tax: 360000 }
+    ];
 
-    // Get tax rates from settings
-    const getTaxSlabRates = () => {
-        if (!settings?.taxRates) return [];
-
-        return [
-            { slab: "1st", value: 500000.00, rate: settings.taxRates.first / 100, maxAmount: 500000 },
-            { slab: "2nd", value: 500000.00, rate: settings.taxRates.second / 100, maxAmount: 500000 },
-            { slab: "3rd", value: 500000.00, rate: settings.taxRates.third / 100, maxAmount: 500000 },
-            { slab: "4th", value: 500000.00, rate: settings.taxRates.fourth / 100, maxAmount: 500000 },
-            { slab: "5th", value: 500000.00, rate: settings.taxRates.fifth / 100, maxAmount: 500000 },
-            { slab: "Remaining", value: 0, rate: settings.taxRates.other / 100, maxAmount: Infinity }
-        ];
-    };
-
-    const calculateTax = (income: number) => {
-        let remainingIncome = income;
-        let totalTaxAmount = 0;
-        const calculatedSlabs: TaxSlab[] = [];
-        const taxSlabRates = getTaxSlabRates();
-
-        taxSlabRates.forEach((slab, index) => {
-            let taxableAmount = 0;
-            let taxAmount = 0;
-
-            if (remainingIncome > 0) {
-                if (slab.maxAmount === Infinity) {
-                    // For the remaining amount
-                    taxableAmount = remainingIncome;
-                    taxAmount = taxableAmount * slab.rate;
-                    remainingIncome = 0;
-                } else {
-                    // For fixed slabs
-                    taxableAmount = Math.min(remainingIncome, slab.maxAmount);
-                    taxAmount = taxableAmount * slab.rate;
-                    remainingIncome -= taxableAmount;
-                }
-
-                totalTaxAmount += taxAmount;
-
-                calculatedSlabs.push({
-                    slab: slab.slab,
-                    value: CalculationService.parseAndRound(taxableAmount),
-                    rate: slab.rate,
-                    maxAmount: slab.maxAmount,
-                    tax: CalculationService.parseAndRound(taxAmount)
-                });
-            }
-        });
-
-        setTaxSlabs(calculatedSlabs);
-        setTotalTax(CalculationService.parseAndRound(totalTaxAmount));
-    };
-
-    const calculateForeignIncomeTax = (income: number) => {
-        if (!settings?.reliefsAndAit?.foreignIncomeTaxRate) {
-            setForeignIncomeTax(0);
-            return;
-        }
-
-        const taxRate = settings.reliefsAndAit.foreignIncomeTaxRate / 100;
-        const tax = income * taxRate;
-        setForeignIncomeTax(CalculationService.parseAndRound(tax));
-    };
-
-    useEffect(() => {
-        if (settings && !loading) {
-            calculateTax(totalTaxableIncome);
-        }
-    }, [totalTaxableIncome, settings, loading]);
-
-    useEffect(() => {
-        if (settings && !loading) {
-            calculateForeignIncomeTax(foreignIncome);
-        }
-    }, [foreignIncome, settings, loading]);
-
-    // Update context with gross income tax data whenever it changes
-    useEffect(() => {
-        if (settings && !loading) {
-            setGrossIncomeTax({
-                total: totalTax + foreignIncomeTax,
-                foreignIncome: {
-                    total: foreignIncome,
-                    rate: settings?.reliefsAndAit?.foreignIncomeTaxRate || 0,
-                    tax: foreignIncomeTax
-                },
-                slabs: taxSlabs.map(slab => ({
-                    slab: slab.slab,
-                    value: slab.value,
-                    rate: slab.rate,
-                    tax: slab.tax
-                }))
-            });
-        }
-    }, [totalTax, foreignIncomeTax, foreignIncome, taxSlabs, settings, loading, setGrossIncomeTax]);
+    // Dummy calculations
+    const totalTax = dummyTaxSlabs.reduce((sum, slab) => sum + slab.tax, 0);
+    const foreignIncomeTax = 15000; // Dummy foreign income tax
+    const totalGrossIncomeTax = totalTax + foreignIncomeTax;
 
     const formatCurrency = (amount: number) => {
         return CalculationService.formatCurrency(amount);
@@ -129,51 +32,15 @@ const GrossIncomeTax = () => {
     const handleForeignIncomeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         if (value === '' || /^\d*\.?\d{0,2}$/.test(value)) {
-            setForeignIncomeInput(value);
-            setForeignIncome(value === '' ? 0 : CalculationService.parseAndRound(value));
+            setForeignIncome(value);
         }
     };
-
-    // Show loading state while settings are loading
-    if (loading) {
-        return (
-            <div className="h-full flex flex-col">
-                <Text className='text-white pl-3' size="4" weight="bold">Gross income tax</Text>
-                <Separator className="w-full mt-3 bg-surface-2" />
-                <div className='text-white bg-surface mt-4 p-8 rounded-2xl flex-1 flex items-center justify-center'>
-                    <Text className="text-gray-400">Loading tax rates...</Text>
-                </div>
-            </div>
-        );
-    }
-
-    // Show error state if settings failed to load
-    if (!settings) {
-        return (
-            <div className="h-full flex flex-col">
-                <Text className='text-white pl-3' size="4" weight="bold">Gross income tax</Text>
-                <Separator className="w-full mt-3 bg-surface-2" />
-                <div className='text-white bg-surface mt-4 p-8 rounded-2xl flex-1 flex items-center justify-center'>
-                    <Text className="text-red-400">Failed to load tax settings</Text>
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className="h-full flex flex-col">
             <Text className='text-white pl-3' size="4" weight="bold">Gross income tax</Text>
             <Separator className="w-full mt-3 bg-surface-2" />
             <div className='text-white bg-surface mt-4 p-8 rounded-2xl flex-1 flex flex-col'>
-                {/* Message when total taxable income is 0 */}
-                {totalTaxableIncome === 0 && (
-                    <div className="mb-6 p-4 bg-blue-600/20 border border-blue-500/30 rounded-lg">
-                        <Text className="text-blue-300 text-center">
-                            No taxable income available. Please add income sources to calculate gross income tax.
-                        </Text>
-                    </div>
-                )}
-
                 {/* Tax Slabs Table */}
                 <div className="overflow-x-auto flex-1">
                     <table className="w-full">
@@ -186,8 +53,8 @@ const GrossIncomeTax = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {taxSlabs.map((slab, index) => (
-                                <tr key={index} className="border-b border-gray-700">
+                            {dummyTaxSlabs.map((slab) => (
+                                <tr key={slab.slab} className="border-b border-gray-700">
                                     <td className="py-3 px-4">{slab.slab}</td>
                                     <td className="py-3 px-4">{formatCurrency(slab.value)}</td>
                                     <td className="py-3 px-4">{formatPercentage(slab.rate)}</td>
@@ -214,16 +81,14 @@ const GrossIncomeTax = () => {
                                     <td className="py-3 px-4">
                                         <input
                                             type="text"
-                                            value={foreignIncomeInput}
+                                            value={foreignIncome}
                                             onChange={handleForeignIncomeChange}
                                             className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
                                             inputMode="decimal"
                                             placeholder="0.00"
                                         />
                                     </td>
-                                    <td className="py-3 px-4 text-gray-300">
-                                        {settings?.reliefsAndAit?.foreignIncomeTaxRate ? `${settings.reliefsAndAit.foreignIncomeTaxRate}%` : 'N/A'}
-                                    </td>
+                                    <td className="py-3 px-4 text-gray-300">15%</td>
                                     <td className="py-3 px-4 text-right text-gray-300">
                                         {formatCurrency(foreignIncomeTax)}
                                     </td>
@@ -238,7 +103,7 @@ const GrossIncomeTax = () => {
                     <div className="flex justify-between items-center">
                         <Text className="text-white font-semibold">Gross income tax payable</Text>
                         <Text className="text-white font-bold text-lg">
-                            {formatCurrency(totalTax + foreignIncomeTax)}
+                            {formatCurrency(totalGrossIncomeTax)}
                         </Text>
                     </div>
                 </div>
