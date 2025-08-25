@@ -17,8 +17,7 @@ const CalculationCard: React.FC<CalculationCardProps> = ({ calculation }) => {
   const navigate = useNavigate();
 
   const handleViewCalculation = (calculation: any) => {
-    console.log('View calculation:', calculation);
-    // TODO: Implement view calculation logic
+    navigate(`/view-calculation/${calculation.id}`);
   };
 
   const handleEditCalculation = (calculation: any) => {

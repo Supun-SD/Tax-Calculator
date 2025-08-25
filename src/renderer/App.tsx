@@ -9,6 +9,7 @@ import Settings from './pages/Settings/Settings';
 import { ToastContainer } from 'react-toastify';
 import { SettingsProvider } from './contexts/SettingsContext';
 import { CalculationProvider } from './contexts/CalculationContext';
+import ViewCalculation from './pages/Calculate/ViewCalculation';
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/calculate" element={<CalculationProvider><Calculate /></CalculationProvider>} />
+          <Route path="/view-calculation/:id" element={<ViewCalculation />} />
           <Route path="/accounts" element={<Accounts />} />
           <Route path="/history" element={<History />} />
           <Route path="/banks" element={<Banks />} />

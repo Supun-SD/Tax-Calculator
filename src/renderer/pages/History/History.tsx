@@ -103,8 +103,7 @@ const History = () => {
   };
 
   const handleView = async (calculation: CalculationOverview) => {
-    // TODO: Implement edit functionality
-    // Placeholder for edit functionality
+    navigate(`/view-calculation/${calculation.id}`);
   };
 
   // Filter calculations based on active tab
