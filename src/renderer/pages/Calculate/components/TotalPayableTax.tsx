@@ -1,28 +1,43 @@
 import { Text, Separator } from '@radix-ui/themes';
+import { useCalculationContext } from '../../../contexts/CalculationContext';
+
+interface TaxComponent {
+    name: string;
+    percentage: number;
+    amount: number;
+}
 
 const TotalPayableTax = () => {
-    // Dummy tax components data
-    const dummyTaxComponents = [
+    const { currentCalculation } = useCalculationContext();
+
+    const rentalIncome = currentCalculation?.calculationData?.sourceOfIncome?.rentalIncome?.total ?? 0;
+    const aitInterest = currentCalculation?.calculationData?.sourceOfIncome?.interestIncome?.totalAit ?? 0;
+    const appitTotal = currentCalculation?.calculationData?.sourceOfIncome?.employmentIncome?.appitTotal ?? 0;
+    const whtRentRate = currentCalculation?.calculationData?.settings?.reliefsAndAit?.whtRent ?? 0;
+    const aitInterestRate = currentCalculation?.calculationData?.settings?.reliefsAndAit?.aitInterest ?? 0;
+    const totalPayableTax = currentCalculation?.calculationData?.totalPayableTax ?? 0;
+
+    const aitRent = (rentalIncome * whtRentRate) / 100;
+
+    const taxComponents: TaxComponent[] = [
         {
             name: "AIT - Rent",
-            percentage: 10,
-            amount: -45000
+            percentage: whtRentRate,
+            amount: -aitRent
         },
         {
             name: "AIT - Interest",
-            percentage: 15,
-            amount: -22500
+            percentage: aitInterestRate,
+            amount: -aitInterest
         },
         {
             name: "APPIT Total",
             percentage: 0,
-            amount: -80000
+            amount: -appitTotal
         }
     ];
 
-    // Dummy calculations
-    const totalDeductions = dummyTaxComponents.reduce((sum, component) => sum + Math.abs(component.amount), 0);
-    const totalPayableTax = 810000; // Dummy total payable tax
+    const totalDeductions = taxComponents.reduce((sum, component) => sum + Math.abs(component.amount), 0);
 
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('en-US', {
@@ -43,7 +58,7 @@ const TotalPayableTax = () => {
                 {/* Tax Components Table */}
                 <div className="flex-1">
                     <div className="space-y-3">
-                        {dummyTaxComponents.map((component, index) => (
+                        {taxComponents.map((component, index) => (
                             <div
                                 key={index}
                                 className="flex justify-between items-center py-2"

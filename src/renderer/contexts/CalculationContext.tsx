@@ -107,7 +107,8 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
                 { limit: 1000000, rate: taxRates.second, name: "Second" },
                 { limit: 1500000, rate: taxRates.third, name: "Third" },
                 { limit: 2000000, rate: taxRates.fourth, name: "Fourth" },
-                { limit: Infinity, rate: taxRates.fifth, name: "Fifth" }
+                { limit: 2500000, rate: taxRates.fifth, name: "Fifth" },
+                { limit: Infinity, rate: taxRates.other, name: "Remaining" },
             ];
 
             let remainingIncome = totalTaxableIncome;
@@ -151,6 +152,29 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
             calculationData: {
                 ...calculation.calculationData,
                 grossIncomeTax
+            }
+        };
+        setCurrentCalculation(updatedCalculation);
+
+        calculateAndUpdateTotalPayableTax(updatedCalculation);
+    }, []);
+
+    const calculateAndUpdateTotalPayableTax = useCallback((calculation: Calculation | CalculationReq) => {
+        const grossIncomeTax = calculation.calculationData.grossIncomeTax?.total ?? 0;
+        const rentalIncome = calculation.calculationData.sourceOfIncome.rentalIncome?.total ?? 0;
+        const totalAitInterest = calculation.calculationData.sourceOfIncome.interestIncome?.totalAit ?? 0;
+        const totalAppit = calculation.calculationData.sourceOfIncome.employmentIncome?.appitTotal ?? 0;
+
+        const whtRentRate = calculation.calculationData.settings.reliefsAndAit.whtRent;
+        const aitRent = (rentalIncome * whtRentRate) / 100;
+
+        const totalPayableTax = grossIncomeTax - aitRent - totalAitInterest - totalAppit;
+
+        const updatedCalculation = {
+            ...calculation,
+            calculationData: {
+                ...calculation.calculationData,
+                totalPayableTax
             }
         };
         setCurrentCalculation(updatedCalculation);
