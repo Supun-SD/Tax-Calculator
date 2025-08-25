@@ -246,7 +246,14 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
                             solarRelief: 0
                         },
                         totalTaxableIncome: 0,
-                        grossIncomeTax: null,
+                        grossIncomeTax: {
+                            total: 0,
+                            foreignIncome: {
+                                total: 0,
+                                tax: 0
+                            },
+                            slabs: []
+                        },
                         totalPayableTax: 0,
                         balancePayableTax: {
                             total: 0,

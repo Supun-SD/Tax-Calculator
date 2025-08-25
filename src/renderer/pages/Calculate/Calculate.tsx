@@ -20,6 +20,8 @@ import Other from './components/Other';
 import { ClipLoader } from 'react-spinners';
 import { useCalculationContext } from '../../contexts/CalculationContext';
 import { useToast } from '../../hooks/useToast';
+import { useCalculations } from '../../hooks/useCalculations';
+import { Status } from '../../../types/enums/status';
 
 const MODAL_COMPONENTS = {
   employment: Employment,
@@ -43,18 +45,18 @@ const INCOME_SOURCE_BUTTONS: Array<{ key: ModalType; label: string }> = [
 
 const Calculate = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const state = location.state as { isEditing?: boolean, calculationId?: number };
+
   const [openModal, setOpenModal] = useState<ModalType | null>(null);
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
   const [assessmentPeriod, setAssessmentPeriod] = useState<{ start: string, end: string } | null>(null);
   const [isSelectAccountModalOpen, setIsSelectAccountModalOpen] = useState(false);
   const [showSubmitConfirmation, setShowSubmitConfirmation] = useState(false);
 
-  const { createNewCalculation, currentCalculation, isLoading, updateCalculationAccount } = useCalculationContext();
-
-  const location = useLocation();
-  const state = location.state as { isEditing?: boolean, calculationId?: number };
-
   const { showError } = useToast();
+  const { createNewCalculation, currentCalculation, isLoading, updateCalculationAccount } = useCalculationContext();
+  const { isDraftSaving, isSubmitting, createCalculation, updateCalculation } = useCalculations();
 
   useEffect(() => {
     createNewCalculation(state?.isEditing ?? false, state?.calculationId);
@@ -73,26 +75,34 @@ const Calculate = () => {
     }
   }, [currentCalculation]);
 
-
-  const handleSelectAccount = (
-    account: Account,
-    startDate: string,
-    endDate: string
-  ) => {
+  const handleSelectAccount = (account: Account, startDate: string, endDate: string) => {
     setSelectedAccount(account);
-    setAssessmentPeriod({
-      start: startDate,
-      end: endDate
-    });
+    setAssessmentPeriod({ start: startDate, end: endDate });
     const year = `${startDate}/${endDate}`;
     updateCalculationAccount(account.id, year);
-
     setIsSelectAccountModalOpen(false);
   };
 
   const handleSaveDraft = async () => {
-    // Dummy implementation
-    console.log('Saving draft...');
+    if (currentCalculation) {
+      const cleanCalculationData = { ...currentCalculation.calculationData };
+      delete (cleanCalculationData as any).id;
+      delete (cleanCalculationData as any).createdAt;
+      delete (cleanCalculationData as any).updatedAt;
+      delete (cleanCalculationData as any).calculationId;
+
+      const calculationReq = {
+        year: currentCalculation.year,
+        status: Status.DRAFT,
+        accountId: currentCalculation.accountId,
+        calculationData: cleanCalculationData
+      };
+      if (state?.isEditing) {
+        await updateCalculation(state.calculationId, calculationReq);
+      } else {
+        await createCalculation(calculationReq);
+      }
+    }
   };
 
   const handleSubmitClick = () => {
@@ -100,13 +110,40 @@ const Calculate = () => {
       showError('Please select an account and assessment period');
       return;
     }
-    console.log(currentCalculation);
-    // setShowSubmitConfirmation(true);
+    if (currentCalculation?.calculationData.totalTaxableIncome == 0) {
+      showError('Please calculate the total taxable income');
+      return;
+    }
+    setShowSubmitConfirmation(true);
   };
 
   const handleSubmit = async () => {
-    console.log('Submitting calculation...');
-    //navigate('/history');
+    if (currentCalculation) {
+      const cleanCalculationData = { ...currentCalculation.calculationData };
+      delete (cleanCalculationData as any).id;
+      delete (cleanCalculationData as any).createdAt;
+      delete (cleanCalculationData as any).updatedAt;
+      delete (cleanCalculationData as any).calculationId;
+
+      const calculationReq = {
+        year: currentCalculation.year,
+        status: Status.SUBMITTED,
+        accountId: currentCalculation.accountId,
+        calculationData: cleanCalculationData
+      };
+
+      if (state?.isEditing) {
+        const calculation = await updateCalculation(state.calculationId, calculationReq);
+        if (calculation) {
+          navigate('/history');
+        }
+      } else {
+        const calculation = await createCalculation(calculationReq);
+        if (calculation) {
+          navigate('/history');
+        }
+      }
+    }
     setShowSubmitConfirmation(false);
   };
 
@@ -127,6 +164,7 @@ const Calculate = () => {
             assessmentPeriod={assessmentPeriod}
             onSelectAccount={() => setIsSelectAccountModalOpen(true)}
             isEditing={state?.isEditing ?? false}
+            status={currentCalculation?.status}
           />
 
           <div className="mt-8">
@@ -158,19 +196,24 @@ const Calculate = () => {
               <BalancelPayableTax />
             </Grid>
 
-            <Flex gap="3" mt="6" justify="end">
-              <Button
-                variant='secondary'
-                className='px-8'
-                onClick={handleSaveDraft}
-              >
-                Save Draft
-              </Button>
+            <Flex gap="3" mt="6" justify="end" align="center">
+              {
+                isDraftSaving ? <Flex align="center" gap="4" mx="4"><ClipLoader color="#4A90E2" size={24} /> <Text className='text-white'>Saving draft...</Text></Flex> : (
+
+                  <Button
+                    variant='secondary'
+                    className='px-8'
+                    onClick={handleSaveDraft}
+                  >
+                    Save Draft
+                  </Button>
+                )
+              }
               <Button
                 className='!px-12'
                 onClick={handleSubmitClick}
               >
-                Submit
+                {state?.isEditing && currentCalculation?.status === Status.SUBMITTED ? 'Update' : 'Submit'}
               </Button>
             </Flex>
           </div>
@@ -204,14 +247,18 @@ const Calculate = () => {
                 Cancel
               </Button>
             </AlertDialog.Cancel>
-            <AlertDialog.Action>
-              <Button
-                className="!px-12"
-                onClick={handleSubmit}
-              >
-                Submit Calculation
-              </Button>
-            </AlertDialog.Action>
+            {
+              isSubmitting ? <Flex align="center" gap="4" mx="3"><ClipLoader color="#4A90E2" size={24} /> <Text>Submitting calculation...</Text></Flex> : (
+                <AlertDialog.Action>
+                  <Button
+                    className="!px-12"
+                    onClick={handleSubmit}
+                  >
+                    {state?.isEditing && currentCalculation?.status === Status.SUBMITTED ? 'Update Calculation' : 'Submit Calculation'}
+                  </Button>
+                </AlertDialog.Action>
+              )
+            }
           </Flex>
         </AlertDialog.Content>
       </AlertDialog.Root>

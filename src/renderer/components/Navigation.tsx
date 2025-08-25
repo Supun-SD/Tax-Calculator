@@ -1,12 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import { IoIosArrowBack } from 'react-icons/io';
+import { AiFillHome } from "react-icons/ai";
 
 interface NavigationProps {
   title: string;
   showBackButton?: boolean;
+  showHomeButton?: boolean;
 }
 
-const Navigation = ({ title, showBackButton = true }: NavigationProps) => {
+const Navigation = ({ title, showBackButton = true, showHomeButton = true }: NavigationProps) => {
   const navigate = useNavigate();
 
   return (
@@ -20,6 +22,15 @@ const Navigation = ({ title, showBackButton = true }: NavigationProps) => {
         </button>
       )}
       <h1 className="text-4xl font-bold uppercase text-white">{title}</h1>
+      {showHomeButton && (
+        <button
+          onClick={() => navigate('/')}
+          className="ml-auto text-white transition-colors hover:text-gray-300"
+          title="Go to Home"
+        >
+          <AiFillHome size={28} />
+        </button>
+      )}
     </div>
   );
 };

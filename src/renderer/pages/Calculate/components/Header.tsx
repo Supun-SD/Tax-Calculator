@@ -3,12 +3,15 @@ import { Flex, Text, Separator } from '@radix-ui/themes';
 import { LuUser } from 'react-icons/lu';
 import { Account } from '../../../../types/account';
 import Button from '../../../components/Button';
+import { Status } from '../../../../types/enums/status';
+import { RiDraftLine } from 'react-icons/ri';
 
 interface HeaderProps {
   selectedAccount: Account | null;
   assessmentPeriod: { start: string; end: string } | null;
   onSelectAccount: () => void;
   isEditing: boolean;
+  status: Status;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -16,6 +19,7 @@ const Header: React.FC<HeaderProps> = ({
   assessmentPeriod,
   onSelectAccount,
   isEditing,
+  status,
 }) => {
   return (
     <Flex align="center" justify="between" className="w-full rounded-2xl bg-surface-2 p-6 mb-8">
@@ -55,6 +59,15 @@ const Header: React.FC<HeaderProps> = ({
         <div className="text-popup-bg">
           Select an account and assessment years
         </div>
+      )}
+
+      {status === Status.DRAFT && (
+        <Flex align="center" gap="2" className="px-4 py-2 bg-gray-600 rounded-full border border-gray-500">
+          <RiDraftLine size={16} className="text-gray-400" />
+          <Text size="3" weight="medium" className="text-gray-300">
+            {status.toUpperCase()}
+          </Text>
+        </Flex>
       )}
 
       {/* Select Account Button */}

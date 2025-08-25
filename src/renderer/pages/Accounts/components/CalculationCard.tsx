@@ -6,20 +6,23 @@ import {
   RiEditLine,
   RiEyeLine,
 } from 'react-icons/ri';
+import { useNavigate } from 'react-router-dom';
 
 interface CalculationCardProps {
   calculation: any;
 }
 
 const CalculationCard: React.FC<CalculationCardProps> = ({ calculation }) => {
+
+  const navigate = useNavigate();
+
   const handleViewCalculation = (calculation: any) => {
     console.log('View calculation:', calculation);
     // TODO: Implement view calculation logic
   };
 
   const handleEditCalculation = (calculation: any) => {
-    console.log('Edit calculation:', calculation);
-    // TODO: Implement edit calculation logic
+    navigate('/calculate', { state: { isEditing: true, calculationId: calculation.id } });
   };
 
   const handleDownloadCalculation = (calculation: any) => {

@@ -13,8 +13,10 @@ const defaultOptions: ToastOptions = {
   autoClose: 4000,
   theme: 'colored',
   transition: Bounce,
+  draggable: true,
   style: {
     zIndex: 9999,
+    width: '100%',
   },
   containerId: 'toast-container',
 };

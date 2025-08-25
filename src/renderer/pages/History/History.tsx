@@ -195,7 +195,7 @@ const History = () => {
             onEdit={handleEdit}
             onDelete={handleDelete}
             showActions={true}
-            actionsColumn={{ view: true, edit: true, delete: true }}
+            actionsColumn={{ view: activeTab === 'submitted', edit: true, delete: true }}
           />
         )}
       </div>

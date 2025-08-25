@@ -85,11 +85,9 @@ export const useCalculations = (): UseCalculationsReturn => {
     } else {
       setIsSubmitting(true);
     }
-    setLoading(true);
     setError(null);
     try {
       const newCalculation = await calculationService.createCalculation(calculation);
-      setCalculations(prev => [newCalculation, ...prev]);
       if(calculation.status === 'draft') {
         showSuccess('Draft saved successfully');
       } else {
@@ -123,12 +121,19 @@ export const useCalculations = (): UseCalculationsReturn => {
   }, []);
 
   const updateCalculation = useCallback(async (id: number, calculation: CalculationReq): Promise<Calculation | null> => {
-    setLoading(true);
+    if(calculation.status === 'draft') {
+      setIsDraftSaving(true);
+    } else {
+      setIsSubmitting(true);
+    }
     setError(null);
     try {
       const updatedCalculation = await calculationService.updateCalculation(id, calculation);
-      setCalculations(prev => prev.map(c => c.id === id ? updatedCalculation : c));
-      showSuccess('Calculation updated successfully');
+      if(calculation.status === 'draft') {
+        showSuccess('Draft saved successfully');
+      } else {
+        showSuccess('Calculation updated successfully');
+      }
       return updatedCalculation;
     } catch (err: any) {
       let errorMessage = 'Error updating calculation';
@@ -146,7 +151,11 @@ export const useCalculations = (): UseCalculationsReturn => {
       showError(errorMessage);
       return null;
     } finally {
-      setLoading(false);
+      if(calculation.status === 'draft') {
+        setIsDraftSaving(false);
+      } else {
+        setIsSubmitting(false);
+      }
     }
   }, []);
 
