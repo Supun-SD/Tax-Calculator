@@ -38,7 +38,7 @@ const calculateTotalAssessableIncome = (
         total += otherIncome.total;
     }
 
-    return total;
+    return Math.round(total * 100) / 100;
 };
 
 interface CalculationContextType {
@@ -86,7 +86,7 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
             ...calculation,
             calculationData: {
                 ...calculation.calculationData,
-                totalTaxableIncome
+                totalTaxableIncome: Math.round(totalTaxableIncome * 100) / 100
             }
         };
         setCurrentCalculation(updatedCalculation);
@@ -124,9 +124,9 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
                 if (slabAmount > 0) {
                     slabs.push({
                         slab: slab.name,
-                        value: slabAmount,
+                        value: Math.round(slabAmount * 100) / 100,
                         rate: slab.rate,
-                        tax: slabTax
+                        tax: Math.round(slabTax * 100) / 100
                     });
                     totalTax += slabTax;
                 }
@@ -140,10 +140,10 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
         totalTax += foreignIncomeTax;
 
         const grossIncomeTax = {
-            total: totalTax,
+            total: Math.round(totalTax * 100) / 100,
             foreignIncome: {
-                total: foreignIncome,
-                tax: foreignIncomeTax
+                total: Math.round(foreignIncome * 100) / 100,
+                tax: Math.round(foreignIncomeTax * 100) / 100
             },
             slabs: slabs
         };
@@ -175,7 +175,7 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
             ...calculation,
             calculationData: {
                 ...calculation.calculationData,
-                totalPayableTax
+                totalPayableTax: Math.round(totalPayableTax * 100) / 100
             }
         };
         setCurrentCalculation(updatedCalculation);
@@ -201,8 +201,13 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
             calculationData: {
                 ...calculation.calculationData,
                 balancePayableTax: {
-                    total: balancePayableTax,
-                    quarterly: quarterlyPayments
+                    total: Math.round(balancePayableTax * 100) / 100,
+                    quarterly: {
+                        one: Math.round(quarterlyPayments.one * 100) / 100,
+                        two: Math.round(quarterlyPayments.two * 100) / 100,
+                        three: Math.round(quarterlyPayments.three * 100) / 100,
+                        four: Math.round(quarterlyPayments.four * 100) / 100
+                    }
                 }
             }
         };
@@ -335,7 +340,7 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
                         ...updatedCalculation.calculationData,
                         deductionsFromAssessableIncome: {
                             ...updatedCalculation.calculationData.deductionsFromAssessableIncome,
-                            rentRelief: rentReliefAmount
+                            rentRelief: Math.round(rentReliefAmount * 100) / 100
                         }
                     }
                 };
@@ -510,7 +515,7 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
                     ...currentCalculation.calculationData,
                     deductionsFromAssessableIncome: {
                         ...currentCalculation.calculationData.deductionsFromAssessableIncome,
-                        solarRelief
+                        solarRelief: Math.round(solarRelief * 100) / 100
                     }
                 }
             };
@@ -529,8 +534,8 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
                     grossIncomeTax: {
                         ...currentCalculation.calculationData.grossIncomeTax,
                         foreignIncome: {
-                            total: foreignIncome,
-                            tax: foreignIncome * (currentCalculation.calculationData.settings.reliefsAndAit.foreignIncomeTaxRate / 100)
+                            total: Math.round(foreignIncome * 100) / 100,
+                            tax: Math.round(foreignIncome * (currentCalculation.calculationData.settings.reliefsAndAit.foreignIncomeTaxRate / 100) * 100) / 100
                         }
                     }
                 }
@@ -552,7 +557,7 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
 
             const updatedQuarterlyPayments = {
                 ...currentQuarterlyPayments,
-                [quarter]: amount
+                [quarter]: Math.round(amount * 100) / 100
             };
 
             const updatedCalculation = {
