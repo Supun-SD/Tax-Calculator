@@ -8,6 +8,10 @@ import { Calculation } from '../../../../types/calculation';
 import Header from './components/Header';
 import IncomeSources from './components/IncomeSources';
 import Footer from './components/Footer';
+import TaxableIncome from './components/TaxableIncome';
+import GrossIncomeTax from './components/GrossIncomeTax';
+import TotalPayableTax from './components/TotalPayableTax';
+import BalancePayableTax from './components/BalancePayableTax';
 
 const ViewCalculation = () => {
     const navigate = useNavigate();
@@ -69,6 +73,18 @@ const ViewCalculation = () => {
 
                 {/* Income Sources Section */}
                 <IncomeSources calculation={calculation} />
+
+                {/* Taxable Income Section */}
+                <TaxableIncome calculation={calculation} />
+
+                {/* Gross income tax section */}
+                <GrossIncomeTax calculation={calculation} />
+
+                {/* Total Payable Tax and Balance Payable Tax Section */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <TotalPayableTax calculation={calculation} />
+                    <BalancePayableTax calculation={calculation} />
+                </div>
 
                 {/* Metadata */}
                 <Footer calculation={calculation} />

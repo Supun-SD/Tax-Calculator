@@ -20,6 +20,7 @@ interface ModalProps {
   trigger?: React.ReactNode;
   closeOnOverlayClick?: boolean;
   loading?: boolean;
+  isDark?: boolean;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -32,6 +33,7 @@ const Modal: React.FC<ModalProps> = ({
   trigger,
   closeOnOverlayClick = false,
   loading = false,
+  isDark = false,
 }) => {
   const [internalIsOpen, setInternalIsOpen] = useState(false);
 
@@ -47,47 +49,52 @@ const Modal: React.FC<ModalProps> = ({
   };
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={handleOpenChange}>
-      {trigger && <Dialog.Trigger>{trigger}</Dialog.Trigger>}
+    <>
+      {isOpen && (
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40" />
+      )}
+      <Dialog.Root open={isOpen} onOpenChange={handleOpenChange}>
+        {trigger && <Dialog.Trigger>{trigger}</Dialog.Trigger>}
 
-      <Dialog.Content
-        maxWidth={maxWidth}
-        className="relative rounded-3xl bg-popup-bg p-10"
-        onPointerDownOutside={(e) => {
-          if (!closeOnOverlayClick) {
-            e.preventDefault();
+        <Dialog.Content
+          maxWidth={maxWidth}
+          className={`relative rounded-3xl ${isDark ? 'bg-surface border border-white/10' : 'bg-popup-bg'} p-10 z-50`}
+          onPointerDownOutside={(e) => {
+            if (!closeOnOverlayClick) {
+              e.preventDefault();
+            }
+          }}
+          aria-describedby={undefined}
+        >
+          <Dialog.Close className="absolute right-4 top-4 cursor-pointer p-2">
+            <div>
+              <IoIosClose size={24} />
+            </div>
+          </Dialog.Close>
+          <Dialog.Title>{title}</Dialog.Title>
+
+          <div className="my-8">{children}</div>
+          {loading ? <Flex justify="end" align="center" className="mr-12 my-5"><ClipLoader color="gray" size={28} /></Flex> :
+            actions.length > 0 && (
+              <Flex gap="3" justify="end">
+                {actions.map((action, index) => (
+                  <Button
+                    key={index}
+                    variant={action.variant || 'primary'}
+                    onClick={action.onClick}
+                    disabled={action.disabled}
+                    className={action.className}
+                  >
+                    {action.label}
+                  </Button>
+                ))}
+              </Flex>
+            )
+
           }
-        }}
-        aria-describedby={undefined}
-      >
-        <Dialog.Close className="absolute right-4 top-4 cursor-pointer p-2">
-          <div>
-            <IoIosClose size={24} />
-          </div>
-        </Dialog.Close>
-        <Dialog.Title>{title}</Dialog.Title>
-
-        <div className="my-8">{children}</div>
-        {loading ? <Flex justify="end" align="center" className="mr-12 my-5"><ClipLoader color="gray" size={28} /></Flex> :
-          actions.length > 0 && (
-            <Flex gap="3" justify="end">
-              {actions.map((action, index) => (
-                <Button
-                  key={index}
-                  variant={action.variant || 'primary'}
-                  onClick={action.onClick}
-                  disabled={action.disabled}
-                  className={action.className}
-                >
-                  {action.label}
-                </Button>
-              ))}
-            </Flex>
-          )
-
-        }
-      </Dialog.Content>
-    </Dialog.Root>
+        </Dialog.Content>
+      </Dialog.Root>
+    </>
   );
 };
 

@@ -1,16 +1,35 @@
 import { Calculation } from "../../../../../types/calculation";
 import { MdPerson, MdAttachMoney, MdReceipt, MdAccountBalance, MdBusiness, MdTrendingUp } from 'react-icons/md';
 import { Grid, Text } from '@radix-ui/themes';
+import { useState } from 'react';
+import Modal from '../../../../components/Modal';
+import IncomeBreakdownModal from './IncomeBreakdownModal';
 
 interface IncomeSourcesProps {
     calculation: Calculation;
 }
 
 const IncomeSources = ({ calculation }: IncomeSourcesProps) => {
+    const [selectedIncomeType, setSelectedIncomeType] = useState<'employment' | 'rental' | 'interest' | 'dividend' | 'business' | 'other' | null>(null);
+    const [selectedIncomeData, setSelectedIncomeData] = useState<any>(null);
+
     const formatCurrency = (amount: number | string | null | undefined) => {
-        if (amount === null || amount === undefined) return 'Rs. 0';
+        if (amount === null || amount === undefined) return 'Rs. 0.00';
         const num = typeof amount === 'string' ? parseFloat(amount) : amount;
-        return `Rs. ${num.toLocaleString()}`;
+        return `Rs. ${num.toLocaleString('en-LK', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        })}`;
+    };
+
+    const handleIncomeClick = (incomeType: 'employment' | 'rental' | 'interest' | 'dividend' | 'business' | 'other', incomeData: any) => {
+        setSelectedIncomeType(incomeType);
+        setSelectedIncomeData(incomeData);
+    };
+
+    const handleCloseModal = () => {
+        setSelectedIncomeType(null);
+        setSelectedIncomeData(null);
     };
 
     return (
@@ -25,7 +44,10 @@ const IncomeSources = ({ calculation }: IncomeSourcesProps) => {
                 {
                     calculation.calculationData.sourceOfIncome?.employmentIncome && (
 
-                        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+                        <div
+                            className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200 hover:scale-105"
+                            onClick={() => handleIncomeClick('employment', calculation.calculationData.sourceOfIncome?.employmentIncome)}
+                        >
                             <div className="flex items-center space-x-3 mb-4">
                                 <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
                                     <MdPerson className="text-blue-400 text-lg" />
@@ -48,7 +70,10 @@ const IncomeSources = ({ calculation }: IncomeSourcesProps) => {
                 {
                     calculation.calculationData.sourceOfIncome?.rentalIncome && (
 
-                        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+                        <div
+                            className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200 hover:scale-105"
+                            onClick={() => handleIncomeClick('rental', calculation.calculationData.sourceOfIncome?.rentalIncome)}
+                        >
                             <div className="flex items-center space-x-3 mb-4">
                                 <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
                                     <MdReceipt className="text-green-400 text-lg" />
@@ -66,7 +91,10 @@ const IncomeSources = ({ calculation }: IncomeSourcesProps) => {
                 {
                     calculation.calculationData.sourceOfIncome?.interestIncome && (
 
-                        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+                        <div
+                            className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200 hover:scale-105"
+                            onClick={() => handleIncomeClick('interest', calculation.calculationData.sourceOfIncome?.interestIncome)}
+                        >
                             <div className="flex items-center space-x-3 mb-4">
                                 <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
                                     <MdAccountBalance className="text-purple-400 text-lg" />
@@ -89,7 +117,10 @@ const IncomeSources = ({ calculation }: IncomeSourcesProps) => {
                 {
                     calculation.calculationData.sourceOfIncome?.dividendIncome && (
 
-                        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+                        <div
+                            className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200 hover:scale-105"
+                            onClick={() => handleIncomeClick('dividend', calculation.calculationData.sourceOfIncome?.dividendIncome)}
+                        >
                             <div className="flex items-center space-x-3 mb-4">
                                 <div className="w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center">
                                     <MdAttachMoney className="text-yellow-400 text-lg" />
@@ -112,7 +143,10 @@ const IncomeSources = ({ calculation }: IncomeSourcesProps) => {
                 {
                     calculation.calculationData.sourceOfIncome?.businessIncome && (
 
-                        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+                        <div
+                            className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200 hover:scale-105"
+                            onClick={() => handleIncomeClick('business', calculation.calculationData.sourceOfIncome?.businessIncome)}
+                        >
                             <div className="flex items-center space-x-3 mb-4">
                                 <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center">
                                     <MdBusiness className="text-red-400 text-lg" />
@@ -130,7 +164,10 @@ const IncomeSources = ({ calculation }: IncomeSourcesProps) => {
                 {
                     calculation.calculationData.sourceOfIncome?.otherIncome && (
 
-                        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+                        <div
+                            className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-200 hover:scale-105"
+                            onClick={() => handleIncomeClick('other', calculation.calculationData.sourceOfIncome?.otherIncome)}
+                        >
                             <div className="flex items-center space-x-3 mb-4">
                                 <div className="w-10 h-10 bg-indigo-500/20 rounded-lg flex items-center justify-center">
                                     <MdTrendingUp className="text-indigo-400 text-lg" />
@@ -154,6 +191,24 @@ const IncomeSources = ({ calculation }: IncomeSourcesProps) => {
                     </Text>
                 </div>
             </div>
+
+            {/* Income Breakdown Modal */}
+            <Modal
+                isOpen={selectedIncomeType !== null}
+                onClose={handleCloseModal}
+                title=""
+                maxWidth="1000px"
+                closeOnOverlayClick={true}
+                isDark={true}
+            >
+                {selectedIncomeType && selectedIncomeData && (
+                    <IncomeBreakdownModal
+                        incomeType={selectedIncomeType}
+                        incomeData={selectedIncomeData}
+                        calculation={calculation}
+                    />
+                )}
+            </Modal>
         </div>
     )
 }

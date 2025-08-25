@@ -1,6 +1,5 @@
-import { Account } from "../../../../../types/account";
 import { Calculation } from "../../../../../types/calculation";
-import { Grid, Separator, Text } from '@radix-ui/themes';
+import { Separator, Text } from '@radix-ui/themes';
 import Button from '../../../../components/Button';
 import { ClipLoader } from 'react-spinners';
 import { MdPerson, MdCalendarToday, MdEdit, MdPrint } from 'react-icons/md';
