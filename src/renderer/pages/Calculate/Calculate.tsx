@@ -22,6 +22,7 @@ import { useCalculationContext } from '../../contexts/CalculationContext';
 import { useToast } from '../../hooks/useToast';
 import { useCalculations } from '../../hooks/useCalculations';
 import { Status } from '../../../types/enums/status';
+import { Calculation } from '../../../types/calculation';
 
 const MODAL_COMPONENTS = {
   employment: Employment,
@@ -46,20 +47,22 @@ const INCOME_SOURCE_BUTTONS: Array<{ key: ModalType; label: string }> = [
 const Calculate = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const state = location.state as { isEditing?: boolean, calculationId?: number };
+  const routerState = location.state as { isEditing?: boolean, calculationId?: number };
 
   const [openModal, setOpenModal] = useState<ModalType | null>(null);
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
   const [assessmentPeriod, setAssessmentPeriod] = useState<{ start: string, end: string } | null>(null);
   const [isSelectAccountModalOpen, setIsSelectAccountModalOpen] = useState(false);
   const [showSubmitConfirmation, setShowSubmitConfirmation] = useState(false);
+  const [isEditing, setIsEditing] = useState(routerState?.isEditing ?? false);
+  const [calculationId, setCalculationId] = useState<number | undefined>(routerState?.calculationId);
 
   const { showError } = useToast();
   const { createNewCalculation, currentCalculation, isLoading, updateCalculationAccount } = useCalculationContext();
   const { isDraftSaving, isSubmitting, createCalculation, updateCalculation } = useCalculations();
 
   useEffect(() => {
-    createNewCalculation(state?.isEditing ?? false, state?.calculationId);
+    createNewCalculation(isEditing, calculationId);
   }, []);
 
   useEffect(() => {
@@ -97,10 +100,12 @@ const Calculate = () => {
         accountId: currentCalculation.accountId,
         calculationData: cleanCalculationData
       };
-      if (state?.isEditing) {
-        await updateCalculation(state.calculationId, calculationReq);
+      if (isEditing) {
+        await updateCalculation(calculationId, calculationReq);
       } else {
-        await createCalculation(calculationReq);
+        const calculation: Calculation = await createCalculation(calculationReq);
+        setCalculationId(calculation.id);
+        setIsEditing(true);
       }
     }
   };
@@ -132,8 +137,8 @@ const Calculate = () => {
         calculationData: cleanCalculationData
       };
 
-      if (state?.isEditing) {
-        const calculation = await updateCalculation(state.calculationId, calculationReq);
+      if (isEditing) {
+        const calculation = await updateCalculation(calculationId, calculationReq);
         if (calculation) {
           navigate('/history');
         }
@@ -163,7 +168,7 @@ const Calculate = () => {
             selectedAccount={selectedAccount}
             assessmentPeriod={assessmentPeriod}
             onSelectAccount={() => setIsSelectAccountModalOpen(true)}
-            isEditing={state?.isEditing ?? false}
+            isEditing={isEditing}
             status={currentCalculation?.status}
           />
 
@@ -213,7 +218,7 @@ const Calculate = () => {
                 className='!px-12'
                 onClick={handleSubmitClick}
               >
-                {state?.isEditing && currentCalculation?.status === Status.SUBMITTED ? 'Update' : 'Submit'}
+                {isEditing && currentCalculation?.status === Status.SUBMITTED ? 'Update' : 'Submit'}
               </Button>
             </Flex>
           </div>
@@ -254,7 +259,7 @@ const Calculate = () => {
                     className="!px-12"
                     onClick={handleSubmit}
                   >
-                    {state?.isEditing && currentCalculation?.status === Status.SUBMITTED ? 'Update Calculation' : 'Submit Calculation'}
+                    {isEditing && currentCalculation?.status === Status.SUBMITTED ? 'Update Calculation' : 'Submit Calculation'}
                   </Button>
                 </AlertDialog.Action>
               )

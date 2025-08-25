@@ -61,7 +61,7 @@ const Header: React.FC<HeaderProps> = ({
         </div>
       )}
 
-      {status === Status.DRAFT && (
+      {status === Status.DRAFT && isEditing && (
         <Flex align="center" gap="2" className="px-4 py-2 bg-gray-600 rounded-full border border-gray-500">
           <RiDraftLine size={16} className="text-gray-400" />
           <Text size="3" weight="medium" className="text-gray-300">
