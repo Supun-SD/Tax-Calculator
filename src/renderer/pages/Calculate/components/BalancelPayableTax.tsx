@@ -1,20 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Text, Separator } from '@radix-ui/themes';
 import { CalculationService } from '../../../services/calculationService';
+import { useCalculationContext } from '../../../contexts/CalculationContext';
 
 const BalancelPayableTax = () => {
-    // Dummy state values
-    const [quarterlyPayments, setQuarterlyPayments] = useState({
-        one: '150000',
-        two: '200000',
-        three: '180000',
-        four: '220000'
+    const { currentCalculation, updateQuarterlyPayment } = useCalculationContext();
+
+    const balancePayableTax = currentCalculation?.calculationData?.balancePayableTax?.total ?? 0;
+    const quarterlyPayments = currentCalculation?.calculationData?.balancePayableTax?.quarterly ?? {
+        one: 0,
+        two: 0,
+        three: 0,
+        four: 0
+    };
+
+    const [quarterlyInputs, setQuarterlyInputs] = useState({
+        one: quarterlyPayments.one.toString(),
+        two: quarterlyPayments.two.toString(),
+        three: quarterlyPayments.three.toString(),
+        four: quarterlyPayments.four.toString()
     });
 
-    // Dummy calculations
-    const totalQuarterlyPayments = Object.values(quarterlyPayments).reduce((sum, payment) => sum + (parseFloat(payment) || 0), 0);
-    const totalPayableTax = 810000; // Dummy total payable tax
-    const balancePayableTax = totalPayableTax - totalQuarterlyPayments;
+    useEffect(() => {
+        setQuarterlyInputs({
+            one: quarterlyPayments.one.toString(),
+            two: quarterlyPayments.two.toString(),
+            three: quarterlyPayments.three.toString(),
+            four: quarterlyPayments.four.toString()
+        });
+    }, [quarterlyPayments]);
 
     const handleInputChange = (quarter: keyof typeof quarterlyPayments, value: string) => {
         const cleanValue = value.replace(/[^\d.]/g, '');
@@ -28,10 +42,13 @@ const BalancelPayableTax = () => {
             return;
         }
 
-        setQuarterlyPayments(prev => ({
+        setQuarterlyInputs(prev => ({
             ...prev,
             [quarter]: cleanValue
         }));
+
+        const numericValue = parseFloat(cleanValue) || 0;
+        updateQuarterlyPayment(quarter, numericValue);
     };
 
     const formatCurrency = (amount: number) => {
@@ -50,7 +67,7 @@ const BalancelPayableTax = () => {
                         <div className="bg-surface-2 rounded-lg px-4 py-2 min-w-[120px]">
                             <input
                                 type="text"
-                                value={quarterlyPayments.one}
+                                value={quarterlyInputs.one}
                                 onChange={(e) => handleInputChange('one', e.target.value)}
                                 placeholder="0.00"
                                 className="bg-transparent text-white text-right w-full outline-none"
@@ -64,7 +81,7 @@ const BalancelPayableTax = () => {
                         <div className="bg-surface-2 rounded-lg px-4 py-2 min-w-[120px]">
                             <input
                                 type="text"
-                                value={quarterlyPayments.two}
+                                value={quarterlyInputs.two}
                                 onChange={(e) => handleInputChange('two', e.target.value)}
                                 placeholder="0.00"
                                 className="bg-transparent text-white text-right w-full outline-none"
@@ -78,7 +95,7 @@ const BalancelPayableTax = () => {
                         <div className="bg-surface-2 rounded-lg px-4 py-2 min-w-[120px]">
                             <input
                                 type="text"
-                                value={quarterlyPayments.three}
+                                value={quarterlyInputs.three}
                                 onChange={(e) => handleInputChange('three', e.target.value)}
                                 placeholder="0.00"
                                 className="bg-transparent text-white text-right w-full outline-none"
@@ -92,7 +109,7 @@ const BalancelPayableTax = () => {
                         <div className="bg-surface-2 rounded-lg px-4 py-2 min-w-[120px]">
                             <input
                                 type="text"
-                                value={quarterlyPayments.four}
+                                value={quarterlyInputs.four}
                                 onChange={(e) => handleInputChange('four', e.target.value)}
                                 placeholder="0.00"
                                 className="bg-transparent text-white text-right w-full outline-none"
@@ -105,8 +122,8 @@ const BalancelPayableTax = () => {
                 <div className="mt-6 bg-green-600/20 border border-green-500/30 rounded-lg p-4">
                     <div className="flex justify-between items-center">
                         <Text className="text-white font-semibold">Balance payable tax</Text>
-                        <Text className="text-white font-bold text-lg">
-                            Rs. {formatCurrency(balancePayableTax)}
+                        <Text className={`text-white font-bold text-lg ${balancePayableTax < 0 ? 'text-red-400' : ''}`}>
+                            {balancePayableTax < 0 ? `(${formatCurrency(Math.abs(balancePayableTax))})` : formatCurrency(balancePayableTax)}
                         </Text>
                     </div>
                 </div>

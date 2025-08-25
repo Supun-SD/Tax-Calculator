@@ -55,6 +55,7 @@ interface CalculationContextType {
     recalculateTotalAssessableIncome: () => void;
     updateSolarRelief: (solarRelief: number) => void;
     updateForeignIncome: (foreignIncome: number) => void;
+    updateQuarterlyPayment: (quarter: 'one' | 'two' | 'three' | 'four', amount: number) => void;
     isLoading: boolean;
     isEditing: boolean;
 }
@@ -175,6 +176,34 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
             calculationData: {
                 ...calculation.calculationData,
                 totalPayableTax
+            }
+        };
+        setCurrentCalculation(updatedCalculation);
+
+        calculateAndUpdateBalancePayableTax(updatedCalculation);
+    }, []);
+
+    const calculateAndUpdateBalancePayableTax = useCallback((calculation: Calculation | CalculationReq) => {
+        const totalPayableTax = calculation.calculationData.totalPayableTax;
+        const quarterlyPayments = calculation.calculationData.balancePayableTax?.quarterly ?? {
+            one: 0,
+            two: 0,
+            three: 0,
+            four: 0
+        };
+
+        const totalQuarterlyPayments = quarterlyPayments.one + quarterlyPayments.two + quarterlyPayments.three + quarterlyPayments.four;
+
+        const balancePayableTax = totalPayableTax - totalQuarterlyPayments;
+
+        const updatedCalculation = {
+            ...calculation,
+            calculationData: {
+                ...calculation.calculationData,
+                balancePayableTax: {
+                    total: balancePayableTax,
+                    quarterly: quarterlyPayments
+                }
             }
         };
         setCurrentCalculation(updatedCalculation);
@@ -512,6 +541,36 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
         }
     }, [currentCalculation, calculateAndUpdateGrossIncomeTax]);
 
+    const updateQuarterlyPayment = useCallback((quarter: 'one' | 'two' | 'three' | 'four', amount: number) => {
+        if (currentCalculation) {
+            const currentQuarterlyPayments = currentCalculation.calculationData.balancePayableTax?.quarterly ?? {
+                one: 0,
+                two: 0,
+                three: 0,
+                four: 0
+            };
+
+            const updatedQuarterlyPayments = {
+                ...currentQuarterlyPayments,
+                [quarter]: amount
+            };
+
+            const updatedCalculation = {
+                ...currentCalculation,
+                calculationData: {
+                    ...currentCalculation.calculationData,
+                    balancePayableTax: {
+                        ...currentCalculation.calculationData.balancePayableTax,
+                        quarterly: updatedQuarterlyPayments
+                    }
+                }
+            };
+            setCurrentCalculation(updatedCalculation);
+
+            calculateAndUpdateBalancePayableTax(updatedCalculation);
+        }
+    }, [currentCalculation, calculateAndUpdateBalancePayableTax]);
+
     const value = useMemo(() => ({
         currentCalculation,
         setCurrentCalculation,
@@ -526,6 +585,7 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
         recalculateTotalAssessableIncome,
         updateSolarRelief,
         updateForeignIncome,
+        updateQuarterlyPayment,
         isLoading,
         isEditing,
     }), [
@@ -541,6 +601,7 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
         recalculateTotalAssessableIncome,
         updateSolarRelief,
         updateForeignIncome,
+        updateQuarterlyPayment,
         isLoading
     ]);
 
