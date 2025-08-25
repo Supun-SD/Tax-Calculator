@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import Modal from "../../../components/Modal";
+import Modal from "../../../../components/Modal";
 import { IoAdd, IoClose, IoChevronDown } from "react-icons/io5";
-import Button from '../../../components/Button';
+import Button from '../../../../components/Button';
 import { ClipLoader } from 'react-spinners';
-import { useBanks } from '../../../hooks/useBanks';
-import { Bank } from '../../../../types/bank';
-import { InterestIncome, InterestIncomeRecord } from '../../../../types/calculation';
-import { useCalculationContext } from '../../../contexts/CalculationContext';
-import { CalculationService } from '../../../services/calculationService';
+import { useBanks } from '../../../../hooks/useBanks';
+import { Bank } from '../../../../../types/bank';
+import { InterestIncome, InterestIncomeRecord } from '../../../../../types/calculation';
+import { useCalculationContext } from '../../../../contexts/CalculationContext';
+import { CalculationService } from '../../../../services/calculationService';
 
 interface InterestProps {
     isOpen: boolean;

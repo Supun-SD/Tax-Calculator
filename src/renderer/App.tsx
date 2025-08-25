@@ -1,7 +1,7 @@
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import Home from './pages/Home';
-import Calculate from './pages/Calculate/Calculate';
+import Calculate from './pages/Calculate/CreateEdit/Calculate';
 import Accounts from './pages/Accounts/Accounts';
 import History from './pages/History/History';
 import Banks from './pages/Banks/Banks';
@@ -9,7 +9,7 @@ import Settings from './pages/Settings/Settings';
 import { ToastContainer } from 'react-toastify';
 import { SettingsProvider } from './contexts/SettingsContext';
 import { CalculationProvider } from './contexts/CalculationContext';
-import ViewCalculation from './pages/Calculate/ViewCalculation';
+import ViewCalculation from './pages/Calculate/View/ViewCalculation';
 
 const App = () => {
   return (

@@ -10,6 +10,7 @@ interface UseCalculationsReturn {
   isDeleting: boolean;
   isSubmitting: boolean;
   isDraftSaving: boolean;
+  isDownloading: boolean;
   fetchCalculations: () => Promise<void>;
   getCalculationById: (id: number) => Promise<Calculation | null>;
   createCalculation: (calculation: CalculationReq) => Promise<Calculation | null>;
@@ -17,13 +18,15 @@ interface UseCalculationsReturn {
   deleteCalculation: (id: number) => Promise<boolean>;
   getCalculationsByAccountId: (accountId: number) => Promise<Calculation[] | null>;
   clearError: () => void;
+  downloadCalculationPdf: (id: number) => Promise<void>;
 }
 
-export const useCalculations = (): UseCalculationsReturn => {
+export const  useCalculations = (): UseCalculationsReturn => {
   const [calculations, setCalculations] = useState<CalculationOverview[]>([]);
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDraftSaving, setIsDraftSaving] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const { showSuccess, showError } = useToast();
@@ -37,7 +40,6 @@ export const useCalculations = (): UseCalculationsReturn => {
     } catch (err: any) {
       let errorMessage = 'Error loading calculations';
       
-      // Handle Axios error with response data
       if (err?.response?.data?.message) {
         errorMessage = err.response.data.message;
       } else if (err?.response?.data) {
@@ -62,7 +64,6 @@ export const useCalculations = (): UseCalculationsReturn => {
     } catch (err: any) {
       let errorMessage = 'Error loading calculation';
       
-      // Handle Axios error with response data
       if (err?.response?.data?.message) {
         errorMessage = err.response.data.message;
       } else if (err?.response?.data) {
@@ -97,7 +98,6 @@ export const useCalculations = (): UseCalculationsReturn => {
     } catch (err: any) {
       let errorMessage = 'Error creating calculation';
       
-      // Handle Axios error with response data
       if (err?.response?.data?.message) {
         errorMessage = err.response.data.message;
       } else if (err?.response?.data) {
@@ -138,7 +138,6 @@ export const useCalculations = (): UseCalculationsReturn => {
     } catch (err: any) {
       let errorMessage = 'Error updating calculation';
       
-      // Handle Axios error with response data
       if (err?.response?.data?.message) {
         errorMessage = err.response.data.message;
       } else if (err?.response?.data) {
@@ -170,7 +169,6 @@ export const useCalculations = (): UseCalculationsReturn => {
     } catch (err: any) {
       let errorMessage = 'Error deleting calculation';
       
-      // Handle Axios error with response data
       if (err?.response?.data?.message) {
         errorMessage = err.response.data.message;
       } else if (err?.response?.data) {
@@ -196,7 +194,6 @@ export const useCalculations = (): UseCalculationsReturn => {
     } catch (err: any) {
       let errorMessage = 'Error loading account calculations';
       
-      // Handle Axios error with response data
       if (err?.response?.data?.message) {
         errorMessage = err.response.data.message;
       } else if (err?.response?.data) {
@@ -210,6 +207,21 @@ export const useCalculations = (): UseCalculationsReturn => {
       return null;
     } finally {
       setLoading(false);
+    }
+  }, []);
+
+  const downloadCalculationPdf = useCallback(async (id: number): Promise<void> => {
+    setIsDownloading(true);
+    try {
+      await calculationService.downloadCalculationPdf(id);
+      showSuccess('Calculation downloaded successfully');
+    } catch (err: any) {
+      let errorMessage = "Error downloading calculation";
+  
+      setError(errorMessage);
+      showError(errorMessage);
+    } finally {
+      setIsDownloading(false);
     }
   }, []);
 
@@ -227,6 +239,7 @@ export const useCalculations = (): UseCalculationsReturn => {
     isDeleting,
     isSubmitting,
     isDraftSaving,
+    isDownloading,
     fetchCalculations,
     getCalculationById,
     createCalculation,
@@ -234,5 +247,6 @@ export const useCalculations = (): UseCalculationsReturn => {
     deleteCalculation,
     getCalculationsByAccountId,
     clearError,
+    downloadCalculationPdf
   };
 };

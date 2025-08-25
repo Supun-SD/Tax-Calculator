@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Text, Separator } from '@radix-ui/themes';
-import { CalculationService } from '../../../services/calculationService';
-import { useCalculationContext } from '../../../contexts/CalculationContext';
+import { CalculationService } from '../../../../services/calculationService';
+import { useCalculationContext } from '../../../../contexts/CalculationContext';
 
 const BalancelPayableTax = () => {
     const { currentCalculation, updateQuarterlyPayment } = useCalculationContext();

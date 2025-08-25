@@ -1,10 +1,10 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import Modal from "../../../components/Modal";
+import Modal from "../../../../components/Modal";
 import { IoAdd } from "react-icons/io5";
-import Button from '../../../components/Button';
-import { BusinessIncome } from '../../../../types/calculation';
-import { useCalculationContext } from '../../../contexts/CalculationContext';
-import { CalculationService } from '../../../services/calculationService';
+import Button from '../../../../components/Button';
+import { BusinessIncome } from '../../../../../types/calculation';
+import { useCalculationContext } from '../../../../contexts/CalculationContext';
+import { CalculationService } from '../../../../services/calculationService';
 
 interface BusinessProps {
     isOpen: boolean;

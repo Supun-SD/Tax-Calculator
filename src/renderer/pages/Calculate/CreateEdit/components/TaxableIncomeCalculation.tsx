@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { Text, Separator, Flex, IconButton, Tooltip, Button } from '@radix-ui/themes';
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import { IoRefresh } from "react-icons/io5";
-import { CalculationService } from '../../../services/calculationService';
-import { useCalculationContext } from '../../../contexts/CalculationContext';
+import { CalculationService } from '../../../../services/calculationService';
+import { useCalculationContext } from '../../../../contexts/CalculationContext';
 
 const TaxableIncomeCalculation = () => {
 

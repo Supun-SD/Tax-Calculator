@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Text, Separator } from '@radix-ui/themes';
-import { CalculationService } from '../../../services/calculationService';
-import { useCalculationContext } from '../../../contexts/CalculationContext';
-import { GrossIncomeTaxSlab } from '../../../../types/calculation';
+import { CalculationService } from '../../../../services/calculationService';
+import { useCalculationContext } from '../../../../contexts/CalculationContext';
+import { GrossIncomeTaxSlab } from '../../../../../types/calculation';
 
 const GrossIncomeTax = () => {
     const { currentCalculation, updateForeignIncome } = useCalculationContext();

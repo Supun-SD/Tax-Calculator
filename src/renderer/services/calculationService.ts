@@ -1,11 +1,5 @@
 import axios from 'axios';
 import { 
-  EmploymentIncome, 
-  RentalIncome, 
-  InterestIncome, 
-  DividendIncome, 
-  BusinessIncome, 
-  OtherIncome, 
   CalculationOverview,
   Calculation,
   CalculationReq
@@ -102,11 +96,28 @@ const getCalculationByAccountId = async (accountId: number): Promise<Calculation
   return response.data.data;
 }
 
+export const downloadCalculationPdf = async (id: number): Promise<void> => {
+  const response = await axios.get(`${API_BASE_URL}/calculation/print/${id}`, {
+    responseType: "blob", 
+  });
+
+  const blob = new Blob([response.data], { type: "application/pdf" });
+  const url = window.URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `calculation-${id}.pdf`;
+  link.click();
+
+  window.URL.revokeObjectURL(url);
+};
+
 export const calculationService = {
   getAllCalculations,
   getCalculationById,
   createCalculation,
   updateCalculation,
   deleteCalculation,
-  getCalculationByAccountId
+  getCalculationByAccountId,
+  downloadCalculationPdf
 }

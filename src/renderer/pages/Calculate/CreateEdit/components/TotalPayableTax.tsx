@@ -1,5 +1,5 @@
 import { Text, Separator } from '@radix-ui/themes';
-import { useCalculationContext } from '../../../contexts/CalculationContext';
+import { useCalculationContext } from '../../../../contexts/CalculationContext';
 
 interface TaxComponent {
     name: string;

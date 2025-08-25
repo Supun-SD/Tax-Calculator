@@ -1,9 +1,9 @@
 import React from 'react';
 import { Flex, Text, Separator } from '@radix-ui/themes';
 import { LuUser } from 'react-icons/lu';
-import { Account } from '../../../../types/account';
-import Button from '../../../components/Button';
-import { Status } from '../../../../types/enums/status';
+import { Account } from '../../../../../types/account';
+import Button from '../../../../components/Button';
+import { Status } from '../../../../../types/enums/status';
 import { RiDraftLine } from 'react-icons/ri';
 
 interface HeaderProps {

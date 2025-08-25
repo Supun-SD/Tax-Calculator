@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Navigation from '../../components/Navigation';
+import Navigation from '../../../components/Navigation';
 import { Flex, Grid, Separator, Text, AlertDialog } from '@radix-ui/themes';
-import { Account } from '../../../types/account';
+import { Account } from '../../../../types/account';
 import SelectAccountModal from './components/SelectAccountModal';
 import Header from './components/Header';
 import TaxableIncomeCalculation from './components/TaxableIncomeCalculation';
 import GrossIncomeTax from './components/GrossIncomeTax';
 import BalancelPayableTax from './components/BalancelPayableTax';
 import TotalPayableTax from './components/TotalPayableTax';
-import Button from '../../components/Button';
+import Button from '../../../components/Button';
 import { MdOutlineOpenInNew } from "react-icons/md";
 import Employment from './components/Employment';
 import Rent from './components/Rent';
@@ -18,11 +18,11 @@ import Dividend from './components/Dividend';
 import Business from './components/Business';
 import Other from './components/Other';
 import { ClipLoader } from 'react-spinners';
-import { useCalculationContext } from '../../contexts/CalculationContext';
-import { useToast } from '../../hooks/useToast';
-import { useCalculations } from '../../hooks/useCalculations';
-import { Status } from '../../../types/enums/status';
-import { Calculation } from '../../../types/calculation';
+import { useCalculationContext } from '../../../contexts/CalculationContext';
+import { useToast } from '../../../hooks/useToast';
+import { useCalculations } from '../../../hooks/useCalculations';
+import { Status } from '../../../../types/enums/status';
+import { Calculation } from '../../../../types/calculation';
 
 const MODAL_COMPONENTS = {
   employment: Employment,
