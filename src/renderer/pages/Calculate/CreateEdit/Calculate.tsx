@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navigation from '../../../components/Navigation';
-import { Flex, Grid, Separator, Text, AlertDialog } from '@radix-ui/themes';
+import { Flex, Text, AlertDialog } from '@radix-ui/themes';
 import { Account } from '../../../../types/account';
 import SelectAccountModal from './components/SelectAccountModal';
 import Header from './components/Header';
@@ -258,9 +258,9 @@ const Calculate = () => {
 
       {/* Submit Confirmation Dialog */}
       <AlertDialog.Root open={showSubmitConfirmation}>
-        <AlertDialog.Content className="bg-popup-bg">
-          <AlertDialog.Title>Submit Calculation</AlertDialog.Title>
-          <AlertDialog.Description size="3">
+        <AlertDialog.Content className="bg-surface-2 border border-white/20 rounded-xl">
+          <AlertDialog.Title className="text-white">Delete Bank</AlertDialog.Title>
+          <AlertDialog.Description size="3" className="text-gray-300">
             Are you sure you want to submit this calculation for "{selectedAccount?.name}" ({assessmentPeriod?.start}/{assessmentPeriod?.end})?
           </AlertDialog.Description>
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Modal from "../../../../components/Modal";
-import { IoAdd, IoClose, IoChevronDown } from "react-icons/io5";
+import { IoAdd, IoChevronDown } from "react-icons/io5";
 import { MdDelete, MdAccountBalance, MdAttachMoney, MdCalculate, MdReceipt, MdSearch } from "react-icons/md";
 import { Text, Flex } from '@radix-ui/themes';
 import Button from '../../../../components/Button';
@@ -296,7 +296,7 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
                                                         </button>
                                                     </div>
                                                     {activeBankDropdown === entry.id && (
-                                                        <div className="absolute z-50 w-full mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-xl max-h-60 overflow-y-auto">
+                                                        <div className="absolute z-50 w-full mt-1 bg-surface-2 border border-gray-600 rounded-lg shadow-xl max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800 hover:scrollbar-thumb-gray-500">
                                                             <div className="p-2 border-b border-gray-600">
                                                                 <div className="relative">
                                                                     <MdSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />

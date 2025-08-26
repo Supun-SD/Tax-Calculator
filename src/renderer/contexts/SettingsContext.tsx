@@ -27,7 +27,7 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isUpdating, setIsUpdating] = useState(false);
-    const [currentYear, setCurrentYear] = useState<string>('2024/2025'); // Default year
+    const [currentYear, setCurrentYear] = useState<string>('2024/2025');
     const { showSuccess, showError } = useToast();
 
     const fetchSettingsByYear = async (year: string) => {
@@ -39,7 +39,6 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
         } catch (err: any) {
             let errorMessage = 'Error loading settings';
 
-            // Handle Axios error with response data
             if (err?.response?.data?.message) {
                 errorMessage = err.response.data.message;
             } else if (err?.response?.data) {
@@ -73,7 +72,6 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
         } catch (err: any) {
             let errorMessage = 'Error updating settings';
 
-            // Handle Axios error with response data
             if (err?.response?.data?.message) {
                 errorMessage = err.response.data.message;
             } else if (err?.response?.data) {
@@ -98,7 +96,6 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
         await fetchSettingsByYear(currentYear);
     };
 
-    // Fetch settings when the component mounts or when currentYear changes
     useEffect(() => {
         fetchSettingsByYear(currentYear);
     }, [currentYear]);

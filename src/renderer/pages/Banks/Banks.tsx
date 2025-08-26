@@ -1,14 +1,14 @@
 import Navigation from '../../components/Navigation';
 import Button from '../../components/Button';
-import { IoIosAdd } from 'react-icons/io';
 import { DataTable, Column } from '../../components/DataTable';
 import { useState } from 'react';
 import SearchBar from '../../components/SearchBar';
 import { Bank } from '../../../types/bank';
 import BankModal from './components/BankModal';
-import { AlertDialog, Flex } from '@radix-ui/themes';
+import { AlertDialog, Flex, Text } from '@radix-ui/themes';
 import { ClipLoader } from 'react-spinners';
 import { useBanks } from '../../hooks/useBanks';
+import { MdAdd } from 'react-icons/md';
 
 const Banks = () => {
   const [searchValue, setSearchValue] = useState('');
@@ -91,37 +91,45 @@ const Banks = () => {
     <div className="p-8">
       <Navigation title="Banks" />
 
-      <div className="mb-5 flex items-center justify-between gap-96">
-        <SearchBar
-          value={searchValue}
-          onChange={handleSearchChange}
-          placeholder="Search by name or TIN number"
-          className="my-4"
-        />
-        <Button
-          icon={IoIosAdd}
-          size="md"
-          className="px-10"
-          onClick={handleAddButtonClick}
-        >
-          Add
-        </Button>
-      </div>
-      {loading ? (
-        <div className="flex items-center justify-center h-60">
-          <ClipLoader color="white" />
+      {/* Search and Add section */}
+      <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 mb-6">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex-1 max-w-md">
+            <SearchBar
+              value={searchValue}
+              onChange={handleSearchChange}
+              placeholder="Search by name or TIN number"
+            />
+          </div>
+          <Button
+            onClick={handleAddButtonClick}
+            variant="primary"
+            icon={MdAdd}
+            iconPosition="left"
+          >
+            Add Bank
+          </Button>
         </div>
-      ) : (
-        <DataTable
-          data={banks}
-          columns={columns}
-          searchValue={searchValue}
-          searchKeys={['name', 'tinNumber']}
-          showActions={true}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
-      )}
+      </div>
+
+      {/* Data Table */}
+      <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl overflow-hidden">
+        {loading ? (
+          <div className="flex items-center justify-center h-60">
+            <ClipLoader color="#3B82F6" />
+          </div>
+        ) : (
+          <DataTable
+            data={banks}
+            columns={columns}
+            searchValue={searchValue}
+            searchKeys={['name', 'tinNumber']}
+            showActions={true}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        )}
+      </div>
 
       <BankModal
         isOpen={isModalOpen}
@@ -134,29 +142,33 @@ const Banks = () => {
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog.Root open={!!deletingBank}>
-        <AlertDialog.Content className="bg-popup-bg">
-          <AlertDialog.Title>Delete Bank</AlertDialog.Title>
-          <AlertDialog.Description size="3">
-            Are you sure you want to delete the bank "{deletingBank?.name}
-            "?
+        <AlertDialog.Content className="bg-surface-2 border border-white/20 rounded-xl">
+          <AlertDialog.Title className="text-white">Delete Bank</AlertDialog.Title>
+          <AlertDialog.Description size="3" className="text-gray-300">
+            Are you sure you want to delete the bank "{deletingBank?.name}"?
           </AlertDialog.Description>
 
           <Flex gap="3" mt="6" justify="end" align="center">
             <AlertDialog.Cancel>
-              <Button variant="secondary" onClick={handleCancelDelete} disabled={isDeleting}>
+              <Button
+                variant="secondary"
+                onClick={handleCancelDelete}
+                disabled={isDeleting}
+                size="sm"
+              >
                 Cancel
               </Button>
             </AlertDialog.Cancel>
             {isDeleting ? (
-              <div className="flex items-center justify-center px-14 mx-3">
-                <ClipLoader color="gray" size={28} />
+              <div className="flex items-center justify-center px-4 py-2">
+                <ClipLoader color="#EF4444" size={20} />
               </div>
             ) : (
               <AlertDialog.Action>
                 <Button
-                  variant="outline"
-                  className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white bg-white"
+                  variant="danger"
                   onClick={handleConfirmDelete}
+                  size="sm"
                 >
                   Delete Bank
                 </Button>

@@ -31,7 +31,6 @@ export const useAccounts = (): UseAccountsReturn => {
         } catch (err: any) {
             let errorMessage = 'Error loading accounts';
             
-            // Handle Axios error with response data
             if (err?.response?.data?.message) {
                 errorMessage = err.response.data.message;
             } else if (err?.response?.data) {
@@ -57,7 +56,6 @@ export const useAccounts = (): UseAccountsReturn => {
         } catch (err: any) {
             let errorMessage = 'Error creating account';
             
-            // Handle Axios error with response data
             if (err?.response?.data?.message) {
                 errorMessage = err.response.data.message;
             } else if (err?.response?.data) {
@@ -83,7 +81,6 @@ export const useAccounts = (): UseAccountsReturn => {
         } catch (err: any) {
             let errorMessage = 'Error updating account';
             
-            // Handle Axios error with response data
             if (err?.response?.data?.message) {
                 errorMessage = err.response.data.message;
             } else if (err?.response?.data) {
@@ -110,7 +107,6 @@ export const useAccounts = (): UseAccountsReturn => {
         } catch (err: any) {
             let errorMessage = 'Error deleting account';
             
-            // Handle Axios error with response data
             if (err?.response?.data?.message) {
                 errorMessage = err.response.data.message;
             } else if (err?.response?.data) {

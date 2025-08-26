@@ -29,7 +29,6 @@ export const useSettings = (): UseSettingsReturn => {
         } catch (err: any) {
             let errorMessage = 'Error loading settings';
             
-            // Handle Axios error with response data
             if (err?.response?.data?.message) {
                 errorMessage = err.response.data.message;
             } else if (err?.response?.data) {
@@ -49,14 +48,13 @@ export const useSettings = (): UseSettingsReturn => {
         setIsUpdating(true);
         setError(null);
         try {
-            const updatedSettings = await settingsService.updateSettings(settingsData);
+            const updatedSettings = await settingsService.updateSettings(settingsData.id, settingsData);
             setSettings(updatedSettings);
             showSuccess('Settings updated successfully');
             return updatedSettings;
         } catch (err: any) {
             let errorMessage = 'Error updating settings';
             
-            // Handle Axios error with response data
             if (err?.response?.data?.message) {
                 errorMessage = err.response.data.message;
             } else if (err?.response?.data) {

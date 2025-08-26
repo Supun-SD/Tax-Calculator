@@ -31,7 +31,6 @@ export const useBanks = (): UseBanksReturn => {
     } catch (err: any) {
       let errorMessage = 'Error loading banks';
       
-      // Handle Axios error with response data
       if (err?.response?.data?.message) {
         errorMessage = err.response.data.message;
       } else if (err?.response?.data) {
@@ -57,7 +56,6 @@ export const useBanks = (): UseBanksReturn => {
     } catch (err: any) {
       let errorMessage = 'Error creating bank';
       
-      // Handle Axios error with response data
       if (err?.response?.data?.message) {
         errorMessage = err.response.data.message;
       } else if (err?.response?.data) {
@@ -83,7 +81,6 @@ export const useBanks = (): UseBanksReturn => {
     } catch (err: any) {
       let errorMessage = 'Error updating bank';
       
-      // Handle Axios error with response data
       if (err?.response?.data?.message) {
         errorMessage = err.response.data.message;
       } else if (err?.response?.data) {
@@ -110,7 +107,6 @@ export const useBanks = (): UseBanksReturn => {
     } catch (err: any) {
       let errorMessage = 'Error deleting bank';
       
-      // Handle Axios error with response data
       if (err?.response?.data?.message) {
         errorMessage = err.response.data.message;
       } else if (err?.response?.data) {
@@ -131,7 +127,6 @@ export const useBanks = (): UseBanksReturn => {
     setError(null);
   }, []);
 
-  // Fetch banks on mount
   useEffect(() => {
     fetchBanks();
   }, []);

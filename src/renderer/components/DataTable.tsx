@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { IoChevronBack, IoChevronForward } from 'react-icons/io5';
+import { MdVisibility, MdEdit, MdDelete, MdSort } from 'react-icons/md';
 
 export interface Column<T> {
   key: keyof T;
@@ -47,7 +48,6 @@ export function DataTable<T extends { id?: number | string }>({
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(defaultItemsPerPage);
 
-  // Use external search value if provided, otherwise use internal
   const searchValue =
     externalSearchValue !== undefined
       ? externalSearchValue
@@ -57,12 +57,10 @@ export function DataTable<T extends { id?: number | string }>({
     direction: 'asc' | 'desc';
   }>({ key: null, direction: 'asc' });
 
-  // Determine searchable keys
   const searchableKeys =
     searchKeys ||
     columns.filter((col) => col.searchable !== false).map((col) => col.key);
 
-  // Filter data based on search using useEffect with debouncing for better performance
   const [filteredData, setFilteredData] = useState(data);
 
   useEffect(() => {
@@ -78,12 +76,11 @@ export function DataTable<T extends { id?: number | string }>({
         })
       );
       setFilteredData(filtered);
-    }, 300); // 300ms debounce delay
+    }, 300);
 
     return () => clearTimeout(timeoutId);
   }, [data, searchValue, searchableKeys]);
 
-  // Sort data
   const sortedData = React.useMemo(() => {
     if (!sortConfig.key) return filteredData;
 
@@ -110,13 +107,11 @@ export function DataTable<T extends { id?: number | string }>({
     });
   }, [filteredData, sortConfig]);
 
-  // Pagination logic
   const totalPages = Math.ceil(sortedData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentData = sortedData.slice(startIndex, endIndex);
 
-  // Reset to first page when search changes
   useEffect(() => {
     setCurrentPage(1);
   }, [searchValue]);
@@ -150,28 +145,28 @@ export function DataTable<T extends { id?: number | string }>({
   };
 
   const getSortIcon = (key: keyof T) => {
-    if (sortConfig.key !== key) return null;
-    return sortConfig.direction === 'asc' ? '↑' : '↓';
+    if (sortConfig.key !== key) {
+      return <MdSort className="h-4 w-4 text-gray-400" />;
+    }
+    return sortConfig.direction === 'asc' ? (
+      <div className="text-blue-400">↑</div>
+    ) : (
+      <div className="text-blue-400">↓</div>
+    );
   };
 
   return (
-    <div className={`rounded-[30px] bg-surface p-3 ${className}`}>
-      {/* Table */}
-      <table className="w-full table-fixed">
-        <thead className="rounded-t-[30px] bg-surface-2">
+    <div className={`bg-surface backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden ${className}`}>
+      <table className="w-full">
+        <thead className="bg-white/5 border-b border-white/10">
           <tr>
             {columns.map((column, index) => (
               <th
                 key={String(column.key)}
-                className={`px-8 py-4 text-left font-bold text-gray-300 ${
-                  column.sortable !== false
-                    ? 'cursor-pointer hover:text-white'
-                    : ''
-                } ${index === 0 ? 'rounded-tl-[20px]' : ''} ${
-                  index === columns.length - 1 && !showActions
-                    ? 'rounded-tr-[20px]'
-                    : ''
-                } ${column.width || ''}`}
+                className={`px-6 py-4 text-left font-semibold text-gray-300 text-sm uppercase tracking-wide ${column.sortable !== false
+                  ? 'cursor-pointer hover:text-white hover:bg-white/5 transition-all duration-200'
+                  : ''
+                  } ${column.width || ''}`}
                 onClick={() =>
                   column.sortable !== false && handleSort(column.key)
                 }
@@ -183,58 +178,41 @@ export function DataTable<T extends { id?: number | string }>({
               </th>
             ))}
             {showActions && (
-              <th className="w-32 rounded-tr-[20px] px-8 py-4 text-right font-bold text-gray-300">
+              <th className="w-32 px-6 py-4 text-center font-semibold text-gray-300 text-sm uppercase tracking-wide">
                 Actions
               </th>
             )}
           </tr>
         </thead>
-        <tbody>
+        <tbody className="divide-y divide-white/10">
           {currentData.length > 0 ? (
             currentData.map((row, rowIndex) => (
               <tr
                 key={row.id || rowIndex}
-                className={`border-b border-[#484848] transition-colors hover:bg-gray-800`}
+                className={`transition-all duration-200 hover:bg-gray-700/20 ${rowIndex % 2 === 0 ? 'bg-transparent' : 'bg-gray-700/10'
+                  }`}
               >
                 {columns.map((column) => (
                   <td
                     key={String(column.key)}
-                    className="px-8 py-4 text-sm text-white"
+                    className="px-6 py-4 text-sm text-white"
                   >
                     {renderCell(column, row)}
                   </td>
                 ))}
                 {showActions && (
-                  <td className="px-8 py-4 text-right">
-                    <div className="flex justify-end gap-2">
+                  <td className="px-6 py-4 text-center">
+                    <div className="flex justify-center gap-2">
                       {actionsColumn.view && onView && (
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             onView(row);
                           }}
-                          className="rounded p-1 transition-colors hover:bg-gray-700"
+                          className="w-8 h-8 bg-blue-400/20 hover:bg-blue-400/30 text-blue-300 hover:text-blue-200 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 border border-blue-400/30"
                           title="View"
                         >
-                          <svg
-                            className="h-4 w-4 text-white"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                            />
-                          </svg>
+                          <MdVisibility className="h-4 w-4" />
                         </button>
                       )}
                       {actionsColumn.edit && onEdit && (
@@ -243,22 +221,10 @@ export function DataTable<T extends { id?: number | string }>({
                             e.stopPropagation();
                             onEdit(row);
                           }}
-                          className="rounded p-1 transition-colors hover:bg-gray-700"
+                          className="w-8 h-8 bg-green-400/20 hover:bg-green-400/30 text-green-300 hover:text-green-200 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 border border-green-400/30"
                           title="Edit"
                         >
-                          <svg
-                            className="h-4 w-4 text-white"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                            />
-                          </svg>
+                          <MdEdit className="h-4 w-4" />
                         </button>
                       )}
                       {actionsColumn.delete && onDelete && (
@@ -267,22 +233,10 @@ export function DataTable<T extends { id?: number | string }>({
                             e.stopPropagation();
                             onDelete(row);
                           }}
-                          className="rounded p-1 transition-colors hover:bg-gray-700"
+                          className="w-8 h-8 bg-red-400/20 hover:bg-red-400/30 text-red-300 hover:text-red-200 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 border border-red-400/30"
                           title="Delete"
                         >
-                          <svg
-                            className="h-4 w-4 text-white"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            />
-                          </svg>
+                          <MdDelete className="h-4 w-4" />
                         </button>
                       )}
                     </div>
@@ -294,87 +248,87 @@ export function DataTable<T extends { id?: number | string }>({
             <tr>
               <td
                 colSpan={columns.length + (showActions ? 1 : 0)}
-                className="p-16 text-center text-lg text-ph"
+                className="p-16 text-center text-lg text-gray-400"
               >
-                No records
+                No records found
               </td>
             </tr>
           )}
         </tbody>
       </table>
 
-      {/* Pagination Controls */}
       {sortedData.length > 0 && (
-        <div className="my-6 flex items-center justify-between px-4">
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-300">
-              Showing {startIndex + 1} to{' '}
-              {Math.min(endIndex, sortedData.length)} of {sortedData.length}{' '}
-              results
-            </span>
+        <div className="bg-white/5 border-t border-white/10 px-6 py-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-gray-300">
+                Showing {startIndex + 1} to{' '}
+                {Math.min(endIndex, sortedData.length)} of {sortedData.length}{' '}
+                results
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-300">Items per page:</span>
+                <select
+                  value={itemsPerPage}
+                  onChange={handleItemsPerPageChange}
+                  className="rounded-lg border border-white/20 bg-white/10 px-3 py-1 text-sm text-white focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400/20 transition-all duration-200"
+                >
+                  {itemsPerPageOptions.map((option) => (
+                    <option key={option} value={option} className="bg-surface-2">
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-300">Items per page:</span>
-              <select
-                value={itemsPerPage}
-                onChange={handleItemsPerPageChange}
-                className="rounded border border-gray-600 bg-surface-2 px-2 py-1 text-sm text-white focus:border-blue-500 focus:outline-none"
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="p-2 text-gray-300 transition-all duration-200 hover:text-white hover:bg-white/10 rounded-lg disabled:cursor-not-allowed disabled:text-gray-600 disabled:hover:bg-transparent"
+                title="Previous page"
               >
-                {itemsPerPageOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+                <IoChevronBack className="h-5 w-5" />
+              </button>
+
+              <div className="flex gap-1">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum: number;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => handlePageChange(pageNum)}
+                      className={`rounded-lg px-3 py-1 text-sm transition-all duration-200 ${currentPage === pageNum
+                        ? 'bg-blue-400/20 text-blue-300 border border-blue-400/30'
+                        : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                        }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="p-2 text-gray-300 transition-all duration-200 hover:text-white hover:bg-white/10 rounded-lg disabled:cursor-not-allowed disabled:text-gray-600 disabled:hover:bg-transparent"
+                title="Next page"
+              >
+                <IoChevronForward className="h-5 w-5" />
+              </button>
             </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="p-2 text-gray-300 transition-colors hover:text-white disabled:cursor-not-allowed disabled:text-gray-600"
-              title="Previous page"
-            >
-              <IoChevronBack className="h-5 w-5" />
-            </button>
-
-            <div className="flex gap-1">
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                let pageNum: number;
-                if (totalPages <= 5) {
-                  pageNum = i + 1;
-                } else if (currentPage <= 3) {
-                  pageNum = i + 1;
-                } else if (currentPage >= totalPages - 2) {
-                  pageNum = totalPages - 4 + i;
-                } else {
-                  pageNum = currentPage - 2 + i;
-                }
-
-                return (
-                  <button
-                    key={pageNum}
-                    onClick={() => handlePageChange(pageNum)}
-                    className={`rounded px-3 py-1 text-sm transition-colors ${
-                      currentPage === pageNum
-                        ? 'bg-primary text-white'
-                        : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                );
-              })}
-            </div>
-
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="p-2 text-gray-300 transition-colors hover:text-white disabled:cursor-not-allowed disabled:text-gray-600"
-              title="Next page"
-            >
-              <IoChevronForward className="h-5 w-5" />
-            </button>
           </div>
         </div>
       )}

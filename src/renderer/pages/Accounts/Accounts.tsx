@@ -1,7 +1,7 @@
 import Button from '../../components/Button';
 import Navigation from '../../components/Navigation';
 import SearchBar from '../../components/SearchBar';
-import { IoIosAdd } from 'react-icons/io';
+import { MdAdd } from 'react-icons/md';
 import { DataTable, Column } from '../../components/DataTable';
 import React, { useState } from 'react';
 import { Account } from '../../../types/account';
@@ -99,39 +99,52 @@ const Accounts = () => {
     <div className="p-8">
       <Navigation title="Accounts" />
 
-      <div className="mb-5 flex items-center justify-between gap-96">
-        <SearchBar
-          value={searchValue}
-          onChange={handleSearchChange}
-          placeholder="Search by name or TIN number"
-          className="my-4"
-        />
-        <Button
-          icon={IoIosAdd}
-          size="md"
-          className="px-10"
-          onClick={handleAddButtonClick}
-        >
-          Add
-        </Button>
+      {/* Search and Add Section */}
+      <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-6 mb-6">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          {/* Search Bar */}
+          <div className="flex-1 max-w-md">
+            <SearchBar
+              value={searchValue}
+              onChange={handleSearchChange}
+              placeholder="Search by name or TIN number"
+            />
+          </div>
+
+          {/* Add Button */}
+          <Button
+            onClick={handleAddButtonClick}
+            variant="primary"
+            icon={MdAdd}
+            iconPosition="left"
+          >
+            Add Account
+          </Button>
+        </div>
       </div>
 
-      {loading ? (
-        <div className="flex items-center justify-center h-60">
-          <ClipLoader color="white" />
-        </div>
-      ) : (
-        <DataTable
-          data={accounts}
-          columns={columns}
-          searchValue={searchValue}
-          searchKeys={['name', 'tinNumber']}
-          showActions={true}
-          onEdit={handleEdit}
-          onView={handleView}
-          onDelete={handleDelete}
-        />
-      )}
+      {/* Data Table Section */}
+      <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden">
+        {loading ? (
+          <div className="flex items-center justify-center h-60">
+            <div className="flex items-center space-x-3">
+              <ClipLoader color="#60A5FA" size={32} />
+              <span className="text-gray-300">Loading accounts...</span>
+            </div>
+          </div>
+        ) : (
+          <DataTable
+            data={accounts}
+            columns={columns}
+            searchValue={searchValue}
+            searchKeys={['name', 'tinNumber']}
+            showActions={true}
+            onEdit={handleEdit}
+            onView={handleView}
+            onDelete={handleDelete}
+          />
+        )}
+      </div>
 
       <AccountModal
         isOpen={isModalOpen}
@@ -149,28 +162,35 @@ const Accounts = () => {
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog.Root open={!!deletingAccount}>
-        <AlertDialog.Content className="bg-popup-bg">
-          <AlertDialog.Title>Delete Account</AlertDialog.Title>
-          <AlertDialog.Description size="3">
+        <AlertDialog.Content className="bg-surface-2 border border-white/20 rounded-xl">
+          <AlertDialog.Title className="text-white text-lg font-semibold">
+            Delete Account
+          </AlertDialog.Title>
+          <AlertDialog.Description size="3" className="text-gray-300 mt-2">
             Are you sure you want to delete the account "{deletingAccount?.name}"?
           </AlertDialog.Description>
 
           <Flex gap="3" mt="6" justify="end" align="center">
             <AlertDialog.Cancel>
-              <Button variant="secondary" onClick={handleCancelDelete} disabled={isDeleting}>
+              <Button
+                variant="secondary"
+                onClick={handleCancelDelete}
+                disabled={isDeleting}
+                size="sm"
+              >
                 Cancel
               </Button>
             </AlertDialog.Cancel>
             {isDeleting ? (
-              <div className="flex items-center justify-center px-14 mx-3">
-                <ClipLoader color="gray" size={28} />
+              <div className="flex items-center justify-center px-6 py-2">
+                <ClipLoader color="#EF4444" size={20} />
               </div>
             ) : (
               <AlertDialog.Action>
                 <Button
-                  variant="outline"
-                  className="border-red-600 text-red-600 bg-white hover:bg-red-600 hover:text-white"
+                  variant="danger"
                   onClick={handleConfirmDelete}
+                  size="sm"
                 >
                   Delete Account
                 </Button>

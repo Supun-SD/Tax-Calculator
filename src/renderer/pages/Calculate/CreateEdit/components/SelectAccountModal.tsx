@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Flex, Text } from '@radix-ui/themes';
 import Modal from '../../../../components/Modal';
-import SearchBar from '../../../../components/SearchBar';
 import { Account } from '../../../../../types/account';
 import { FiCalendar } from 'react-icons/fi';
 import { MdAccountCircle, MdSearch, MdDescription } from "react-icons/md";
@@ -113,7 +112,7 @@ const SelectAccountModal: React.FC<SelectAccountModalProps> = ({
 
           {/* Account List Overlay */}
           {searchTerm && (
-            <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-40 overflow-y-auto rounded-lg border border-white/20 bg-gray-800 shadow-xl">
+            <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-40 overflow-y-auto rounded-lg border border-white/20 bg-surface-2 shadow-2xl">
               {loading ? (
                 <div className="flex items-center justify-center p-10">
                   <div className="flex items-center gap-2">
@@ -190,11 +189,11 @@ const SelectAccountModal: React.FC<SelectAccountModalProps> = ({
                 }}
                 className="w-full appearance-none rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200"
               >
-                <option value="" disabled className="bg-gray-800 text-white">
+                <option value="" disabled className="bg-surface-2 text-white">
                   Select year
                 </option>
                 {years.map((year) => (
-                  <option key={`start-${year}`} value={year} className="bg-gray-800 text-white">
+                  <option key={`start-${year}`} value={year} className="bg-surface-2 text-white">
                     {year}
                   </option>
                 ))}
@@ -207,11 +206,11 @@ const SelectAccountModal: React.FC<SelectAccountModalProps> = ({
                 onChange={(e) => setEndDate(e.target.value)}
                 className="w-full appearance-none rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200"
               >
-                <option value="" disabled className="bg-gray-800 text-white">
+                <option value="" disabled className="bg-surface-2 text-white">
                   Select year
                 </option>
                 {years.map((year) => (
-                  <option key={`end-${year}`} value={year} className="bg-gray-800 text-white">
+                  <option key={`end-${year}`} value={year} className="bg-surface-2 text-white">
                     {year}
                   </option>
                 ))}

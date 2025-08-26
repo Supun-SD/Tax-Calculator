@@ -68,7 +68,7 @@ const Modal: React.FC<ModalProps> = ({
         >
           <Dialog.Close className="absolute right-4 top-4 cursor-pointer p-2">
             <div>
-              <IoIosClose size={24} />
+              <IoIosClose size={24} color={isDark ? 'white' : 'black'} />
             </div>
           </Dialog.Close>
           <Dialog.Title>{title}</Dialog.Title>

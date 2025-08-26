@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Modal from '../../../components/Modal';
-import { TextField, Select } from '@radix-ui/themes';
-import { Text } from '@radix-ui/themes';
+import { Text, Select } from '@radix-ui/themes';
+import { MdAccountCircle, MdPerson, MdReceipt } from 'react-icons/md';
 import { Account, AccountCreateReq, AccountUpdateReq } from '../../../../types/account';
 
 interface AccountModalProps {
@@ -29,7 +29,6 @@ const AccountModal: React.FC<AccountModalProps> = ({
   });
   const [loading, setLoading] = useState(false);
 
-  // Update form data when account prop changes (for edit mode)
   useEffect(() => {
     if (account) {
       setFormData({
@@ -52,7 +51,6 @@ const AccountModal: React.FC<AccountModalProps> = ({
   const handleSubmit = async () => {
     setLoading(true);
     if (mode === 'edit' && account) {
-      // Edit mode
       const newAccountData: AccountUpdateReq = {
         title: formData.title.trim(),
         name: formData.name.trim(),
@@ -64,7 +62,6 @@ const AccountModal: React.FC<AccountModalProps> = ({
         onClose();
       }
     } else if (mode === 'add') {
-      // Add mode
       const newAccountData: AccountCreateReq = {
         title: formData.title.trim(),
         name: formData.name.trim(),
@@ -103,14 +100,14 @@ const AccountModal: React.FC<AccountModalProps> = ({
         label: 'Cancel',
         onClick: handleCancel,
         variant: 'secondary' as const,
-        className: '!px-10 rounded-2xl',
+        className: 'bg-gray-600 hover:bg-gray-700 text-white',
       },
       {
         label: mode === 'edit' ? 'Update' : 'Add',
         onClick: handleSubmit,
         variant: 'primary' as const,
         disabled: !isFormValid,
-        className: '!px-10 rounded-2xl',
+        className: isFormValid ? '' : 'opacity-50 cursor-not-allowed',
       },
     ];
   };
@@ -121,30 +118,40 @@ const AccountModal: React.FC<AccountModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={getTitle()}
+      title={
+        <div className="flex items-center space-x-3 mb-6">
+          <div className="w-10 h-10 bg-blue-400/20 rounded-lg flex items-center justify-center">
+            <MdAccountCircle className="text-blue-300 text-lg" />
+          </div>
+          <Text className="text-white text-xl font-semibold">{getTitle()}</Text>
+        </div>
+      }
       actions={getActions()}
       maxWidth="500px"
       loading={loading}
+      isDark={true}
     >
-      <div className="space-y-4">
-        <div className="grid grid-cols-7 gap-2">
+      <div className="space-y-6">
+        <div className="grid grid-cols-7 gap-4">
           <div className="col-span-2">
-            <Text as="div" size="3" mb="1">
-              Title
-            </Text>
-            <div className="rounded-xl bg-white">
+            <div className="flex items-center space-x-2 mb-3">
+              <MdPerson className="text-blue-300 text-sm" />
+              <Text as="div" size="3" className="text-gray-300 font-medium">
+                Title
+              </Text>
+            </div>
+            <div className="relative">
               <Select.Root
                 value={formData.title}
                 onValueChange={(value) => handleInputChange('title', value)}
                 size="3"
               >
                 <Select.Trigger
-                  placeholder="select title"
-                  className="rounded-xl bg-white px-3 h-12 ring-0 focus:outline-none focus:ring-0 [&:focus-within]:outline-none [&:focus-within]:ring-0 flex justify-between items-center"
+                  className="w-full h-12 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200"
                 />
-                <Select.Content>
+                <Select.Content className="bg-surface-2 border border-white/20 rounded-lg">
                   {titles.map((title) => (
-                    <Select.Item key={title} value={title}>
+                    <Select.Item key={title} value={title} className="text-white hover:bg-white/10">
                       {title}
                     </Select.Item>
                   ))}
@@ -153,32 +160,37 @@ const AccountModal: React.FC<AccountModalProps> = ({
             </div>
           </div>
           <div className="col-span-5">
-            <Text as="div" size="3" mb="1">
-              Full name
-            </Text>
-            <div className="rounded-xl bg-white">
-              <TextField.Root
+            <div className="flex items-center space-x-2 mb-3">
+              <MdPerson className="text-green-300 text-sm" />
+              <Text as="div" size="3" className="text-gray-300 font-medium">
+                Full name
+              </Text>
+            </div>
+            <div className="relative">
+              <input
+                type="text"
                 value={formData.name}
                 onChange={(e) => handleInputChange('name', e.target.value)}
-                size="3"
                 placeholder="Enter full name"
-                className="h-12 rounded-xl bg-white px-1 ring-0 focus:outline-none focus:ring-0 [&:focus-within]:outline-none [&:focus-within]:ring-0 [&>input]:focus:outline-none [&>input]:focus:ring-0"
+                className="w-full h-12 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-300/50 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all duration-200 px-3"
               />
             </div>
           </div>
         </div>
         <div>
-          <Text as="div" size="3" mb="1">
-            TIN number
-          </Text>
-          <div className="rounded-xl bg-white">
-            <TextField.Root
+          <div className="flex items-center space-x-2 mb-3">
+            <MdReceipt className="text-purple-300 text-sm" />
+            <Text as="div" size="3" className="text-gray-300 font-medium">
+              TIN number
+            </Text>
+          </div>
+          <div className="relative">
+            <input
+              type="text"
               value={formData.tinNumber}
               onChange={(e) => handleInputChange('tinNumber', e.target.value)}
-              size="3"
               placeholder="Enter TIN number"
-              type="number"
-              className="h-12 rounded-xl bg-white px-1 ring-0 focus:outline-none focus:ring-0 [&:focus-within]:outline-none [&:focus-within]:ring-0 [&>input]:focus:outline-none [&>input]:focus:ring-0"
+              className="w-full h-12 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-300/50 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-200 px-3"
             />
           </div>
         </div>

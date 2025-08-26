@@ -1,7 +1,7 @@
 import Modal from '../../../components/Modal';
-import { Flex, Separator, Text, Button } from '@radix-ui/themes';
+import { Flex, Text } from '@radix-ui/themes';
+import { MdAccountCircle, MdCalculate, MdVisibility } from 'react-icons/md';
 import { Account } from '../../../../types/account';
-import { RiAccountCircleFill } from 'react-icons/ri';
 import CalculationCard from './CalculationCard';
 
 interface ViewAccountModalProps {
@@ -15,7 +15,6 @@ const ViewAccountModal: React.FC<ViewAccountModalProps> = ({
   onClose,
   account,
 }) => {
-  // Use calculations that are already included in the account data
   const accountCalculations = account?.calculations || [];
 
   return (
@@ -23,37 +22,49 @@ const ViewAccountModal: React.FC<ViewAccountModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       title={
-        <Flex align="center" gap="2" mt="4">
-          <RiAccountCircleFill size={72} color="gray" />
+        <div className="flex items-center space-x-4 mb-6">
+          <div className="w-16 h-16 bg-blue-400/20 rounded-xl flex items-center justify-center">
+            <MdAccountCircle className="text-blue-300 text-3xl" />
+          </div>
           <div>
-            <Text as="div" size="7" weight="bold">
+            <Text as="div" size="6" weight="bold" className="text-white">
               {account?.name}
             </Text>
-            <Text as="div" size="3" mb="1" weight="medium" color="gray">
-              {account?.tinNumber}
+            <Text as="div" size="3" className="text-gray-300 font-medium">
+              TIN: {account?.tinNumber}
             </Text>
           </div>
-        </Flex>
+        </div>
       }
+      maxWidth="600px"
+      isDark={true}
     >
-      <div>
-        <Text size="5" weight="bold">
-          Calculations
-        </Text>
-        <Separator my="2" size="4" />
+      <div className="space-y-6">
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-green-400/20 rounded-lg flex items-center justify-center">
+            <MdCalculate className="text-green-300 text-lg" />
+          </div>
+          <Text size="5" weight="bold" className="text-white">
+            Calculations
+          </Text>
+        </div>
+
 
         {accountCalculations.length === 0 ? (
-          <Flex justify="center" py="4">
-            <Text size="3" color="gray">
-              No calculations found for this account
-            </Text>
+          <Flex justify="center" py="8">
+            <div className="text-center">
+              <MdVisibility className="text-gray-400 text-4xl mx-auto mb-3" />
+              <Text size="3" className="text-gray-400">
+                No calculations found for this account
+              </Text>
+            </div>
           </Flex>
         ) : (
-          <Flex direction="column" gap="3" mt="5">
+          <div className="space-y-3">
             {accountCalculations.map((calculation) => (
               <CalculationCard key={calculation.id} calculation={calculation} />
             ))}
-          </Flex>
+          </div>
         )}
       </div>
     </Modal>
