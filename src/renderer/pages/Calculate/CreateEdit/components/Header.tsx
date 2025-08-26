@@ -22,66 +22,65 @@ const Header: React.FC<HeaderProps> = ({
   status,
 }) => {
   return (
-    <Flex align="center" justify="between" className="w-full rounded-2xl bg-surface-2 p-6 mb-8">
-      {selectedAccount ? (
-        <Flex gap="4">
-          <div className="relative">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-gray-500 bg-gray-600">
-              <LuUser size={24} className="text-gray-400" />
+    <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 mb-8 border border-white/10">
+      <div className="flex items-center justify-between">
+        {selectedAccount ? (
+          <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-6">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-400/60 to-purple-500/60 rounded-full flex items-center justify-center">
+                <LuUser className="text-white text-2xl" />
+              </div>
+              <div className="flex flex-col">
+                <Text className="text-white text-2xl font-bold">
+                  {selectedAccount.name}
+                </Text>
+                <Text className="text-gray-400 text-lg">
+                  TIN: {selectedAccount.tinNumber}
+                </Text>
+              </div>
+            </div>
+            <Separator
+              orientation="vertical"
+              className="mx-6 h-12 bg-popup-title-bg"
+            />
+            <div className="flex items-center space-x-4 text-gray-400">
+              <Text className="text-white text-xl font-medium">
+                {assessmentPeriod
+                  ? `${assessmentPeriod.start}/${assessmentPeriod.end}`
+                  : '2024/2025'}
+              </Text>
             </div>
           </div>
-          <Flex direction="column" className="ml-4 flex-1">
-            <Text size="6" weight="bold" className="text-white">
-              {selectedAccount.name}
-            </Text>
-            <Text size="2" className="text-gray-300">
-              {selectedAccount.tinNumber}
-            </Text>
-          </Flex>
+        ) : (
+          <div className="text-gray-400 text-lg">
+            Select an account and assessment years
+          </div>
+        )}
 
-          <Separator
-            orientation="vertical"
-            className="mx-6 h-12 bg-popup-title-bg"
-          />
+        <div className="flex items-center space-x-6">
+          {status === Status.DRAFT && isEditing && (
+            <div className="flex items-center gap-2 px-4 py-2 bg-gray-600/30 rounded-full border border-gray-500/30">
+              <RiDraftLine size={16} className="text-gray-400" />
+              <Text size="3" weight="medium" className="text-gray-300">
+                {status.toUpperCase()}
+              </Text>
+            </div>
+          )}
 
-          <Flex direction="column" align="start">
-            <Text size="2" className="mb-1 text-gray-400">
-              Years of assessment
-            </Text>
-            <Text size="3" weight="medium" className="text-white">
-              {assessmentPeriod
-                ? `${assessmentPeriod.start}/${assessmentPeriod.end}`
-                : '2024/2025'}
-            </Text>
-          </Flex>
-        </Flex>
-      ) : (
-        <div className="text-popup-bg">
-          Select an account and assessment years
+          {/* Select Account Button */}
+          {!isEditing && (
+            <Button
+              icon={LuUser}
+              size="sm"
+              className="px-6"
+              onClick={onSelectAccount}
+            >
+              Select account
+            </Button>
+          )}
         </div>
-      )}
-
-      {status === Status.DRAFT && isEditing && (
-        <Flex align="center" gap="2" className="px-4 py-2 bg-gray-600 rounded-full border border-gray-500">
-          <RiDraftLine size={16} className="text-gray-400" />
-          <Text size="3" weight="medium" className="text-gray-300">
-            {status.toUpperCase()}
-          </Text>
-        </Flex>
-      )}
-
-      {/* Select Account Button */}
-      {!isEditing && (
-        <Button
-          icon={LuUser}
-          size="sm"
-          className="ml-6 px-6"
-          onClick={onSelectAccount}
-        >
-          Select account
-        </Button>
-      )}
-    </Flex>
+      </div>
+    </div>
   );
 };
 

@@ -163,7 +163,7 @@ const Calculate = () => {
       {isLoading ? <div className="flex justify-center mt-32">
         <ClipLoader color="gray" size={28} />
       </div> :
-        <div className="mt-8">
+        <div className="max-w-7xl mx-auto px-6 py-8">
           <Header
             selectedAccount={selectedAccount}
             assessmentPeriod={assessmentPeriod}
@@ -190,16 +190,14 @@ const Calculate = () => {
               ))}
             </Flex>
 
-            <Grid columns="2" gap="5" width="auto" className='mt-10'>
-              <div className="h-full">
-                <TaxableIncomeCalculation />
+            <div className="mt-10 space-y-8">
+              <TaxableIncomeCalculation />
+              <GrossIncomeTax />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <TotalPayableTax />
+                <BalancelPayableTax />
               </div>
-              <div className="h-full">
-                <GrossIncomeTax />
-              </div>
-              <TotalPayableTax />
-              <BalancelPayableTax />
-            </Grid>
+            </div>
 
             <Flex gap="3" mt="6" justify="end" align="center">
               {

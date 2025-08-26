@@ -40,7 +40,7 @@ const Header = ({ calculation }: HeaderProps) => {
             <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-6">
                     <div className="flex items-center space-x-6">
-                        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                        <div className="w-16 h-16 bg-gradient-to-br from-blue-400/60 to-purple-500/60 rounded-full flex items-center justify-center">
                             <MdPerson className="text-white text-2xl" />
                         </div>
                         <div className="flex flex-col">

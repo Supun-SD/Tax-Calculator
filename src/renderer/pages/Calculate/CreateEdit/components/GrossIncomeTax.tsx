@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Text, Separator } from '@radix-ui/themes';
+import { MdCalculate, MdPublic, MdTrendingUp } from 'react-icons/md';
 import { CalculationService } from '../../../../services/calculationService';
 import { useCalculationContext } from '../../../../contexts/CalculationContext';
 import { GrossIncomeTaxSlab } from '../../../../../types/calculation';
@@ -32,85 +33,144 @@ const GrossIncomeTax = () => {
     };
 
     return (
-        <div className="h-full flex flex-col">
-            <Text className='text-white pl-3' size="4" weight="bold">Gross income tax</Text>
-            <Separator className="w-full mt-3 bg-surface-2" />
-            <div className='text-white bg-surface mt-4 p-8 rounded-2xl flex-1 flex flex-col'>
-                {/* Tax Slabs Table */}
-                <div className="overflow-x-auto flex-1">
+        <div className="mb-8">
+            <div className="flex items-center space-x-3 mb-6">
+                <MdCalculate className="text-purple-300 text-2xl" />
+                <Text className="text-white text-2xl font-bold">Gross Income Tax Calculation</Text>
+            </div>
+
+            {/* Tax Slabs Section */}
+            <div className="mb-6">
+                <div className="flex items-center space-x-3 mb-4">
+                    <MdTrendingUp className="text-green-300 text-xl" />
+                    <Text className="text-white text-xl font-semibold">Tax Slabs Breakdown</Text>
+                </div>
+
+                <div className="bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 overflow-hidden">
                     {totalTaxableIncome > 0 ? (
-                        <table className="w-full">
-                            <thead>
-                                <tr className="border-b border-gray-600">
-                                    <th className="text-left py-3 px-4 font-semibold text-gray-300">Slab</th>
-                                    <th className="text-left py-3 px-4 font-semibold text-gray-300">Value</th>
-                                    <th className="text-left py-3 px-4 font-semibold text-gray-300">Rate</th>
-                                    <th className="text-right py-3 px-4 font-semibold text-gray-300">Tax</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {slabs.map((slab) => (
-                                    <tr key={slab.slab} className="border-b border-gray-700">
-                                        <td className="py-3 px-4">{slab.slab}</td>
-                                        <td className="py-3 px-4">{formatCurrency(slab.value)}</td>
-                                        <td className="py-3 px-4">{slab.rate}%</td>
-                                        <td className="py-3 px-4 text-right">{formatCurrency(slab.tax)}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        <>
+                            <div className="grid grid-cols-4 gap-0">
+                                <div className="bg-white/10 p-3 px-6">
+                                    <Text className="text-white font-semibold text-sm">Slab</Text>
+                                </div>
+                                <div className="bg-white/10 p-3">
+                                    <Text className="text-white font-semibold text-sm">Rate</Text>
+                                </div>
+                                <div className="bg-white/10 p-3">
+                                    <Text className="text-white font-semibold text-sm">Amount</Text>
+                                </div>
+                                <div className="bg-white/10 p-3">
+                                    <Text className="text-white font-semibold text-sm">Tax</Text>
+                                </div>
+                            </div>
+                            {slabs.map((slab, index) => (
+                                <div key={index} className={`grid grid-cols-4 gap-0 hover:bg-white/5 transition-all duration-200 ${index !== slabs.length - 1 ? 'border-b border-white/10' : ''}`}>
+                                    <div className="p-3">
+                                        <Text className="text-white font-medium text-sm px-3">{slab.slab}</Text>
+                                    </div>
+                                    <div className="p-3">
+                                        <div className="inline-flex items-center px-2 py-1 bg-green-400/20 rounded text-green-300 font-bold text-xs">
+                                            {slab.rate}%
+                                        </div>
+                                    </div>
+                                    <div className="p-3">
+                                        <Text className="text-white text-sm">{formatCurrency(slab.value)}</Text>
+                                    </div>
+                                    <div className="p-3">
+                                        <Text className="text-green-300 font-bold text-sm">{formatCurrency(slab.tax)}</Text>
+                                    </div>
+                                </div>
+                            ))}
+                        </>
                     ) : (
-                        <div className="">
+                        <div className="p-6">
                             <div className="bg-blue-400/20 border border-primary rounded-lg overflow-hidden p-5">
                                 <Text className="text-gray-300 text-md mb-2">Please add source of incomes to calculate gross income tax</Text>
                             </div>
                         </div>
                     )}
                 </div>
+            </div>
 
-                {/* Foreign Income Section */}
-                <div className="mt-6">
-                    <div className="bg-gray-800/50 border border-gray-700 rounded-lg overflow-hidden">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="border-b border-gray-600">
-                                    <th className="text-left py-3 px-4 font-semibold text-gray-300">Foreign Income</th>
-                                    <th className="text-left py-3 px-4 font-semibold text-gray-300">Rate</th>
-                                    <th className="text-right py-3 px-4 font-semibold text-gray-300">Tax</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr className="border-b border-gray-700">
-                                    <td className="py-3 px-4">
-                                        <input
-                                            type="text"
-                                            value={foreignIncomeInput}
-                                            onChange={(e) => handleForeignIncomeChange(e.target.value)}
-                                            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
-                                            inputMode="decimal"
-                                            placeholder="0.00"
-                                        />
-                                    </td>
-                                    <td className="py-3 px-4 text-gray-300">
-                                        {currentCalculation?.calculationData?.settings?.reliefsAndAit?.foreignIncomeTaxRate ?? 0}%
-                                    </td>
-                                    <td className="py-3 px-4 text-right text-gray-300">
-                                        {formatCurrency(foreignIncomeTax)}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+            {/* Foreign Income Tax Section */}
+            <div className="mb-6">
+                <div className="flex items-center space-x-3 mb-4">
+                    <MdPublic className="text-orange-300 text-xl" />
+                    <Text className="text-white text-xl font-semibold">Foreign Income Tax</Text>
                 </div>
 
-                {/* Total Payable Amount */}
-                <div className="mt-6 bg-green-600/20 border border-green-500/30 rounded-lg p-4">
+                <div className="bg-white/10 rounded-xl p-6 border border-white/20">
+                    <div className="grid grid-cols-2 gap-6">
+                        <div>
+                            <Text className="text-white font-semibold">Foreign Income</Text>
+                            <div className="mt-2">
+                                <input
+                                    type="text"
+                                    value={foreignIncomeInput}
+                                    onChange={(e) => handleForeignIncomeChange(e.target.value)}
+                                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
+                                    inputMode="decimal"
+                                    placeholder="0.00"
+                                />
+                            </div>
+                        </div>
+                        <div>
+                            <div>
+                                <Text className="text-white font-semibold">Foreign Income Tax</Text>
+                                <Text className="text-gray-400 text-sm ml-4">
+                                    Rate: {currentCalculation?.calculationData?.settings?.reliefsAndAit?.foreignIncomeTaxRate}%
+                                </Text>
+                            </div>
+                            <div className='bg-white/10 rounded-lg p-2 mt-2'>
+                                <Text className="text-xl font-bold text-gray-300 p-2">
+                                    {formatCurrency(foreignIncomeTax)}
+                                </Text>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Calculation Summary */}
+            <div className="bg-gray-600/20 rounded-xl p-6 border border-gray-500/20 mb-6">
+                <Text className="text-white text-lg font-semibold">Tax Calculation Summary</Text>
+                <div className="space-y-3 mt-4">
                     <div className="flex justify-between items-center">
-                        <Text className="text-white font-semibold">Gross income tax payable</Text>
-                        <Text className="text-white font-bold text-lg">
-                            {formatCurrency(totalGrossIncomeTax)}
+                        <Text className="text-white">Domestic Income Tax</Text>
+                        <Text className="text-white font-semibold">
+                            {formatCurrency(slabs.reduce((sum, slab) => sum + slab.tax, 0))}
                         </Text>
                     </div>
+                    {foreignIncome > 0 && (
+                        <div className="flex justify-between items-center">
+                            <Text className="text-white">Foreign Income Tax</Text>
+                            <Text className="text-white font-semibold">
+                                {formatCurrency(foreignIncomeTax)}
+                            </Text>
+                        </div>
+                    )}
+                    <div className="border-t border-white/20 pt-3 mt-3">
+                        <div className="flex justify-between items-center">
+                            <Text className="text-white text-lg font-semibold">Total Gross Income Tax</Text>
+                            <Text className="text-purple-300 text-2xl font-bold">
+                                {formatCurrency(totalGrossIncomeTax)}
+                            </Text>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Final Gross Income Tax */}
+            <div className="bg-purple-400/10 rounded-xl p-6 border border-purple-400/20">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                        <MdCalculate className="text-purple-300 text-2xl" />
+                        <Text className="text-white text-xl font-semibold">Total Gross Income Tax</Text>
+                    </div>
+                    <Text className="text-3xl font-bold text-purple-300">
+                        {formatCurrency(totalGrossIncomeTax)}
+                    </Text>
                 </div>
             </div>
         </div>
