@@ -4,4 +4,4 @@ const API_BASE_PROD = 'https://tax-calculator-be.onrender.com/api';
 const IS_DEV = false;
 
 export const API_BASE_URL = IS_DEV ? API_BASE_DEV : API_BASE_PROD;
-export const HIDE_MENUBAR = IS_DEV ? false : false;
+export const HIDE_MENUBAR = IS_DEV ? false : true;
