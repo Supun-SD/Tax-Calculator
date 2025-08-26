@@ -185,7 +185,6 @@ const TaxableIncomeCalculation = () => {
                                         </div>
                                         <div>
                                             <Text className="text-white font-semibold text-sm">Personal Relief</Text>
-                                            <Text className="text-gray-400 text-xs">Standard personal relief</Text>
                                         </div>
                                     </div>
                                     <Text className="text-lg font-bold text-red-300">
@@ -201,7 +200,7 @@ const TaxableIncomeCalculation = () => {
                                         <div className="w-8 h-8 bg-orange-400/20 rounded-lg flex items-center justify-center">
                                             <MdAttachMoney className="text-orange-300 text-sm" />
                                         </div>
-                                        <div>
+                                        <div className='flex gap-3 items-end'>
                                             <Text className="text-white font-semibold text-sm">Rent Relief</Text>
                                             <Text className="text-gray-400 text-xs">
                                                 {currentCalculation?.calculationData?.settings?.reliefsAndAit?.rentRelief}% of {CalculationService.formatCurrency(rentalIncome)}
