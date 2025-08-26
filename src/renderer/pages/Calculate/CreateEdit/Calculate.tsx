@@ -87,6 +87,10 @@ const Calculate = () => {
   };
 
   const handleSaveDraft = async () => {
+    if (!selectedAccount || !assessmentPeriod) {
+      showError('Please select an account and assessment period');
+      return;
+    }
     if (currentCalculation) {
       const cleanCalculationData = { ...currentCalculation.calculationData };
       delete (cleanCalculationData as any).id;

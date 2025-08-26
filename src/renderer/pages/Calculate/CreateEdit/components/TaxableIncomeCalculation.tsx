@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Text, Separator, Flex, IconButton, Tooltip, Button } from '@radix-ui/themes';
-import { IoIosInformationCircleOutline } from "react-icons/io";
+import { Text, Flex, IconButton, Tooltip } from '@radix-ui/themes';
 import { IoRefresh } from "react-icons/io5";
 import { MdCalculate, MdRemoveCircle, MdAttachMoney } from 'react-icons/md';
 import { CalculationService } from '../../../../services/calculationService';

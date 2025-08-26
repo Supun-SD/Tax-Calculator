@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Text, Separator } from '@radix-ui/themes';
+import { Text } from '@radix-ui/themes';
 import { MdCalculate, MdSchedule } from 'react-icons/md';
 import { CalculationService } from '../../../../services/calculationService';
 import { useCalculationContext } from '../../../../contexts/CalculationContext';

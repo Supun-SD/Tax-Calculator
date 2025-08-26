@@ -1,4 +1,4 @@
-import { Text, Separator } from '@radix-ui/themes';
+import { Text } from '@radix-ui/themes';
 import { MdCalculate, MdRemoveCircle } from 'react-icons/md';
 import { useCalculationContext } from '../../../../contexts/CalculationContext';
 
