@@ -1,6 +1,7 @@
 import { app, BrowserWindow } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
+import { SHOW_MENUBAR } from '../renderer/config/api';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -15,7 +16,7 @@ const createWindow = () => {
     resizable: true,
     height: 800,
     width: 1200,
-    autoHideMenuBar: false,
+    autoHideMenuBar: SHOW_MENUBAR,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
