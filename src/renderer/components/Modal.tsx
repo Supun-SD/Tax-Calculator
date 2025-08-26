@@ -51,7 +51,7 @@ const Modal: React.FC<ModalProps> = ({
   return (
     <>
       {isOpen && (
-        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40" />
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50" />
       )}
       <Dialog.Root open={isOpen} onOpenChange={handleOpenChange}>
         {trigger && <Dialog.Trigger>{trigger}</Dialog.Trigger>}

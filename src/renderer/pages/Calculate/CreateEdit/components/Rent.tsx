@@ -2,6 +2,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { Text, Flex } from '@radix-ui/themes';
 import Modal from "../../../../components/Modal";
 import { IoAdd } from "react-icons/io5";
+import { MdDelete, MdHome, MdAttachMoney, MdCalculate } from "react-icons/md";
 import Button from '../../../../components/Button';
 import { RentalIncome, RentalIncomeRecord } from '../../../../../types/calculation';
 import { useCalculationContext } from '../../../../contexts/CalculationContext';
@@ -133,118 +134,164 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title="Rent Income"
-            maxWidth="750px"
+            title={
+                <div className="flex items-center space-x-3 mb-6">
+                    <div className="w-10 h-10 bg-green-400/20 rounded-lg flex items-center justify-center">
+                        <MdHome className="text-green-300 text-lg" />
+                    </div>
+                    <Text className="text-white text-xl font-semibold">Rental Income Details</Text>
+                </div>
+            }
+            maxWidth="900px"
+            isDark={true}
             actions={[
                 {
                     label: 'Cancel',
                     onClick: onClose,
                     variant: 'secondary',
-                    className: 'bg-gray-300 text-black hover:bg-gray-400',
+                    className: 'bg-gray-600 hover:bg-gray-700 text-white',
                 },
                 {
                     label: 'Done',
                     onClick: handleDone,
                     variant: 'primary',
                     disabled: isDoneDisabled,
+                    className: isDoneDisabled ? 'opacity-50 cursor-not-allowed' : '',
                 },
             ]}
         >
             <div className="space-y-6">
-                <div className="overflow-x-auto">
-                    <table className="w-full border-collapse">
-                        <thead>
-                            <tr className="text-black font-bold text-sm">
-                                <th className="p-2 text-left">Name</th>
-                                <th className="p-2 text-left">Amount</th>
-                                <th className="p-2 text-center">Multiplier</th>
-                                <th className="p-2 text-center">Product</th>
-                                <th className="p-2 w-6"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {incomeEntries.map(entry => (
-                                <tr key={entry.id} className="h-14">
-                                    {/* Name */}
-                                    <td className="p-2">
-                                        <div className="bg-white rounded-lg px-4 py-2">
-                                            <input
-                                                type="text"
-                                                value={entry.name}
-                                                onChange={e => handleNameChange(entry.id, e.target.value)}
-                                                className="bg-transparent text-black w-full outline-none"
-                                                placeholder="Name"
-                                            />
+                <div className="bg-white/5 rounded-xl border border-white/10 overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead className="bg-white/10 border-b border-white/10">
+                                <tr>
+                                    <th className="px-4 py-4 text-left text-gray-300 font-semibold text-sm uppercase tracking-wide">
+                                        <div className="flex items-center space-x-2">
+                                            <MdHome className="text-green-300" />
+                                            <span>Name</span>
+                                        </div>
+                                    </th>
+                                    <th className="p-2 py-4 text-left text-gray-300 font-semibold text-sm uppercase tracking-wide">
+                                        <div className="flex items-center space-x-2">
+                                            <MdAttachMoney className="text-green-300" />
+                                            <span>Amount</span>
+                                        </div>
+                                    </th>
+                                    <th className="p-2 py-4 text-center text-gray-300 font-semibold text-sm uppercase tracking-wide">
+                                        <div className="flex items-center justify-center space-x-2">
+                                            <MdCalculate className="text-purple-300" />
+                                            <span>X</span>
+                                        </div>
+                                    </th>
+                                    <th className="p-2 py-4 text-center text-gray-300 font-semibold text-sm uppercase tracking-wide">
+                                        <div className="flex items-center justify-center space-x-2">
+                                            <MdCalculate className="text-yellow-300" />
+                                            <span>Product</span>
+                                        </div>
+                                    </th>
+                                    <th className="p-2 py-4 text-center text-gray-300 font-semibold text-sm uppercase tracking-wide">
+                                        <div className="flex items-center justify-end space-x-2">
+                                            <span></span>
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody className="divide-y divide-white/10">
+                                {incomeEntries.map((entry, index) => (
+                                    <tr key={entry.id} className={`hover:bg-white/5 transition-colors duration-150 ${index % 2 === 0 ? 'bg-white/5' : 'bg-white/10'}`}>
+                                        <td className="px-4 py-4">
+                                            <div className="relative">
+                                                <input
+                                                    type="text"
+                                                    value={entry.name}
+                                                    onChange={e => handleNameChange(entry.id, e.target.value)}
+                                                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all duration-200"
+                                                    placeholder="Enter name"
+                                                />
+                                            </div>
+                                        </td>
+
+                                        <td className="p-2 py-4">
+                                            <div className="relative">
+                                                <input
+                                                    type="text"
+                                                    inputMode="decimal"
+                                                    value={entry.amount}
+                                                    onChange={e => updateEntry(entry.id, "amount", e.target.value)}
+                                                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-right placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                    placeholder="0.00"
+                                                />
+                                            </div>
+                                        </td>
+
+                                        <td className="p-2 py-4 text-center">
+                                            <div className="inline-block">
+                                                <input
+                                                    type="text"
+                                                    inputMode="decimal"
+                                                    value={entry.multiplier}
+                                                    onChange={e => updateEntry(entry.id, "multiplier", e.target.value)}
+                                                    className="w-12 px-2 py-2 bg-purple-400/20 border border-purple-400/30 rounded-lg text-purple-300 text-center placeholder-purple-300/50 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                    placeholder="1"
+                                                />
+                                            </div>
+                                        </td>
+
+                                        <td className="p-2 py-4 text-end">
+                                            <div className="inline-block w-full px-3 py-2 bg-yellow-400/20 border border-yellow-400/30 rounded-lg">
+                                                <Text className="text-yellow-300 font-semibold text-sm">
+                                                    {formatCurrency(entry.product)}
+                                                </Text>
+                                            </div>
+                                        </td>
+
+                                        <td className="px-4 py-4 text-center">
+                                            {incomeEntries.length > 1 && (
+                                                <button
+                                                    onClick={() => removeEntry(entry.id)}
+                                                    className="w-6 h-6 bg-red-400/20 hover:bg-red-400/30 text-red-300 hover:text-red-200 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 border border-red-400/30"
+                                                >
+                                                    <MdDelete size={14} />
+                                                </button>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+
+                            <tfoot className="bg-green-400/10 border-t-2 border-green-400/20">
+                                <tr>
+                                    <td className="p-2 font-bold text-white text-lg py-4" colSpan={3}>
+                                        <div className='px-3 py-2 flex items-center space-x-2'>
+                                            <MdCalculate className="text-green-300" />
+                                            <span>Total</span>
                                         </div>
                                     </td>
-
-                                    {/* Amount */}
-                                    <td className="p-2">
-                                        <div className="bg-white rounded-lg px-4 py-2">
-                                            <input
-                                                type="text"
-                                                inputMode="decimal"
-                                                value={entry.amount}
-                                                onChange={e => updateEntry(entry.id, "amount", e.target.value)}
-                                                className="bg-transparent text-black w-full text-end outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                                placeholder="0.00"
-                                            />
-                                        </div>
-                                    </td>
-
-                                    {/* Multiplier */}
-                                    <td className="p-2 text-center">
-                                        <div className="bg-gray-500 rounded-lg px-3 py-2 inline-block">
-                                            <input
-                                                type="text"
-                                                inputMode="decimal"
-                                                value={entry.multiplier}
-                                                onChange={e => updateEntry(entry.id, "multiplier", e.target.value)}
-                                                className="bg-transparent text-white text-center w-12 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                                placeholder="1"
-                                            />
-                                        </div>
-                                    </td>
-
-                                    {/* Product */}
-                                    <td className="p-2 text-center">
-                                        <div className="bg-white rounded-lg px-4 py-2">
-                                            <Text className="text-black text-center font-semibold">
-                                                {formatCurrency(entry.product)}
+                                    <td className="p-2 text-end">
+                                        <div className='inline-block w-full px-4 py-2 bg-green-400/20 border border-green-400/30 rounded-lg'>
+                                            <Text className="text-green-300 font-bold text-lg">
+                                                {formatCurrency(totalIncome)}
                                             </Text>
                                         </div>
                                     </td>
-
-                                    {/* Remove */}
-                                    <td className="p-2 text-center">
-                                        {incomeEntries.length > 1 && (
-                                            <button
-                                                onClick={() => removeEntry(entry.id)}
-                                                className="text-red-500 hover:text-red-700 text-lg font-bold w-6 h-6 flex items-center justify-center"
-                                            >
-                                                ×
-                                            </button>
-                                        )}
-                                    </td>
+                                    <td></td>
                                 </tr>
-                            ))}
-                        </tbody>
-
-                        {/* Total */}
-                        <tfoot>
-                            <tr>
-                                <td className="p-2 font-bold text-black text-lg" colSpan={3}><div className='px-4 py-2'>Total</div></td>
-                                <td className="p-2 font-bold text-white text-lg text-center"><div className='bg-popup-title-bg rounded-xl px-4 py-2'>{formatCurrency(totalIncome)}</div></td>
-                                <td></td>
-                            </tr>
-                        </tfoot>
-                    </table>
+                            </tfoot>
+                        </table>
+                    </div>
                 </div>
 
-                {/* Add Button */}
                 <Flex justify="end">
-                    <Button onClick={addNewEntry} icon={IoAdd} size="sm" className="px-6">
-                        Add
+                    <Button
+                        onClick={addNewEntry}
+                        icon={IoAdd}
+                        size="sm"
+                        variant="secondary"
+                        className="bg-green-400/20 hover:bg-green-400/30 text-green-300 border border-green-400/30"
+                    >
+                        Add New Entry
                     </Button>
                 </Flex>
             </div>

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Modal from "../../../../components/Modal";
 import { IoAdd, IoClose, IoChevronDown } from "react-icons/io5";
+import { MdDelete, MdAccountBalance, MdAttachMoney, MdCalculate, MdReceipt, MdSearch } from "react-icons/md";
+import { Text, Flex } from '@radix-ui/themes';
 import Button from '../../../../components/Button';
 import { ClipLoader } from 'react-spinners';
 import { useBanks } from '../../../../hooks/useBanks';
@@ -193,172 +195,272 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title="Interest Income"
-            maxWidth="90vw"
+            title={
+                <div className="flex items-center space-x-3 mb-6">
+                    <div className="w-10 h-10 bg-purple-400/20 rounded-lg flex items-center justify-center">
+                        <MdAccountBalance className="text-purple-300 text-lg" />
+                    </div>
+                    <Text className="text-white text-xl font-semibold">Interest Income Details</Text>
+                </div>
+            }
+            maxWidth="95vw"
+            isDark={true}
             actions={[
-                { label: 'Cancel', onClick: onClose, variant: 'secondary', className: 'bg-gray-300 text-black hover:bg-gray-400' },
-                { label: 'Done', onClick: handleDone, variant: 'primary', disabled: isDoneDisabled }
+                {
+                    label: 'Cancel',
+                    onClick: onClose,
+                    variant: 'secondary',
+                    className: 'bg-gray-600 hover:bg-gray-700 text-white',
+                },
+                {
+                    label: 'Done',
+                    onClick: handleDone,
+                    variant: 'primary',
+                    disabled: isDoneDisabled,
+                    className: isDoneDisabled ? 'opacity-50 cursor-not-allowed' : '',
+                },
             ]}
         >
-            <div className="space-y-4">
-                {/* Table Header */}
-                <div className="grid grid-cols-[2fr_1.8fr_2.7fr_auto_1.4fr_1.4fr_1.4fr] gap-2 text-sm font-medium text-gray-700">
-                    <div>Bank</div>
-                    <div>Account Number</div>
-                    <div>Certificate Number</div>
-                    <div className="text-center w-12">Joint</div>
-                    <div className='text-end'>Gross Interest</div>
-                    <div className='text-end'>Contribution</div>
-                    <div className='text-end pr-8'>AIT({Math.round(aitRate)}%)</div>
-                </div>
-
-                {/* Table Rows */}
-                <div className="space-y-2">
-                    {interestEntries.map(entry => {
-                        const gross = CalculationService.parseAndRound(entry.grossInterest);
-                        const contribution = entry.isJoint ? gross / 2 : gross;
-
-                        return (
-                            <div key={entry.id} className="grid grid-cols-[2fr_1.8fr_2.7fr_auto_1.4fr_1.4fr_1.4fr] gap-2">
-                                {/* Bank Dropdown */}
-                                <div className="relative min-w-0">
-                                    <div className="bg-white rounded-lg border border-gray-300 overflow-hidden">
-                                        <button
-                                            type="button"
-                                            onClick={() => setActiveBankDropdown(activeBankDropdown === entry.id ? null : entry.id)}
-                                            className="w-full bg-transparent text-gray-800 px-3 py-2 outline-none cursor-pointer flex items-center justify-between min-w-0"
-                                        >
-                                            <span className={`${entry.bank.name === "Select Bank" ? "text-gray-400" : "text-gray-800"} truncate`}>
-                                                {entry.bank.name}
-                                            </span>
-                                            <IoChevronDown size={16} className="flex-shrink-0" />
-                                        </button>
-                                    </div>
-                                    {activeBankDropdown === entry.id && (
-                                        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                                            <div className="p-2 border-b border-gray-200">
-                                                <input
-                                                    type="text"
-                                                    placeholder="Search banks..."
-                                                    value={bankSearchTerm}
-                                                    onChange={(e) => setBankSearchTerm(e.target.value)}
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md outline-none"
-                                                    autoFocus
-                                                />
-                                            </div>
-                                            {isBanksLoading ? (
-                                                <div className="py-10 flex justify-center">
-                                                    <ClipLoader color="gray" size={28} />
-                                                </div>
-                                            ) : (
-                                                filteredBanks.map(bank => (
-                                                    <button
-                                                        key={bank.id}
-                                                        onClick={() => handleBankChange(entry.id, bank)}
-                                                        className="w-full text-left px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                                                    >
-                                                        {bank.name}
-                                                    </button>
-                                                ))
-                                            )}
+            <div className="space-y-6">
+                <div className="bg-white/5 rounded-xl border border-white/10">
+                    <div className="overflow-visible">
+                        <table className="w-full">
+                            <thead className="bg-white/10 border-b border-white/10">
+                                <tr>
+                                    <th className="px-4 py-4 text-left text-gray-300 font-semibold text-sm uppercase tracking-wide w-64">
+                                        <div className="flex items-center space-x-2">
+                                            <MdAccountBalance className="text-purple-300" />
+                                            <span>Bank</span>
                                         </div>
-                                    )}
-                                </div>
+                                    </th>
+                                    <th className="p-2 py-4 text-left text-gray-300 font-semibold text-sm uppercase tracking-wide">
+                                        <div className="flex items-center space-x-2">
+                                            <MdReceipt className="text-blue-300" />
+                                            <span>Account Number</span>
+                                        </div>
+                                    </th>
+                                    <th className="p-2 py-4 text-left text-gray-300 font-semibold text-sm uppercase tracking-wide">
+                                        <div className="flex items-center space-x-2">
+                                            <MdReceipt className="text-indigo-300" />
+                                            <span>Certificate Number</span>
+                                        </div>
+                                    </th>
+                                    <th className="p-2 py-4 text-center text-gray-300 font-semibold text-sm uppercase tracking-wide w-16">
+                                        <div className="flex items-center justify-center space-x-2">
+                                            <MdCalculate className="text-green-300" />
+                                            <span>Joint</span>
+                                        </div>
+                                    </th>
+                                    <th className="p-2 py-4 text-center text-gray-300 font-semibold text-sm uppercase tracking-wide w-40">
+                                        <div className="flex items-center justify-center space-x-2">
+                                            <MdAttachMoney className="text-yellow-300" />
+                                            <span>Gross Interest</span>
+                                        </div>
+                                    </th>
+                                    <th className="p-2 py-4 text-center text-gray-300 font-semibold text-sm uppercase tracking-wide">
+                                        <div className="flex items-center justify-center space-x-2">
+                                            <MdCalculate className="text-orange-300" />
+                                            <span>Contribution</span>
+                                        </div>
+                                    </th>
+                                    <th className="p-2 py-4 text-center text-gray-300 font-semibold text-sm uppercase tracking-wide w-24">
+                                        <div className="flex items-center justify-end space-x-2">
+                                            <MdReceipt className="text-red-300" />
+                                            <span>AIT({Math.round(aitRate)}%)</span>
+                                        </div>
+                                    </th>
+                                    <th className="p-2 py-4 w-8"></th>
+                                </tr>
+                            </thead>
 
-                                {/* Account Number */}
-                                <div className="bg-white rounded-lg border border-gray-300">
-                                    <input
-                                        type="text"
-                                        value={entry.accountNumber}
-                                        onChange={e => updateEntry(entry.id, "accountNumber", e.target.value)}
-                                        className="w-full bg-transparent text-gray-800 px-3 py-2 outline-none"
-                                        placeholder="Account Number"
-                                    />
-                                </div>
+                            <tbody className="divide-y divide-white/10">
+                                {interestEntries.map((entry, index) => {
+                                    const gross = CalculationService.parseAndRound(entry.grossInterest);
+                                    const contribution = entry.isJoint ? gross / 2 : gross;
 
-                                {/* Certificate Number */}
-                                <div className="bg-white rounded-lg border border-gray-300">
-                                    <input
-                                        type="text"
-                                        value={entry.certificateNumber}
-                                        onChange={e => updateEntry(entry.id, "certificateNumber", e.target.value)}
-                                        className="w-full bg-transparent text-gray-800 px-3 py-2 outline-none"
-                                        placeholder="Certificate Number"
-                                    />
-                                </div>
+                                    return (
+                                        <tr key={entry.id} className={`hover:bg-white/5 transition-colors duration-150 ${index % 2 === 0 ? 'bg-white/5' : 'bg-white/10'}`}>
+                                            {/* Bank Dropdown */}
+                                            <td className="px-4 py-4">
+                                                <div className="relative min-w-0 max-w-64">
+                                                    <div className="bg-white/10 border border-white/20 rounded-lg overflow-hidden">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setActiveBankDropdown(activeBankDropdown === entry.id ? null : entry.id)}
+                                                            className="w-full bg-transparent text-white px-3 py-2 outline-none cursor-pointer flex items-center justify-between min-w-0 hover:bg-white/5 transition-colors duration-200"
+                                                        >
+                                                            <span className={`${entry.bank.name === "Select Bank" ? "text-gray-400" : "text-white"} truncate`}>
+                                                                {entry.bank.name}
+                                                            </span>
+                                                            <IoChevronDown size={16} className="flex-shrink-0 text-gray-300" />
+                                                        </button>
+                                                    </div>
+                                                    {activeBankDropdown === entry.id && (
+                                                        <div className="absolute z-50 w-full mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-xl max-h-60 overflow-y-auto">
+                                                            <div className="p-2 border-b border-gray-600">
+                                                                <div className="relative">
+                                                                    <MdSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                                                                    <input
+                                                                        type="text"
+                                                                        placeholder="Search banks..."
+                                                                        value={bankSearchTerm}
+                                                                        onChange={(e) => setBankSearchTerm(e.target.value)}
+                                                                        className="w-full pl-10 pr-3 py-2 bg-gray-700 border border-gray-600 rounded-md outline-none text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-400 focus:border-transparent"
+                                                                        autoFocus
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                            {isBanksLoading ? (
+                                                                <div className="py-10 flex justify-center">
+                                                                    <ClipLoader color="#A78BFA" size={28} />
+                                                                </div>
+                                                            ) : (
+                                                                filteredBanks.map(bank => (
+                                                                    <button
+                                                                        key={bank.id}
+                                                                        onClick={() => handleBankChange(entry.id, bank)}
+                                                                        className="w-full text-left px-3 py-2 hover:bg-gray-700 cursor-pointer text-white transition-colors duration-200 border-b border-gray-700 last:border-b-0"
+                                                                    >
+                                                                        {bank.name}
+                                                                    </button>
+                                                                ))
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </td>
 
-                                {/* Joint */}
-                                <div className="flex items-center justify-center w-12">
-                                    <input
-                                        type="checkbox"
-                                        checked={entry.isJoint}
-                                        onChange={e => updateEntry(entry.id, "isJoint", e.target.checked as unknown as string)}
-                                        className="w-5 h-5 text-blue-600 bg-white border border-gray-300 rounded cursor-pointer"
-                                    />
-                                </div>
+                                            {/* Account Number */}
+                                            <td className="p-2 py-4">
+                                                <div className="relative">
+                                                    <input
+                                                        type="text"
+                                                        value={entry.accountNumber}
+                                                        onChange={e => updateEntry(entry.id, "accountNumber", e.target.value)}
+                                                        className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200"
+                                                        placeholder="Account Number"
+                                                    />
+                                                </div>
+                                            </td>
 
-                                {/* Gross Interest */}
-                                <div className="bg-white rounded-lg border border-gray-300">
-                                    <input
-                                        type="text"
-                                        value={entry.grossInterest}
-                                        onChange={e => updateEntry(entry.id, "grossInterest", e.target.value)}
-                                        className="w-full bg-transparent text-gray-800 px-3 py-2 outline-none text-right"
-                                        placeholder="0.00"
-                                    />
-                                </div>
+                                            {/* Certificate Number */}
+                                            <td className="p-2 py-4">
+                                                <div className="relative">
+                                                    <input
+                                                        type="text"
+                                                        value={entry.certificateNumber}
+                                                        onChange={e => updateEntry(entry.id, "certificateNumber", e.target.value)}
+                                                        className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-all duration-200"
+                                                        placeholder="Certificate Number"
+                                                    />
+                                                </div>
+                                            </td>
 
-                                {/* Contribution */}
-                                <div className="bg-gray-50 rounded-lg border border-gray-300 text-right px-3 py-2">
-                                    {formatCurrency(contribution)}
-                                </div>
+                                            {/* Joint */}
+                                            <td className="p-2 py-4 text-center">
+                                                <div className="flex items-center justify-center">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={entry.isJoint}
+                                                        onChange={e => updateEntry(entry.id, "isJoint", e.target.checked as unknown as string)}
+                                                        className="w-5 h-5 text-green-600 bg-white/10 border border-white/20 rounded cursor-pointer focus:ring-2 focus:ring-green-400 focus:ring-offset-0"
+                                                    />
+                                                </div>
+                                            </td>
 
-                                {/* AIT */}
-                                <div className="flex items-center gap-2">
-                                    <div className="bg-white rounded-lg border border-gray-300 flex-1">
-                                        <input
-                                            type="number"
-                                            value={entry.ait}
-                                            className="w-full bg-transparent text-gray-800 px-3 py-2 outline-none text-right"
-                                            step="0.01"
-                                            min="0"
-                                            placeholder="0.00"
-                                            readOnly
-                                        />
-                                    </div>
-                                    <button
-                                        onClick={() => removeEntry(entry.id)}
-                                        className="text-gray-600 hover:text-gray-800 p-1"
-                                        disabled={interestEntries.length === 1}
-                                    >
-                                        <IoClose size={16} color="red" />
-                                    </button>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
+                                            {/* Gross Interest */}
+                                            <td className="p-2 py-4 text-center">
+                                                <div className="relative">
+                                                    <input
+                                                        type="text"
+                                                        value={entry.grossInterest}
+                                                        onChange={e => updateEntry(entry.id, "grossInterest", e.target.value)}
+                                                        className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-right placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all duration-200"
+                                                        placeholder="0.00"
+                                                    />
+                                                </div>
+                                            </td>
 
-                {/* Add Button */}
-                <div className="flex justify-end">
-                    <Button onClick={addNewEntry} icon={IoAdd} size="sm" className="px-6">Add</Button>
-                </div>
+                                            {/* Contribution */}
+                                            <td className="p-2 py-4 text-center">
+                                                <div className="inline-block w-full px-3 py-2 bg-orange-400/20 border border-orange-400/30 rounded-lg">
+                                                    <Text className="text-orange-300 font-semibold text-sm text-right">
+                                                        {formatCurrency(contribution)}
+                                                    </Text>
+                                                </div>
+                                            </td>
 
-                {/* Totals */}
-                <div className="flex justify-end gap-4">
-                    <div className="bg-white rounded-lg px-8 py-4">
-                        <div className="text-center">
-                            <div className="text-sm text-gray-600 mb-1">Total Gross Interest</div>
-                            <div className="text-xl font-bold text-gray-800">{formatCurrency(totalGrossInterest)}</div>
-                        </div>
+                                            {/* AIT */}
+                                            <td className="p-2 py-4 text-center">
+                                                <div className="relative">
+                                                    <input
+                                                        type="number"
+                                                        value={entry.ait}
+                                                        className="w-full min-w-36 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-right placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent transition-all duration-200"
+                                                        step="0.01"
+                                                        min="0"
+                                                        placeholder="0.00"
+                                                        readOnly
+                                                    />
+                                                </div>
+                                            </td>
+
+                                            {/* Remove Button */}
+                                            <td className="px-4 py-4 text-center">
+                                                {interestEntries.length > 1 && (
+                                                    <button
+                                                        onClick={() => removeEntry(entry.id)}
+                                                        className="w-6 h-6 bg-red-400/20 hover:bg-red-400/30 text-red-300 hover:text-red-200 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 border border-red-400/30"
+                                                    >
+                                                        <MdDelete size={14} />
+                                                    </button>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+
+                            <tfoot className="bg-purple-400/10 border-t-2 border-purple-400/20">
+                                <tr>
+                                    <td className="p-2 font-bold text-white text-lg py-4" colSpan={5}>
+                                        <div className='px-3 py-2 flex items-center space-x-2'>
+                                            <MdCalculate className="text-purple-300" />
+                                            <span>Total</span>
+                                        </div>
+                                    </td>
+                                    <td className="p-2 text-center">
+                                        <div className='inline-block w-full px-4 py-2 bg-purple-400/20 border border-purple-400/30 rounded-lg'>
+                                            <Text className="text-purple-300 font-bold text-lg">
+                                                {formatCurrency(totalGrossInterest)}
+                                            </Text>
+                                        </div>
+                                    </td>
+                                    <td className="p-2 text-center">
+                                        <div className='inline-block w-full px-4 py-2 bg-purple-400/20 border border-purple-400/30 rounded-lg'>
+                                            <Text className="text-purple-300 font-bold text-lg">
+                                                {formatCurrency(totalAIT)}
+                                            </Text>
+                                        </div>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
                     </div>
-                    <div className="bg-white rounded-lg px-8 py-4">
-                        <div className="text-center">
-                            <div className="text-sm text-gray-600 mb-1">Total AIT</div>
-                            <div className="text-xl font-bold text-gray-800">{formatCurrency(totalAIT)}</div>
-                        </div>
-                    </div>
                 </div>
+
+                <Flex justify="end">
+                    <Button
+                        onClick={addNewEntry}
+                        icon={IoAdd}
+                        size="sm"
+                        variant="secondary"
+                        className="bg-purple-400/20 hover:bg-purple-400/30 text-purple-300 border border-purple-400/30"
+                    >
+                        Add New Entry
+                    </Button>
+                </Flex>
             </div>
         </Modal>
     );
