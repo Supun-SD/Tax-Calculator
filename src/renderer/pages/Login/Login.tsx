@@ -188,7 +188,7 @@ const Login = () => {
                 </div>
 
                 {/* Footer */}
-                <div className="text-center mt-20">
+                <div className="text-center mt-8">
                     <Text className="text-gray-400 text-sm">
                         Tax Calculation System v1.0
                     </Text>
