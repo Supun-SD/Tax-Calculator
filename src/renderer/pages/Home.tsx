@@ -1,15 +1,22 @@
 import { useNavigate } from 'react-router-dom';
 import { ImCalculator } from 'react-icons/im';
-import { MdOutlineSupervisorAccount, MdOutlineSettings, MdError } from 'react-icons/md';
+import { MdOutlineSupervisorAccount, MdOutlineSettings, MdError, MdLogout } from 'react-icons/md';
 import { LuHistory } from 'react-icons/lu';
 import { PiBankBold } from 'react-icons/pi';
 import { Text } from '@radix-ui/themes';
 import { useSettingsContext } from '../contexts/SettingsContext';
+import { useUserContext } from '../contexts/UserContext';
 import { ClipLoader } from 'react-spinners';
 
 const Home = () => {
   const navigate = useNavigate();
   const { loading, error, refreshSettings } = useSettingsContext();
+  const { logout } = useUserContext();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   if (loading) {
     return (
@@ -57,13 +64,14 @@ const Home = () => {
   return (
     <div className="flex flex-col items-center justify-center p-8 mt-20">
       {/* Header Section */}
-      <div className="text-center mb-16">
+      <div className="text-center mb-16 relative">
         <div className="flex items-center justify-center space-x-4 mb-6">
           <div className="w-16 h-16 bg-blue-400/20 rounded-xl flex items-center justify-center">
             <ImCalculator className="text-blue-300 text-4xl" />
           </div>
           <Text className="text-white text-6xl font-bold">TAX CALCULATOR</Text>
         </div>
+
       </div>
 
       {/* Navigation Grid */}
@@ -124,8 +132,19 @@ const Home = () => {
         </div>
       </div>
 
+      {/* Logout Button */}
+      <div className="mt-10">
+        <button
+          onClick={handleLogout}
+          className="bg-red-400/20 hover:bg-red-400/30 text-red-300 border border-red-400/30 rounded-lg px-4 py-2 font-medium transition-all duration-200 hover:scale-105 flex items-center gap-2"
+        >
+          <MdLogout className="text-lg" />
+          <span className="hidden sm:inline">Logout</span>
+        </button>
+      </div>
+
       {/* Footer */}
-      <div className="mt-[15vh] text-center">
+      <div className="mt-[5vh] text-center">
         <Text className="text-gray-400 text-sm">
           Tax Calculation System v1.0
         </Text>

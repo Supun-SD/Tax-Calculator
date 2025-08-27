@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Account, AccountCreateReq, AccountUpdateReq } from '../../types/account';
 import { accountService } from '../services/accountService';
 import { useToast } from './useToast';
+import { useUserContext } from '../contexts/UserContext';
 
 interface UseAccountsReturn {
     accounts: Account[];
@@ -21,12 +22,13 @@ export const useAccounts = (): UseAccountsReturn => {
     const [error, setError] = useState<string | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
     const { showSuccess, showError } = useToast();
+    const { token } = useUserContext();
 
     const fetchAccounts = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
-            const fetchedAccounts = await accountService.getAllAccounts();
+            const fetchedAccounts = await accountService.getAllAccounts(token);
             setAccounts(fetchedAccounts);
         } catch (err: any) {
             let errorMessage = 'Error loading accounts';
@@ -49,7 +51,7 @@ export const useAccounts = (): UseAccountsReturn => {
     const createAccount = useCallback(async (account: AccountCreateReq): Promise<Account | null> => {
         setError(null);
         try {
-            const newAccount = await accountService.createAccount(account);
+            const newAccount = await accountService.createAccount(account, token);
             setAccounts(prev => [newAccount, ...prev]);
             showSuccess('Account created successfully');
             return newAccount;
@@ -74,7 +76,7 @@ export const useAccounts = (): UseAccountsReturn => {
     const updateAccount = useCallback(async (id: number, account: AccountUpdateReq): Promise<Account | null> => {
         setError(null);
         try {
-            const updatedAccount = await accountService.updateAccount(id, account);
+            const updatedAccount = await accountService.updateAccount(id, account, token);
             setAccounts(prev => prev.map(acc => acc.id === id ? updatedAccount : acc));
             showSuccess('Account updated successfully');
             return updatedAccount;
@@ -100,7 +102,7 @@ export const useAccounts = (): UseAccountsReturn => {
         setIsDeleting(true);
         setError(null);
         try {
-            await accountService.deleteAccount(id);
+            await accountService.deleteAccount(id, token);
             setAccounts(prev => prev.filter(acc => acc.id !== id));
             showSuccess('Account deleted successfully');
             return true;
