@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { ImCalculator } from 'react-icons/im';
 import { MdLock, MdVisibility, MdVisibilityOff, MdError, MdPerson } from 'react-icons/md';
 import { Text } from '@radix-ui/themes';
@@ -8,21 +7,13 @@ import { useUserContext } from '../../contexts/UserContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 
 const Login = () => {
-    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         username: '',
         password: ''
     });
     const [showPassword, setShowPassword] = useState(false);
     const { loading: settingsLoading, error: settingsError, refreshSettings } = useSettingsContext();
-    const { login, loading, error, token } = useUserContext();
-
-
-    useEffect(() => {
-        if (token) {
-            navigate('/home');
-        }
-    }, [token]);
+    const { login, loading, error } = useUserContext();
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;

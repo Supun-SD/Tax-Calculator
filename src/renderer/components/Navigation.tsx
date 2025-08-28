@@ -3,7 +3,6 @@ import { IoIosArrowBack } from 'react-icons/io';
 import { AiFillHome } from "react-icons/ai";
 import { LuLogOut } from "react-icons/lu";
 import { useUserContext } from '../contexts/UserContext';
-import { useEffect } from 'react';
 
 interface NavigationProps {
   title: string;
@@ -13,13 +12,7 @@ interface NavigationProps {
 
 const Navigation = ({ title, showBackButton = true, showHomeButton = true }: NavigationProps) => {
   const navigate = useNavigate();
-  const { logout, token } = useUserContext();
-
-  useEffect(() => {
-    if (!token) {
-      navigate('/');
-    }
-  }, [token]);
+  const { logout } = useUserContext();
 
   const handleLogout = () => {
     logout();

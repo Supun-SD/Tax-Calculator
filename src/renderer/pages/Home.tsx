@@ -15,7 +15,6 @@ const Home = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
   };
 
   if (loading) {
