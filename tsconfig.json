@@ -13,6 +13,7 @@
     "resolveJsonModule": true,
     "jsx": "react-jsx",
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
-  }
+    "emitDecoratorMetadata": true,
+    "typeRoots": ["./node_modules/@types", "./src/renderer/types"]
+  },
 }

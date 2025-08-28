@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { ImCalculator } from 'react-icons/im';
-import { MdLock, MdVisibility, MdVisibilityOff, MdError, MdPerson } from 'react-icons/md';
+import { MdLock, MdVisibility, MdVisibilityOff, MdError, MdPerson, MdUpdate } from 'react-icons/md';
 import { Text } from '@radix-ui/themes';
 import { ClipLoader } from 'react-spinners';
 import { useUserContext } from '../../contexts/UserContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
+import packageJson from '../../../../package.json';
 
 const Login = () => {
     const [formData, setFormData] = useState({
@@ -12,6 +13,8 @@ const Login = () => {
         password: ''
     });
     const [showPassword, setShowPassword] = useState(false);
+    const [updateStatus, setUpdateStatus] = useState<'idle' | 'checking' | 'downloading' | 'available' | 'error'>('idle');
+    const [updateMessage, setUpdateMessage] = useState('');
     const { loading: settingsLoading, error: settingsError, refreshSettings } = useSettingsContext();
     const { login, loading, error } = useUserContext();
 
@@ -36,6 +39,50 @@ const Login = () => {
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
+    };
+
+    const checkForUpdates = async () => {
+        setUpdateStatus('checking');
+        setUpdateMessage('Checking for updates...');
+
+        try {
+            const result = await window.electronAPI.checkForUpdates();
+
+            if (result.success) {
+                if (result.updateAvailable) {
+                    setUpdateStatus('available');
+                    setUpdateMessage('Update available! Click to download.');
+                } else {
+                    setUpdateStatus('idle');
+                    setUpdateMessage('No updates available.');
+                }
+            } else {
+                setUpdateStatus('error');
+                setUpdateMessage(result.error || 'Failed to check for updates.');
+            }
+        } catch (error) {
+            setUpdateStatus('error');
+            setUpdateMessage('Failed to check for updates.');
+        }
+    };
+
+    const downloadUpdate = async () => {
+        setUpdateStatus('downloading');
+        setUpdateMessage('Downloading update...');
+
+        try {
+            const result = await window.electronAPI.downloadUpdate();
+
+            if (result.success) {
+                setUpdateMessage('Update downloaded! Restart to install.');
+            } else {
+                setUpdateStatus('error');
+                setUpdateMessage(result.error || 'Failed to download update.');
+            }
+        } catch (error) {
+            setUpdateStatus('error');
+            setUpdateMessage('Failed to download update.');
+        }
     };
 
     if (settingsLoading) {
@@ -179,10 +226,69 @@ const Login = () => {
                 </div>
 
                 {/* Footer */}
-                <div className="text-center mt-8">
+                <div className="text-center mt-8 space-y-4">
                     <Text className="text-gray-400 text-sm">
-                        Tax Calculation System v1.0
+                        Tax Calculation System v{packageJson.version}
                     </Text>
+
+                    {/* Update Check Button */}
+                    <div className="flex flex-col items-center gap-2">
+                        {updateStatus === 'idle' && (
+                            <button
+                                onClick={checkForUpdates}
+                                className="bg-gray-600/20 hover:bg-gray-600/30 text-gray-300 border border-gray-600/30 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 hover:scale-105 flex items-center gap-2"
+                            >
+                                <MdUpdate className="text-lg" />
+                                Check for Updates
+                            </button>
+                        )}
+
+                        {updateStatus === 'checking' && (
+                            <div className="flex items-center gap-2 text-blue-300 text-sm">
+                                <ClipLoader color="#60A5FA" size={16} />
+                                <span>Checking for updates...</span>
+                            </div>
+                        )}
+
+                        {updateStatus === 'available' && (
+                            <div className="flex flex-col items-center gap-2">
+                                <div className="text-green-300 text-sm">{updateMessage}</div>
+                                <button
+                                    onClick={downloadUpdate}
+                                    className="bg-green-600/20 hover:bg-green-600/30 text-green-300 border border-green-600/30 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 hover:scale-105 flex items-center gap-2"
+                                >
+                                    <MdUpdate className="text-lg" />
+                                    Download Update
+                                </button>
+                            </div>
+                        )}
+
+                        {updateStatus === 'downloading' && (
+                            <div className="flex items-center gap-2 text-yellow-300 text-sm">
+                                <ClipLoader color="#F59E0B" size={16} />
+                                <span>Downloading update...</span>
+                            </div>
+                        )}
+
+                        {updateStatus === 'error' && (
+                            <div className="flex flex-col items-center gap-2">
+                                <div className="text-red-300 text-sm">{updateMessage}</div>
+                                {updateMessage.includes('development mode') ? (
+                                    <div className="text-gray-400 text-xs text-center max-w-xs">
+                                        Updates are only available in the packaged application
+                                    </div>
+                                ) : (
+                                    <button
+                                        onClick={checkForUpdates}
+                                        className="bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-600/30 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 hover:scale-105 flex items-center gap-2"
+                                    >
+                                        <MdUpdate className="text-lg" />
+                                        Try Again
+                                    </button>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
