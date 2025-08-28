@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Calculation, CalculationOverview, CalculationReq } from '../../types/calculation';
 import { calculationService } from '../services/calculationService';
 import { useToast } from './useToast';
+import { useUserContext } from '../contexts/UserContext';
 
 interface UseCalculationsReturn {
   calculations: CalculationOverview[];
@@ -30,12 +31,13 @@ export const  useCalculations = (): UseCalculationsReturn => {
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const { showSuccess, showError } = useToast();
+  const { token } = useUserContext();
 
   const fetchCalculations = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const fetchedCalculations = await calculationService.getAllCalculations();
+      const fetchedCalculations = await calculationService.getAllCalculations(token);
       setCalculations(fetchedCalculations);
     } catch (err: any) {
       let errorMessage = 'Error loading calculations';
@@ -59,7 +61,7 @@ export const  useCalculations = (): UseCalculationsReturn => {
     setLoading(true);
     setError(null);
     try {
-      const calculation = await calculationService.getCalculationById(id);
+      const calculation = await calculationService.getCalculationById(id, token);
       return calculation;
     } catch (err: any) {
       let errorMessage = 'Error loading calculation';
@@ -88,7 +90,7 @@ export const  useCalculations = (): UseCalculationsReturn => {
     }
     setError(null);
     try {
-      const newCalculation = await calculationService.createCalculation(calculation);
+      const newCalculation = await calculationService.createCalculation(calculation, token);
       if(calculation.status === 'draft') {
         showSuccess('Draft saved successfully');
       } else {
@@ -128,7 +130,7 @@ export const  useCalculations = (): UseCalculationsReturn => {
     }
     setError(null);
     try {
-      const updatedCalculation = await calculationService.updateCalculation(id, calculation);
+      const updatedCalculation = await calculationService.updateCalculation(id, calculation, token);
       if(calculation.status === 'draft') {
         showSuccess('Draft saved successfully');
       } else {
@@ -162,7 +164,7 @@ export const  useCalculations = (): UseCalculationsReturn => {
     setIsDeleting(true);
     setError(null);
     try {
-      await calculationService.deleteCalculation(id);
+      await calculationService.deleteCalculation(id, token);
       setCalculations(prev => prev.filter(calculation => calculation.id !== id));
       showSuccess('Calculation deleted successfully');
       return true;
@@ -189,7 +191,7 @@ export const  useCalculations = (): UseCalculationsReturn => {
     setLoading(true);
     setError(null);
     try {
-      const accountCalculations = await calculationService.getCalculationByAccountId(accountId);
+      const accountCalculations = await calculationService.getCalculationByAccountId(accountId, token);
       return accountCalculations;
     } catch (err: any) {
       let errorMessage = 'Error loading account calculations';
@@ -213,7 +215,7 @@ export const  useCalculations = (): UseCalculationsReturn => {
   const downloadCalculationPdf = useCallback(async (id: number): Promise<void> => {
     setIsDownloading(true);
     try {
-      await calculationService.downloadCalculationPdf(id);
+      await calculationService.downloadCalculationPdf(id, token);
       showSuccess('Calculation downloaded successfully');
     } catch (err: any) {
       let errorMessage = "Error downloading calculation";

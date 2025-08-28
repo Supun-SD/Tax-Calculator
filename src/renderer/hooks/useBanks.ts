@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Bank, BankCreateReq, BankUpdateReq } from '../../types/bank';
 import { bankService } from '../services/bankService';
 import { useToast } from './useToast';
+import { useUserContext } from '../contexts/UserContext';
 
 interface UseBanksReturn {
   banks: Bank[];
@@ -21,12 +22,13 @@ export const useBanks = (): UseBanksReturn => {
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const { showSuccess, showError } = useToast();
+  const { token } = useUserContext();
 
   const fetchBanks = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const fetchedBanks = await bankService.getAllBanks();
+      const fetchedBanks = await bankService.getAllBanks(token);
       setBanks(fetchedBanks);
     } catch (err: any) {
       let errorMessage = 'Error loading banks';
@@ -49,7 +51,7 @@ export const useBanks = (): UseBanksReturn => {
   const createBank = useCallback(async (bank: BankCreateReq): Promise<Bank | null> => {
     setError(null);
     try {
-      const newBank = await bankService.createBank(bank);
+      const newBank = await bankService.createBank(bank, token);
       setBanks(prev => [newBank, ...prev]);
       showSuccess('Bank created successfully');
       return newBank;
@@ -74,7 +76,7 @@ export const useBanks = (): UseBanksReturn => {
   const updateBank = useCallback(async (id: number, bank: BankUpdateReq): Promise<Bank | null> => {
     setError(null);
     try {
-      const updatedBank = await bankService.updateBank(id, bank);
+      const updatedBank = await bankService.updateBank(id, bank, token);
       setBanks(prev => prev.map(b => b.id === id ? updatedBank : b));
       showSuccess('Bank updated successfully');
       return updatedBank;
@@ -100,7 +102,7 @@ export const useBanks = (): UseBanksReturn => {
     setIsDeleting(true);
     setError(null);
     try {
-      await bankService.deleteBank(id);
+      await bankService.deleteBank(id, token);
       setBanks(prev => prev.filter(bank => bank.id !== id));
       showSuccess('Bank deleted successfully');
       return true;
