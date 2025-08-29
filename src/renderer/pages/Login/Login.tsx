@@ -5,6 +5,7 @@ import { Text } from '@radix-ui/themes';
 import { ClipLoader } from 'react-spinners';
 import { useUserContext } from '../../contexts/UserContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
+import packageJson from '../../../../package.json';
 
 const Login = () => {
     const [formData, setFormData] = useState({
@@ -181,7 +182,7 @@ const Login = () => {
                 {/* Footer */}
                 <div className="text-center mt-8">
                     <Text className="text-gray-400 text-sm">
-                        Tax Calculation System v1.0
+                        Tax Calculation System v{packageJson.version}
                     </Text>
                 </div>
             </div>

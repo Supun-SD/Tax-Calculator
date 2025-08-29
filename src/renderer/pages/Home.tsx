@@ -7,6 +7,7 @@ import { Text } from '@radix-ui/themes';
 import { useSettingsContext } from '../contexts/SettingsContext';
 import { useUserContext } from '../contexts/UserContext';
 import { ClipLoader } from 'react-spinners';
+import packageJson from '../../../package.json';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -145,7 +146,7 @@ const Home = () => {
       {/* Footer */}
       <div className="mt-[5vh] text-center">
         <Text className="text-gray-400 text-sm">
-          Tax Calculation System v1.0
+          Tax Calculation System v{packageJson.version}
         </Text>
       </div>
     </div>
