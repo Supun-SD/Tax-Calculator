@@ -6,6 +6,7 @@ import { MakerRpm } from '@electron-forge/maker-rpm';
 import { VitePlugin } from '@electron-forge/plugin-vite';
 import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
+import { PublisherGithub } from '@electron-forge/publisher-github';
 
 const config: ForgeConfig = {
   packagerConfig: {
@@ -28,6 +29,16 @@ const config: ForgeConfig = {
       options: {
         icon: './public/icon.png',
       },
+    }),
+  ],
+  publishers: [
+    new PublisherGithub({
+      repository: {
+        owner: 'Supun-SD',
+        name: 'Tax-Calculator',
+      },
+      prerelease: false, 
+      draft: false,    
     }),
   ],
   plugins: [
