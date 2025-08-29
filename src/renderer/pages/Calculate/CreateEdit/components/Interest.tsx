@@ -233,9 +233,25 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
                 if (parts[1] && parts[1].length > 2) return;
             }
 
-            setFdEntries(prev =>
-                prev.map(entry => (entry.id === id ? { ...entry, [field]: value } : entry))
-            );
+            setFdEntries(prev => {
+                const updatedEntries = prev.map(entry => {
+                    if (entry.id === id) {
+                        const updatedEntry = { ...entry, [field]: value };
+
+
+                        if (field === "grossInterest" || field === "isJoint") {
+                            const gross = CalculationService.parseAndRound(updatedEntry.grossInterest);
+                            const contribution = updatedEntry.isJoint ? gross / 2 : gross;
+                            const aitAmount = CalculationService.parseAndRound((contribution * aitRate) / 100);
+                            updatedEntry.ait = aitAmount;
+                        }
+
+                        return updatedEntry;
+                    }
+                    return entry;
+                });
+                return updatedEntries;
+            });
         } else {
             if (field === "value") {
                 if (!/^\d*\.?\d*$/.test(value) && value !== "") return;
@@ -243,11 +259,24 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
                 if (parts[1] && parts[1].length > 2) return;
             }
 
-            setCurrentEntries(
-                getCurrentEntries().map(entry => (entry.id === id ? { ...entry, [field]: value } : entry))
-            );
+            const currentEntries = getCurrentEntries();
+            const updatedEntries = currentEntries.map(entry => {
+                if (entry.id === id) {
+                    const updatedEntry = { ...entry, [field]: value };
+
+                    if (field === "value" && 'value' in updatedEntry) {
+                        const valueAmount = CalculationService.parseAndRound(updatedEntry.value);
+                        const aitAmount = CalculationService.parseAndRound((valueAmount * aitRate) / 100);
+                        updatedEntry.ait = aitAmount;
+                    }
+
+                    return updatedEntry;
+                }
+                return entry;
+            });
+            setCurrentEntries(updatedEntries);
         }
-    }, [activeTab, setCurrentEntries, getCurrentEntries]);
+    }, [activeTab, setCurrentEntries, getCurrentEntries, aitRate]);
 
     const handleBankChange = useCallback((id: number, bank: Bank) => {
         setFdEntries(prev =>
@@ -399,8 +428,7 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
             } : null
         };
         updateInterestIncome(interestIncome);
-        console.log(fdEntries);
-        //onClose();
+        onClose();
     }, [fdEntries, repoEntries, unitTrustEntries, treasuryBillEntries, tBondEntries, debentureEntries, totalGrossInterest, totalAIT, roundToTwoDecimals, updateInterestIncome, onClose]);
 
     useEffect(() => {

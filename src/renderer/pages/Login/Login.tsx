@@ -19,7 +19,7 @@ const Login = () => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: value
+            [name]: value.trim()
         }));
     };
 
