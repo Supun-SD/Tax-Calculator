@@ -158,7 +158,6 @@ const TaxableIncomeCalculation = () => {
                                     </div>
                                     <div>
                                         <Text className="text-white font-semibold">Total Assessable Income</Text>
-                                        <Text className="text-gray-400 text-xs">Before deductions</Text>
                                     </div>
                                 </div>
                                 <Text className="text-2xl font-bold text-blue-300">

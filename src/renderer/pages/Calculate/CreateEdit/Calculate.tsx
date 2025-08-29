@@ -271,7 +271,7 @@ const Calculate = () => {
               </Button>
             </AlertDialog.Cancel>
             {
-              isSubmitting ? <Flex align="center" gap="4" mx="3"><ClipLoader color="#4A90E2" size={24} /> <Text>Submitting calculation...</Text></Flex> : (
+              isSubmitting ? <Flex align="center" gap="4" mx="3"><ClipLoader color="#4A90E2" size={24} /> <Text className='text-white'>Submitting calculation...</Text></Flex> : (
                 <AlertDialog.Action>
                   <Button
                     className="!px-12"
