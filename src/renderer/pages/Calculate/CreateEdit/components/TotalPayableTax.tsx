@@ -1,6 +1,8 @@
 import { Text } from '@radix-ui/themes';
-import { MdCalculate, MdRemoveCircle } from 'react-icons/md';
+import { MdCalculate, MdRemoveCircle, MdInfo } from 'react-icons/md';
 import { useCalculationContext } from '../../../../contexts/CalculationContext';
+import { Tooltip } from '@radix-ui/themes';
+import { BsFillInfoCircleFill } from 'react-icons/bs';
 
 interface TaxComponent {
     name: string;
@@ -19,6 +21,53 @@ const TotalPayableTax = () => {
     const totalPayableTax = currentCalculation?.calculationData?.totalPayableTax ?? 0;
 
     const aitRent = (rentalIncome * whtRentRate) / 100;
+
+    const interestIncome = currentCalculation?.calculationData?.sourceOfIncome?.interestIncome;
+    const fdAit = interestIncome?.fdIncome?.ait ?? 0;
+    const repoAit = interestIncome?.repoIncome?.ait ?? 0;
+    const unitTrustAit = interestIncome?.unitTrustIncome?.ait ?? 0;
+    const treasuryBillAit = interestIncome?.treasuryBillIncome?.ait ?? 0;
+    const tBondAit = interestIncome?.tBondIncome?.ait ?? 0;
+    const debentureAit = interestIncome?.debentureIncome?.ait ?? 0;
+
+    const getInterestAitBreakdownContent = () => {
+        if (aitInterest === 0) return null;
+
+        const breakdownItems = [];
+        if (fdAit > 0) breakdownItems.push({ name: 'Fixed Deposit', amount: fdAit });
+        if (repoAit > 0) breakdownItems.push({ name: 'Repo', amount: repoAit });
+        if (unitTrustAit > 0) breakdownItems.push({ name: 'Unit Trust', amount: unitTrustAit });
+        if (treasuryBillAit > 0) breakdownItems.push({ name: 'Treasury Bill', amount: treasuryBillAit });
+        if (tBondAit > 0) breakdownItems.push({ name: 'T-Bond', amount: tBondAit });
+        if (debentureAit > 0) breakdownItems.push({ name: 'Debenture', amount: debentureAit });
+
+        return (
+            <div className="p-3 bg-gray-800 border border-gray-600 rounded-xl shadow-2xl">
+                <div className="flex items-center space-x-2 mb-3 pb-2 border-b border-gray-600">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                    <div className="font-bold text-sm text-white">Interest AIT Breakdown</div>
+                </div>
+                <div className="space-y-2">
+                    {breakdownItems.map((item, index) => (
+                        <div key={index} className="flex items-center justify-between p-2 bg-gray-700 rounded-lg border border-gray-600 hover:bg-gray-600 transition-all duration-200 gap-4">
+                            <span className="text-white text-sm">{item.name}</span>
+                            <span className="text-red-300 font-bold text-sm">
+                                ({formatCurrency(item.amount)})
+                            </span>
+                        </div>
+                    ))}
+                </div>
+                <div className="mt-3 pt-2 border-t border-gray-600">
+                    <div className="flex items-center justify-between">
+                        <span className="text-white font-semibold text-sm">Total AIT</span>
+                        <span className="text-red-300 font-bold text-lg">
+                            ({formatCurrency(aitInterest)})
+                        </span>
+                    </div>
+                </div>
+            </div>
+        );
+    };
 
     const taxComponents: TaxComponent[] = [
         {
@@ -81,7 +130,18 @@ const TotalPayableTax = () => {
                     {taxComponents.map((component, index) => (
                         <div key={index} className={`grid grid-cols-3 gap-0 hover:bg-white/5 transition-all duration-200 ${index !== taxComponents.length - 1 ? 'border-b border-white/10' : ''}`}>
                             <div className="p-3">
-                                <Text className="text-white text-sm">{component.name}</Text>
+                                {component.name === "AIT - Interest" && aitInterest > 0 ? (
+                                    <Tooltip content={getInterestAitBreakdownContent()} className='bg-transparent'>
+                                        <div className="flex items-center space-x-2 cursor-help">
+                                            <Text className="text-white text-sm hover:text-blue-300 transition-colors duration-200">
+                                                {component.name}
+                                            </Text>
+                                            <BsFillInfoCircleFill className="text-blue-300/80 text-xs" size={16} />
+                                        </div>
+                                    </Tooltip>
+                                ) : (
+                                    <Text className="text-white text-sm">{component.name}</Text>
+                                )}
                             </div>
                             <div className="p-3">
                                 {component.percentage > 0 ? (

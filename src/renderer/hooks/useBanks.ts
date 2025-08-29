@@ -46,7 +46,7 @@ export const useBanks = (): UseBanksReturn => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [token]);
 
   const createBank = useCallback(async (bank: BankCreateReq): Promise<Bank | null> => {
     setError(null);
@@ -71,7 +71,7 @@ export const useBanks = (): UseBanksReturn => {
       showError(errorMessage);
       return null;
     }
-  }, []);
+  }, [token]);
 
   const updateBank = useCallback(async (id: number, bank: BankUpdateReq): Promise<Bank | null> => {
     setError(null);
@@ -96,7 +96,7 @@ export const useBanks = (): UseBanksReturn => {
       showError(errorMessage);
       return null;
     }
-  }, []);
+  }, [token]);
 
   const deleteBank = useCallback(async (id: number): Promise<boolean> => {
     setIsDeleting(true);
@@ -123,7 +123,7 @@ export const useBanks = (): UseBanksReturn => {
     } finally {
       setIsDeleting(false);
     }
-  }, []);
+  }, [token]);
 
   const clearError = useCallback(() => {
     setError(null);

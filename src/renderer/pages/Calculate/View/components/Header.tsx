@@ -82,7 +82,7 @@ const Header = ({ calculation }: HeaderProps) => {
                                     Download PDF
                                 </Button>
                             ) : (
-                                <div className="flex items-center space-x-4">
+                                <div className="flex items-center space-x-4 px-3">
                                     <ClipLoader color="#4A90E2" size={20} />
                                     <Text className="text-white">Downloading...</Text>
                                 </div>
@@ -91,7 +91,7 @@ const Header = ({ calculation }: HeaderProps) => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 
