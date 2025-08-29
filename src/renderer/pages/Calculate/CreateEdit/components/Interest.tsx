@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Modal from "../../../../components/Modal";
 import { IoAdd, IoChevronDown } from "react-icons/io5";
 import { MdDelete, MdAccountBalance, MdAttachMoney, MdCalculate, MdReceipt, MdSearch, MdAccountBalanceWallet, MdBusiness, MdTrendingUp, MdSecurity, MdCreditCard } from "react-icons/md";
@@ -91,11 +91,13 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
     const interestIncome = currentCalculation?.calculationData?.sourceOfIncome?.interestIncome;
     const aitRate: number = currentCalculation?.calculationData?.settings?.reliefsAndAit?.aitInterest;
 
-    const filteredBanks = banks.filter(bank =>
-        bank.name.toLowerCase().includes(bankSearchTerm.toLowerCase())
+    const filteredBanks = useMemo(() =>
+        banks.filter(bank =>
+            bank.name.toLowerCase().includes(bankSearchTerm.toLowerCase())
+        ), [banks, bankSearchTerm]
     );
 
-    const getCurrentEntries = () => {
+    const getCurrentEntries = useCallback(() => {
         switch (activeTab) {
             case 'fd': return fdEntries;
             case 'repo': return repoEntries;
@@ -105,9 +107,9 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
             case 'debenture': return debentureEntries;
             default: return fdEntries;
         }
-    };
+    }, [activeTab, fdEntries, repoEntries, unitTrustEntries, treasuryBillEntries, tBondEntries, debentureEntries]);
 
-    const setCurrentEntries = (entries: any[]) => {
+    const setCurrentEntries = useCallback((entries: any[]) => {
         switch (activeTab) {
             case 'fd': setFdEntries(entries); break;
             case 'repo': setRepoEntries(entries); break;
@@ -116,7 +118,7 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
             case 'tBond': setTBondEntries(entries); break;
             case 'debenture': setDebentureEntries(entries); break;
         }
-    };
+    }, [activeTab]);
 
     const isDoneDisabled = useMemo(() => {
         if (activeTab === 'fd') {
@@ -133,75 +135,9 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
                 entry.value === ""
             );
         }
-    }, [activeTab, fdEntries, repoEntries, unitTrustEntries, treasuryBillEntries, tBondEntries, debentureEntries]);
+    }, [activeTab, fdEntries, getCurrentEntries]);
 
-    useEffect(() => {
-        if (isOpen && interestIncome) {
-            if (interestIncome.fdIncome?.incomes) {
-                const fdEntries = interestIncome.fdIncome.incomes.map((income, index) => ({
-                    id: index + 1,
-                    bank: income.bank,
-                    accountNumber: income.accountNumber || "",
-                    certificateNumber: income.certificateNumber || "",
-                    isJoint: income.isJoint,
-                    grossInterest: income.grossInterest.toString(),
-                    ait: income.ait
-                }));
-                setFdEntries(fdEntries.length > 0 ? fdEntries : [getDefaultFdEntry()]);
-            } else {
-                setFdEntries([getDefaultFdEntry()]);
-            }
-
-            setRepoEntries(interestIncome.repoIncome?.incomes?.map((income, index) => ({
-                id: index + 1,
-                companyName: income.companyName,
-                certificateNumber: income.certificateNumber,
-                value: income.value.toString(),
-                ait: income.ait
-            })) || [getDefaultRepoEntry()]);
-
-            setUnitTrustEntries(interestIncome.unitTrustIncome?.incomes?.map((income, index) => ({
-                id: index + 1,
-                companyName: income.companyName,
-                certificateNumber: income.certificateNumber,
-                value: income.value.toString(),
-                ait: income.ait
-            })) || [getDefaultUnitTrustEntry()]);
-
-            setTreasuryBillEntries(interestIncome.treasuryBillIncome?.incomes?.map((income, index) => ({
-                id: index + 1,
-                companyName: income.companyName,
-                certificateNumber: income.certificateNumber,
-                value: income.value.toString(),
-                ait: income.ait
-            })) || [getDefaultTreasuryBillEntry()]);
-
-            setTBondEntries(interestIncome.tBondIncome?.incomes?.map((income, index) => ({
-                id: index + 1,
-                companyName: income.companyName,
-                certificateNumber: income.certificateNumber,
-                value: income.value.toString(),
-                ait: income.ait
-            })) || [getDefaultTBondEntry()]);
-
-            setDebentureEntries(interestIncome.debentureIncome?.incomes?.map((income, index) => ({
-                id: index + 1,
-                companyName: income.companyName,
-                certificateNumber: income.certificateNumber,
-                value: income.value.toString(),
-                ait: income.ait
-            })) || [getDefaultDebentureEntry()]);
-        } else if (isOpen && !interestIncome) {
-            setFdEntries([getDefaultFdEntry()]);
-            setRepoEntries([getDefaultRepoEntry()]);
-            setUnitTrustEntries([getDefaultUnitTrustEntry()]);
-            setTreasuryBillEntries([getDefaultTreasuryBillEntry()]);
-            setTBondEntries([getDefaultTBondEntry()]);
-            setDebentureEntries([getDefaultDebentureEntry()]);
-        }
-    }, [isOpen, interestIncome]);
-
-    const getDefaultFdEntry = (): FdEntry => ({
+    const getDefaultFdEntry = useCallback((): FdEntry => ({
         id: 1,
         bank: { name: "Select Bank", tinNumber: "" },
         accountNumber: "",
@@ -209,49 +145,49 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
         isJoint: false,
         grossInterest: "",
         ait: 0
-    });
+    }), []);
 
-    const getDefaultRepoEntry = (): RepoEntry => ({
+    const getDefaultRepoEntry = useCallback((): RepoEntry => ({
         id: 1,
         companyName: "",
         certificateNumber: "",
         value: "",
         ait: 0
-    });
+    }), []);
 
-    const getDefaultUnitTrustEntry = (): UnitTrustEntry => ({
+    const getDefaultUnitTrustEntry = useCallback((): UnitTrustEntry => ({
         id: 1,
         companyName: "",
         certificateNumber: "",
         value: "",
         ait: 0
-    });
+    }), []);
 
-    const getDefaultTreasuryBillEntry = (): TreasuryBillEntry => ({
+    const getDefaultTreasuryBillEntry = useCallback((): TreasuryBillEntry => ({
         id: 1,
         companyName: "",
         certificateNumber: "",
         value: "",
         ait: 0
-    });
+    }), []);
 
-    const getDefaultTBondEntry = (): TBondEntry => ({
+    const getDefaultTBondEntry = useCallback((): TBondEntry => ({
         id: 1,
         companyName: "",
         certificateNumber: "",
         value: "",
         ait: 0
-    });
+    }), []);
 
-    const getDefaultDebentureEntry = (): DebentureEntry => ({
+    const getDefaultDebentureEntry = useCallback((): DebentureEntry => ({
         id: 1,
         companyName: "",
         certificateNumber: "",
         value: "",
         ait: 0
-    });
+    }), []);
 
-    useEffect(() => {
+    const calculateTotals = useCallback(() => {
         let grossTotal = 0;
         let aitTotal = 0;
 
@@ -274,15 +210,22 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
             });
         });
 
-        setTotalGrossInterest(CalculationService.parseAndRound(grossTotal));
-        setTotalAIT(CalculationService.parseAndRound(aitTotal));
+        return {
+            grossTotal: CalculationService.parseAndRound(grossTotal),
+            aitTotal: CalculationService.parseAndRound(aitTotal)
+        };
     }, [fdEntries, repoEntries, unitTrustEntries, treasuryBillEntries, tBondEntries, debentureEntries, aitRate]);
 
-    const formatCurrency = (amount: number) => CalculationService.formatCurrency(amount);
+    useEffect(() => {
+        const { grossTotal, aitTotal } = calculateTotals();
+        setTotalGrossInterest(grossTotal);
+        setTotalAIT(aitTotal);
+    }, [calculateTotals]);
 
-    const roundToTwoDecimals = (amount: number) => CalculationService.roundToTwoDecimals(amount);
+    const formatCurrency = useCallback((amount: number) => CalculationService.formatCurrency(amount), []);
+    const roundToTwoDecimals = useCallback((amount: number) => CalculationService.roundToTwoDecimals(amount), []);
 
-    const updateEntry = (id: number, field: string, value: any) => {
+    const updateEntry = useCallback((id: number, field: string, value: any) => {
         if (activeTab === 'fd') {
             if (field === "grossInterest") {
                 if (!/^\d*\.?\d*$/.test(value) && value !== "") return;
@@ -304,9 +247,9 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
                 getCurrentEntries().map(entry => (entry.id === id ? { ...entry, [field]: value } : entry))
             );
         }
-    };
+    }, [activeTab, setCurrentEntries, getCurrentEntries]);
 
-    const handleBankChange = (id: number, bank: Bank) => {
+    const handleBankChange = useCallback((id: number, bank: Bank) => {
         setFdEntries(prev =>
             prev.map(entry =>
                 entry.id === id
@@ -316,9 +259,9 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
         );
         setActiveBankDropdown(null);
         setBankSearchTerm("");
-    };
+    }, []);
 
-    const addNewEntry = () => {
+    const addNewEntry = useCallback(() => {
         if (activeTab === 'fd') {
             const newId = fdEntries.length
                 ? Math.max(...fdEntries.map(e => e.id)) + 1
@@ -357,9 +300,9 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
 
             setCurrentEntries([...currentEntries, newEntry]);
         }
-    };
+    }, [activeTab, fdEntries, getCurrentEntries, setCurrentEntries]);
 
-    const removeEntry = (id: number) => {
+    const removeEntry = useCallback((id: number) => {
         if (activeTab === 'fd') {
             if (fdEntries.length > 1) {
                 setFdEntries(prev => prev.filter(entry => entry.id !== id));
@@ -370,9 +313,9 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
                 setCurrentEntries(currentEntries.filter(entry => entry.id !== id));
             }
         }
-    };
+    }, [activeTab, fdEntries, getCurrentEntries, setCurrentEntries]);
 
-    const handleDone = () => {
+    const handleDone = useCallback(() => {
         const fdTotal = fdEntries.reduce((sum, entry) => {
             const gross = CalculationService.parseAndRound(entry.grossInterest);
             const contribution = entry.isJoint ? gross / 2 : gross;
@@ -456,8 +399,75 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
             } : null
         };
         updateInterestIncome(interestIncome);
-        onClose();
-    };
+        console.log(fdEntries);
+        //onClose();
+    }, [fdEntries, repoEntries, unitTrustEntries, treasuryBillEntries, tBondEntries, debentureEntries, totalGrossInterest, totalAIT, roundToTwoDecimals, updateInterestIncome, onClose]);
+
+    useEffect(() => {
+        if (isOpen && interestIncome) {
+            if (interestIncome.fdIncome?.incomes) {
+                const fdEntries = interestIncome.fdIncome.incomes.map((income, index) => ({
+                    id: index + 1,
+                    bank: income.bank,
+                    accountNumber: income.accountNumber || "",
+                    certificateNumber: income.certificateNumber || "",
+                    isJoint: income.isJoint,
+                    grossInterest: income.grossInterest.toString(),
+                    ait: income.ait
+                }));
+                setFdEntries(fdEntries.length > 0 ? fdEntries : [getDefaultFdEntry()]);
+            } else {
+                setFdEntries([getDefaultFdEntry()]);
+            }
+
+            setRepoEntries(interestIncome.repoIncome?.incomes?.map((income, index) => ({
+                id: index + 1,
+                companyName: income.companyName,
+                certificateNumber: income.certificateNumber,
+                value: income.value.toString(),
+                ait: income.ait
+            })) || [getDefaultRepoEntry()]);
+
+            setUnitTrustEntries(interestIncome.unitTrustIncome?.incomes?.map((income, index) => ({
+                id: index + 1,
+                companyName: income.companyName,
+                certificateNumber: income.certificateNumber,
+                value: income.value.toString(),
+                ait: income.ait
+            })) || [getDefaultUnitTrustEntry()]);
+
+            setTreasuryBillEntries(interestIncome.treasuryBillIncome?.incomes?.map((income, index) => ({
+                id: index + 1,
+                companyName: income.companyName,
+                certificateNumber: income.certificateNumber,
+                value: income.value.toString(),
+                ait: income.ait
+            })) || [getDefaultTreasuryBillEntry()]);
+
+            setTBondEntries(interestIncome.tBondIncome?.incomes?.map((income, index) => ({
+                id: index + 1,
+                companyName: income.companyName,
+                certificateNumber: income.certificateNumber,
+                value: income.value.toString(),
+                ait: income.ait
+            })) || [getDefaultTBondEntry()]);
+
+            setDebentureEntries(interestIncome.debentureIncome?.incomes?.map((income, index) => ({
+                id: index + 1,
+                companyName: income.companyName,
+                certificateNumber: income.certificateNumber,
+                value: income.value.toString(),
+                ait: income.ait
+            })) || [getDefaultDebentureEntry()]);
+        } else if (isOpen && !interestIncome) {
+            setFdEntries([getDefaultFdEntry()]);
+            setRepoEntries([getDefaultRepoEntry()]);
+            setUnitTrustEntries([getDefaultUnitTrustEntry()]);
+            setTreasuryBillEntries([getDefaultTreasuryBillEntry()]);
+            setTBondEntries([getDefaultTBondEntry()]);
+            setDebentureEntries([getDefaultDebentureEntry()]);
+        }
+    }, [isOpen, interestIncome, getDefaultFdEntry, getDefaultRepoEntry, getDefaultUnitTrustEntry, getDefaultTreasuryBillEntry, getDefaultTBondEntry, getDefaultDebentureEntry]);
 
     return (
         <Modal
@@ -693,7 +703,7 @@ interface FdTableProps {
     formatCurrency: (amount: number) => string;
 }
 
-const FdTable: React.FC<FdTableProps> = ({
+const FdTable: React.FC<FdTableProps> = React.memo(({
     entries,
     aitRate,
     bankSearchTerm,
@@ -707,6 +717,18 @@ const FdTable: React.FC<FdTableProps> = ({
     removeEntry,
     formatCurrency
 }) => {
+    const totals = useMemo(() => {
+        const contributionTotal = entries.reduce((sum, entry) => {
+            const gross = CalculationService.parseAndRound(entry.grossInterest);
+            const contribution = entry.isJoint ? gross / 2 : gross;
+            return sum + contribution;
+        }, 0);
+
+        const aitTotal = entries.reduce((sum, entry) => sum + entry.ait, 0);
+
+        return { contributionTotal, aitTotal };
+    }, [entries]);
+
     return (
         <table className="w-full">
             <thead className="bg-white/10 border-b border-white/10">
@@ -750,7 +772,7 @@ const FdTable: React.FC<FdTableProps> = ({
                     <th className="p-2 py-4 text-center text-gray-300 font-semibold text-sm uppercase tracking-wide w-24">
                         <div className="flex items-center justify-end space-x-2">
                             <MdReceipt className="text-red-300" />
-                            <span>AIT({Math.round(aitRate)}%)</span>
+                            <span>AIT({aitRate}%)</span>
                         </div>
                     </th>
                     <th className="p-2 py-4 w-8"></th>
@@ -878,11 +900,9 @@ const FdTable: React.FC<FdTableProps> = ({
                             <td className="p-2 py-4 text-center">
                                 <div className="relative">
                                     <input
-                                        type="number"
+                                        type="text"
                                         value={entry.ait}
                                         className="w-full min-w-36 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-right placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all duration-200"
-                                        step="0.01"
-                                        min="0"
                                         placeholder="0.00"
                                         readOnly
                                     />
@@ -915,18 +935,14 @@ const FdTable: React.FC<FdTableProps> = ({
                     <td className="p-2 text-center">
                         <div className='inline-block w-full px-4 py-2 bg-orange-400/20 border border-orange-400/30 rounded-lg'>
                             <Text className="text-orange-300 font-bold text-lg">
-                                {formatCurrency(entries.reduce((sum, entry) => {
-                                    const gross = CalculationService.parseAndRound(entry.grossInterest);
-                                    const contribution = entry.isJoint ? gross / 2 : gross;
-                                    return sum + contribution;
-                                }, 0))}
+                                {formatCurrency(totals.contributionTotal)}
                             </Text>
                         </div>
                     </td>
                     <td className="p-2 text-center">
                         <div className='inline-block w-full px-4 py-2 bg-orange-400/20 border border-orange-400/30 rounded-lg'>
                             <Text className="text-orange-300 font-bold text-lg">
-                                {formatCurrency(entries.reduce((sum, entry) => sum + entry.ait, 0))}
+                                {formatCurrency(totals.aitTotal)}
                             </Text>
                         </div>
                     </td>
@@ -935,7 +951,7 @@ const FdTable: React.FC<FdTableProps> = ({
             </tfoot>
         </table>
     );
-};
+});
 
 interface OtherTableProps {
     entries: RepoEntry[] | UnitTrustEntry[] | TreasuryBillEntry[] | TBondEntry[] | DebentureEntry[];
@@ -946,7 +962,7 @@ interface OtherTableProps {
     type: 'repo' | 'unitTrust' | 'treasuryBill' | 'tBond' | 'debenture';
 }
 
-const OtherTable: React.FC<OtherTableProps> = ({
+const OtherTable: React.FC<OtherTableProps> = React.memo(({
     entries,
     aitRate,
     updateEntry,
@@ -954,21 +970,27 @@ const OtherTable: React.FC<OtherTableProps> = ({
     formatCurrency,
     type
 }) => {
-    const getTotalColor = () => {
+    const getTotalColor = useCallback(() => {
         if (type === 'repo') return 'bg-blue-400/20 text-blue-300 border border-blue-400/30';
         if (type === 'unitTrust') return 'bg-green-400/20 text-green-300 border border-green-400/30';
         if (type === 'treasuryBill') return 'bg-yellow-400/20 text-yellow-300 border border-yellow-400/30';
         if (type === 'tBond') return 'bg-indigo-400/20 text-indigo-300 border border-indigo-400/30';
         if (type === 'debenture') return 'bg-red-400/20 text-red-300 border border-red-400/30';
-    }
+    }, [type]);
 
-    const getIconColor = () => {
+    const getIconColor = useCallback(() => {
         if (type === 'repo') return 'text-blue-300';
         if (type === 'unitTrust') return 'text-green-300';
         if (type === 'treasuryBill') return 'text-yellow-300';
         if (type === 'tBond') return 'text-indigo-300';
         if (type === 'debenture') return 'text-red-300';
-    }
+    }, [type]);
+
+    const totals = useMemo(() => {
+        const valueTotal = entries.reduce((sum, entry) => sum + CalculationService.parseAndRound(entry.value), 0);
+        const aitTotal = entries.reduce((sum, entry) => sum + entry.ait, 0);
+        return { valueTotal, aitTotal };
+    }, [entries]);
 
     return (
         <table className="w-full">
@@ -995,7 +1017,7 @@ const OtherTable: React.FC<OtherTableProps> = ({
                     <th className="p-2 py-4 text-center text-gray-300 font-semibold text-sm uppercase tracking-wide">
                         <div className="flex items-center justify-end space-x-2">
                             <MdReceipt className="text-red-300" />
-                            <span>AIT({Math.round(aitRate)}%)</span>
+                            <span>AIT({aitRate}%)</span>
                         </div>
                     </th>
                     <th className="p-2 py-4 w-8"></th>
@@ -1084,14 +1106,14 @@ const OtherTable: React.FC<OtherTableProps> = ({
                     <td className="p-2 text-end">
                         <div className={`inline-block w-full px-6 py-2 ${getTotalColor()} rounded-lg`}>
                             <Text className="font-bold text-lg">
-                                {formatCurrency(entries.reduce((sum, entry) => sum + CalculationService.parseAndRound(entry.value), 0))}
+                                {formatCurrency(totals.valueTotal)}
                             </Text>
                         </div>
                     </td>
                     <td className="p-2 text-end">
                         <div className={`inline-block w-full px-6 py-2 ${getTotalColor()} rounded-lg`}>
                             <Text className="font-bold text-lg">
-                                {formatCurrency(entries.reduce((sum, entry) => sum + entry.ait, 0))}
+                                {formatCurrency(totals.aitTotal)}
                             </Text>
                         </div>
                     </td>
@@ -1100,6 +1122,6 @@ const OtherTable: React.FC<OtherTableProps> = ({
             </tfoot>
         </table>
     );
-};
+});
 
 export default Interest;
