@@ -1,6 +1,7 @@
 import { Text, Table } from '@radix-ui/themes';
-import { MdPerson, MdAttachMoney, MdReceipt, MdAccountBalance, MdBusiness, MdTrendingUp } from 'react-icons/md';
-import { Calculation, EmploymentIncome, EmploymentIncomeRecord, RentalIncome, RentalIncomeRecord, InterestIncome, InterestIncomeRecord, DividendIncome, DividendIncomeRecord, BusinessIncome, BusinessIncomeRecord, OtherIncome, OtherIncomeRecord } from '../../../../../types/calculation';
+import { MdPerson, MdAttachMoney, MdReceipt, MdAccountBalance, MdBusiness, MdTrendingUp, MdAccountBalanceWallet, MdSecurity, MdCreditCard, MdCalculate } from 'react-icons/md';
+import { Calculation, EmploymentIncome, EmploymentIncomeRecord, RentalIncome, RentalIncomeRecord, InterestIncome, FdIncomeRecord, ReposIncomeRecord, UnitTrustIncomeRecord, TreasuryBillIncomeRecord, TBondIncomeRecord, DebentureIncomeRecord, DividendIncome, DividendIncomeRecord, BusinessIncome, BusinessIncomeRecord, OtherIncome, OtherIncomeRecord } from '../../../../../types/calculation';
+import { useState } from 'react';
 
 interface IncomeBreakdownModalProps {
     incomeType: 'employment' | 'rental' | 'interest' | 'dividend' | 'business' | 'other';
@@ -143,19 +144,80 @@ const IncomeBreakdownModal = ({ incomeType, incomeData, calculation }: IncomeBre
 
     const renderInterestBreakdown = () => {
         const data = incomeData as InterestIncome;
-        return (
-            <div className="space-y-6">
-                <div className="bg-gradient-to-r from-purple-500/20 to-purple-600/20 rounded-xl p-4 border border-purple-500/30">
-                    <div className="flex justify-between items-center">
-                        <Text className="text-white font-semibold">Total Gross Interest</Text>
-                        <Text className="text-2xl font-bold text-purple-400">{formatCurrency(data.totalGrossInterest)}</Text>
-                    </div>
-                    <div className="flex justify-between items-center mt-2">
-                        <Text className="text-gray-400">Total AIT ({calculation.calculationData.settings.reliefsAndAit.aitInterest}%)</Text>
-                        <Text className="text-lg font-semibold text-purple-300">{formatCurrency(data.totalAit)}</Text>
-                    </div>
-                </div>
+        const [activeTab, setActiveTab] = useState<'fd' | 'repo' | 'unitTrust' | 'treasuryBill' | 'tBond' | 'debenture'>('fd');
 
+        const getTabInfo = (tab: string) => {
+            switch (tab) {
+                case 'fd':
+                    return {
+                        title: 'Fixed Deposit',
+                        icon: <MdAccountBalanceWallet className="text-lg" />,
+                        color: 'text-orange-300',
+                        bgColor: 'bg-orange-400/20',
+                        borderColor: 'border-orange-400/30',
+                        data: data.fdIncome
+                    };
+                case 'repo':
+                    return {
+                        title: 'Repo',
+                        icon: <MdBusiness className="text-lg" />,
+                        color: 'text-blue-300',
+                        bgColor: 'bg-blue-400/20',
+                        borderColor: 'border-blue-400/30',
+                        data: data.repoIncome
+                    };
+                case 'unitTrust':
+                    return {
+                        title: 'Unit Trust',
+                        icon: <MdTrendingUp className="text-lg" />,
+                        color: 'text-green-300',
+                        bgColor: 'bg-green-400/20',
+                        borderColor: 'border-green-400/30',
+                        data: data.unitTrustIncome
+                    };
+                case 'treasuryBill':
+                    return {
+                        title: 'Treasury Bill',
+                        icon: <MdSecurity className="text-lg" />,
+                        color: 'text-yellow-300',
+                        bgColor: 'bg-yellow-400/20',
+                        borderColor: 'border-yellow-400/30',
+                        data: data.treasuryBillIncome
+                    };
+                case 'tBond':
+                    return {
+                        title: 'T-Bond',
+                        icon: <MdCreditCard className="text-lg" />,
+                        color: 'text-indigo-300',
+                        bgColor: 'bg-indigo-400/20',
+                        borderColor: 'border-indigo-400/30',
+                        data: data.tBondIncome
+                    };
+                case 'debenture':
+                    return {
+                        title: 'Debenture',
+                        icon: <MdReceipt className="text-lg" />,
+                        color: 'text-red-300',
+                        bgColor: 'bg-red-400/20',
+                        borderColor: 'border-red-400/30',
+                        data: data.debentureIncome
+                    };
+                default:
+                    return null;
+            }
+        };
+
+        const renderFdTable = () => {
+            const fdData = data.fdIncome;
+            if (!fdData || !fdData.incomes || fdData.incomes.length === 0) {
+                return (
+                    <div className="text-center py-8 text-gray-400">
+                        <Text>No Fixed Deposit income data available</Text>
+                    </div>
+                );
+            }
+
+            return (
                 <Table.Root>
                     <Table.Header>
                         <Table.Row>
@@ -168,7 +230,7 @@ const IncomeBreakdownModal = ({ incomeType, incomeData, calculation }: IncomeBre
                         </Table.Row>
                     </Table.Header>
                     <Table.Body>
-                        {data.incomes.map((income: InterestIncomeRecord, index: number) => (
+                        {fdData.incomes.map((income: FdIncomeRecord, index: number) => (
                             <Table.Row key={index}>
                                 <Table.Cell className="text-white border-b border-white/10">
                                     <div>
@@ -188,7 +250,124 @@ const IncomeBreakdownModal = ({ incomeType, incomeData, calculation }: IncomeBre
                             </Table.Row>
                         ))}
                     </Table.Body>
+                    <Table.Body>
+                        <Table.Row className="bg-white/10">
+                            <Table.Cell colSpan={4} className="text-white font-bold border-t-2 border-white/20 rounded-bl-xl">
+                                <div className="flex items-center space-x-2 py-2">
+                                    <MdCalculate className="text-orange-300" />
+                                    <span>Total</span>
+                                </div>
+                            </Table.Cell>
+                            <Table.Cell className="text-orange-300 font-bold border-t-2 border-white/20 align-middle">
+                                {formatCurrency(fdData.total)}
+                            </Table.Cell>
+                            <Table.Cell className="text-orange-300 font-bold border-t-2 border-white/20 align-middle rounded-br-xl">
+                                {formatCurrency(fdData.ait)}
+                            </Table.Cell>
+                        </Table.Row>
+                    </Table.Body>
                 </Table.Root>
+            );
+        };
+
+        const renderOtherTable = (type: 'repo' | 'unitTrust' | 'treasuryBill' | 'tBond' | 'debenture') => {
+            const tabInfo = getTabInfo(type);
+            const otherData = tabInfo?.data;
+
+            if (!otherData || !otherData.incomes || otherData.incomes.length === 0) {
+                return (
+                    <div className="text-center py-8 text-gray-400">
+                        <Text>No {tabInfo?.title} income data available</Text>
+                    </div>
+                );
+            }
+
+            return (
+                <Table.Root>
+                    <Table.Header>
+                        <Table.Row>
+                            <Table.ColumnHeaderCell className="text-white border-b border-white/20">Company Name</Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell className="text-white border-b border-white/20">Certificate Number</Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell className="text-white border-b border-white/20">Value</Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell className="text-white border-b border-white/20">AIT</Table.ColumnHeaderCell>
+                        </Table.Row>
+                    </Table.Header>
+                    <Table.Body>
+                        {otherData.incomes.map((income: any, index: number) => (
+                            <Table.Row key={index}>
+                                <Table.Cell className="text-white font-semibold border-b border-white/10">{income.companyName}</Table.Cell>
+                                <Table.Cell className="text-white border-b border-white/10">{income.certificateNumber}</Table.Cell>
+                                <Table.Cell className="text-white font-semibold border-b border-white/10">{formatCurrency(income.value)}</Table.Cell>
+                                <Table.Cell className="text-white border-b border-white/10">{formatCurrency(income.ait)}</Table.Cell>
+                            </Table.Row>
+                        ))}
+                    </Table.Body>
+                    <Table.Body>
+                        <Table.Row className="bg-white/10">
+                            <Table.Cell colSpan={2} className="text-white font-bold border-t-2 border-white/20 rounded-bl-xl">
+                                <div className="flex items-center space-x-2 py-2">
+                                    <MdCalculate className={tabInfo?.color} />
+                                    <span>Total</span>
+                                </div>
+                            </Table.Cell>
+                            <Table.Cell className={`${tabInfo?.color} font-bold border-t-2 border-white/20 align-middle`}>
+                                {formatCurrency(otherData.total)}
+                            </Table.Cell>
+                            <Table.Cell className={`${tabInfo?.color} font-bold border-t-2 border-white/20 align-middle rounded-br-xl`}>
+                                {formatCurrency(otherData.ait)}
+                            </Table.Cell>
+                        </Table.Row>
+                    </Table.Body>
+                </Table.Root>
+            );
+        };
+
+        return (
+            <div className="space-y-6">
+                <div className="bg-gradient-to-r from-purple-500/20 to-purple-600/20 rounded-xl p-4 border border-purple-500/30">
+                    <div className="flex justify-between items-center">
+                        <Text className="text-white font-semibold">Total Gross Interest</Text>
+                        <Text className="text-2xl font-bold text-purple-400">{formatCurrency(data.totalGrossInterest)}</Text>
+                    </div>
+                    <div className="flex justify-between items-center mt-2">
+                        <Text className="text-gray-400">Total AIT ({calculation.calculationData.settings.reliefsAndAit.aitInterest}%)</Text>
+                        <Text className="text-lg font-semibold text-purple-300">{formatCurrency(data.totalAit)}</Text>
+                    </div>
+                </div>
+
+                {/* Tab Navigation */}
+                <div className="bg-white/5 rounded-xl border border-white/10 p-4">
+                    <div className="flex space-x-1 mb-4">
+                        {['fd', 'repo', 'unitTrust', 'treasuryBill', 'tBond', 'debenture'].map((tab) => {
+                            const tabInfo = getTabInfo(tab);
+                            if (!tabInfo || !tabInfo.data) return null;
+
+                            return (
+                                <button
+                                    key={tab}
+                                    onClick={() => setActiveTab(tab as any)}
+                                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${activeTab === tab
+                                        ? `${tabInfo.bgColor} ${tabInfo.color} border ${tabInfo.borderColor}`
+                                        : 'text-gray-400 hover:text-white hover:bg-white/5'
+                                        }`}
+                                >
+                                    {tabInfo.icon}
+                                    <span>{tabInfo.title}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    {/* Tab Content */}
+                    <div className="bg-white/5 rounded-xl border border-white/10">
+                        {activeTab === 'fd' && renderFdTable()}
+                        {activeTab === 'repo' && renderOtherTable('repo')}
+                        {activeTab === 'unitTrust' && renderOtherTable('unitTrust')}
+                        {activeTab === 'treasuryBill' && renderOtherTable('treasuryBill')}
+                        {activeTab === 'tBond' && renderOtherTable('tBond')}
+                        {activeTab === 'debenture' && renderOtherTable('debenture')}
+                    </div>
+                </div>
             </div>
         );
     };

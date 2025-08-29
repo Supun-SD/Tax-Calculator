@@ -174,7 +174,7 @@ const History = () => {
             <div className="ml-3">
               <h3 className="text-lg font-medium text-red-300">Error loading calculations</h3>
               <div className="mt-2 text-sm text-red-200">
-                <p>{error}</p>
+                <div>{error}</div>
               </div>
               <div className="mt-4">
                 <Button

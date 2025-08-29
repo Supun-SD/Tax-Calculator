@@ -75,10 +75,21 @@ export interface RentalIncomeRecord {
 export interface InterestIncome {
   totalGrossInterest : number;
   totalAit : number;
-  incomes : Array<InterestIncomeRecord>;
+  fdIncome: FdIncome;
+  repoIncome: ReposIncome;
+  unitTrustIncome: UnitTrustIncome;
+  treasuryBillIncome: TreasuryBillIncome;
+  tBondIncome: TBondIncome;
+  debentureIncome: DebentureIncome;
 }
 
-export interface InterestIncomeRecord {
+export interface FdIncome {
+  total: number;
+  ait: number;
+  incomes: Array<FdIncomeRecord>;
+}
+
+export interface FdIncomeRecord {
   bank: {
     name: string;
     tinNumber: string;
@@ -88,6 +99,71 @@ export interface InterestIncomeRecord {
   isJoint: boolean;
   grossInterest: number;
   contribution: number; 
+  ait: number;
+}
+
+export interface ReposIncome {
+  total: number;
+  ait: number;
+  incomes: Array<ReposIncomeRecord>;
+}
+
+export interface ReposIncomeRecord {
+  companyName: string;
+  certificateNumber: string;
+  value: number;
+  ait: number;
+}
+
+export interface UnitTrustIncome {
+  total: number;
+  ait: number;
+  incomes: Array<UnitTrustIncomeRecord>;
+}
+
+export interface UnitTrustIncomeRecord {
+  companyName: string;
+  certificateNumber: string;
+  value: number;
+  ait: number;
+}
+
+export interface TreasuryBillIncome {
+  total: number;
+  ait: number;
+  incomes: Array<TreasuryBillIncomeRecord>;
+}
+
+export interface TreasuryBillIncomeRecord {
+  companyName: string;
+  certificateNumber: string;
+  value: number;
+  ait: number;
+}
+
+export interface TBondIncome {
+  total: number;
+  ait: number;
+  incomes: Array<TBondIncomeRecord>;
+}
+
+export interface TBondIncomeRecord {
+  companyName: string;
+  certificateNumber: string;
+  value: number;
+  ait: number;
+}
+
+export interface DebentureIncome {
+  total: number;
+  ait: number;
+  incomes: Array<DebentureIncomeRecord>;
+}
+
+export interface DebentureIncomeRecord {
+  companyName: string;
+  certificateNumber: string;
+  value: number;
   ait: number;
 }
 

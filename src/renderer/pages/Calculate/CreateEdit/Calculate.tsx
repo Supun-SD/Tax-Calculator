@@ -144,12 +144,12 @@ const Calculate = () => {
       if (isEditing) {
         const calculation = await updateCalculation(calculationId, calculationReq);
         if (calculation) {
-          navigate('/history');
+          navigate('/history', { replace: true });
         }
       } else {
         const calculation = await createCalculation(calculationReq);
         if (calculation) {
-          navigate('/history');
+          navigate('/history', { replace: true });
         }
       }
     }
