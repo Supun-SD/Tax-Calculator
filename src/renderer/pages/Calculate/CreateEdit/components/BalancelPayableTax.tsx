@@ -15,41 +15,41 @@ const BalancelPayableTax = () => {
         four: 0
     };
 
-    const [quarterlyInputs, setQuarterlyInputs] = useState({
-        one: quarterlyPayments.one.toString(),
-        two: quarterlyPayments.two.toString(),
-        three: quarterlyPayments.three.toString(),
-        four: quarterlyPayments.four.toString()
-    });
+    const [quarterlyOne, setQuarterlyOne] = useState<string>(quarterlyPayments.one === 0 ? '' : quarterlyPayments.one.toString());
+    const [quarterlyTwo, setQuarterlyTwo] = useState<string>('');
+    const [quarterlyThree, setQuarterlyThree] = useState<string>('');
+    const [quarterlyFour, setQuarterlyFour] = useState<string>('');
 
-    useEffect(() => {
-        setQuarterlyInputs({
-            one: quarterlyPayments.one.toString(),
-            two: quarterlyPayments.two.toString(),
-            three: quarterlyPayments.three.toString(),
-            four: quarterlyPayments.four.toString()
-        });
-    }, [quarterlyPayments]);
-
-    const handleInputChange = (quarter: keyof typeof quarterlyPayments, value: string) => {
-        const cleanValue = value.replace(/[^\d.]/g, '');
-
-        const parts = cleanValue.split('.');
-        if (parts.length > 2) {
-            return;
+    const handleQuarterlyOneChange = (value: string) => {
+        if (value.match(/^\d*\.?\d{0,2}$/)) {
+            setQuarterlyOne(value);
+            const numericValue = parseFloat(value) || 0;
+            updateQuarterlyPayment('one', numericValue);
         }
+    };
 
-        if (parts.length === 2 && parts[1].length > 2) {
-            return;
+    const handleQuarterlyTwoChange = (value: string) => {
+        if (value.match(/^\d*\.?\d{0,2}$/)) {
+            setQuarterlyTwo(value);
+            const numericValue = parseFloat(value) || 0;
+            updateQuarterlyPayment('two', numericValue);
         }
+    };
 
-        setQuarterlyInputs(prev => ({
-            ...prev,
-            [quarter]: cleanValue
-        }));
+    const handleQuarterlyThreeChange = (value: string) => {
+        if (value.match(/^\d*\.?\d{0,2}$/)) {
+            setQuarterlyThree(value);
+            const numericValue = parseFloat(value) || 0;
+            updateQuarterlyPayment('three', numericValue);
+        }
+    };
 
-        const numericValue = parseFloat(cleanValue) || 0;
-        updateQuarterlyPayment(quarter, numericValue);
+    const handleQuarterlyFourChange = (value: string) => {
+        if (value.match(/^\d*\.?\d{0,2}$/)) {
+            setQuarterlyFour(value);
+            const numericValue = parseFloat(value) || 0;
+            updateQuarterlyPayment('four', numericValue);
+        }
     };
 
     const formatCurrency = (amount: number) => {
@@ -84,14 +84,13 @@ const BalancelPayableTax = () => {
                         <div className="bg-white/10 rounded-lg px-4 py-2">
                             <input
                                 type="text"
-                                value={quarterlyInputs.one}
-                                onChange={(e) => handleInputChange('one', e.target.value)}
+                                value={quarterlyOne}
+                                onChange={(e) => handleQuarterlyOneChange(e.target.value)}
                                 placeholder="0.00"
                                 className="bg-transparent text-white text-right w-full outline-none"
                             />
                         </div>
                     </div>
-
                     {/* 2nd QRT */}
                     <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
                         <div className="flex items-center space-x-3 mb-4">
@@ -103,8 +102,8 @@ const BalancelPayableTax = () => {
                         <div className="bg-white/10 rounded-lg px-4 py-2">
                             <input
                                 type="text"
-                                value={quarterlyInputs.two}
-                                onChange={(e) => handleInputChange('two', e.target.value)}
+                                value={quarterlyTwo}
+                                onChange={(e) => handleQuarterlyTwoChange(e.target.value)}
                                 placeholder="0.00"
                                 className="bg-transparent text-white text-right w-full outline-none"
                             />
@@ -122,8 +121,8 @@ const BalancelPayableTax = () => {
                         <div className="bg-white/10 rounded-lg px-4 py-2">
                             <input
                                 type="text"
-                                value={quarterlyInputs.three}
-                                onChange={(e) => handleInputChange('three', e.target.value)}
+                                value={quarterlyThree}
+                                onChange={(e) => handleQuarterlyThreeChange(e.target.value)}
                                 placeholder="0.00"
                                 className="bg-transparent text-white text-right w-full outline-none"
                             />
@@ -141,8 +140,8 @@ const BalancelPayableTax = () => {
                         <div className="bg-white/10 rounded-lg px-4 py-2">
                             <input
                                 type="text"
-                                value={quarterlyInputs.four}
-                                onChange={(e) => handleInputChange('four', e.target.value)}
+                                value={quarterlyFour}
+                                onChange={(e) => handleQuarterlyFourChange(e.target.value)}
                                 placeholder="0.00"
                                 className="bg-transparent text-white text-right w-full outline-none"
                             />
