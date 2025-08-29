@@ -46,7 +46,7 @@ export const useAccounts = (): UseAccountsReturn => {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [token]);
 
     const createAccount = useCallback(async (account: AccountCreateReq): Promise<Account | null> => {
         setError(null);
@@ -71,7 +71,7 @@ export const useAccounts = (): UseAccountsReturn => {
             showError(errorMessage);
             return null;
         }
-    }, []);
+    }, [token]);
 
     const updateAccount = useCallback(async (id: number, account: AccountUpdateReq): Promise<Account | null> => {
         setError(null);
@@ -96,7 +96,7 @@ export const useAccounts = (): UseAccountsReturn => {
             showError(errorMessage);
             return null;
         }
-    }, []);
+    }, [token]);
 
     const deleteAccount = useCallback(async (id: number): Promise<boolean> => {
         setIsDeleting(true);
@@ -123,7 +123,7 @@ export const useAccounts = (): UseAccountsReturn => {
         } finally {
             setIsDeleting(false);
         }
-    }, []);
+    }, [token]);
 
     const clearError = useCallback(() => {
         setError(null);

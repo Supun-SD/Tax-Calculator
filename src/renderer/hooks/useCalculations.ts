@@ -55,7 +55,7 @@ export const  useCalculations = (): UseCalculationsReturn => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [token]);
 
   const getCalculationById = useCallback(async (id: number): Promise<Calculation | null> => {
     setLoading(true);
@@ -80,7 +80,7 @@ export const  useCalculations = (): UseCalculationsReturn => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [token]);
 
   const createCalculation = useCallback(async (calculation: CalculationReq): Promise<Calculation | null> => {
     if(calculation.status === 'draft') {
@@ -120,7 +120,7 @@ export const  useCalculations = (): UseCalculationsReturn => {
       }
       setLoading(false);
     }
-  }, []);
+  }, [token]);
 
   const updateCalculation = useCallback(async (id: number, calculation: CalculationReq): Promise<Calculation | null> => {
     if(calculation.status === 'draft') {
@@ -158,7 +158,7 @@ export const  useCalculations = (): UseCalculationsReturn => {
         setIsSubmitting(false);
       }
     }
-  }, []);
+  }, [token]);
 
   const deleteCalculation = useCallback(async (id: number): Promise<boolean> => {
     setIsDeleting(true);
@@ -185,7 +185,7 @@ export const  useCalculations = (): UseCalculationsReturn => {
     } finally {
       setIsDeleting(false);
     }
-  }, []);
+  }, [token]);
 
   const getCalculationsByAccountId = useCallback(async (accountId: number): Promise<Calculation[] | null> => {
     setLoading(true);
@@ -210,7 +210,7 @@ export const  useCalculations = (): UseCalculationsReturn => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [token]);
 
   const downloadCalculationPdf = useCallback(async (id: number): Promise<void> => {
     setIsDownloading(true);
