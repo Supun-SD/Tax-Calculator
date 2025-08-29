@@ -112,12 +112,23 @@ export const downloadCalculationPdf = async (id: number, token: string): Promise
     }
   });
 
+  const contentDisposition = response.headers["content-disposition"];
+  console.log('Content-Disposition:', contentDisposition);
+  let filename = `calculation_${id}.pdf`;
+
+  if (contentDisposition) {
+    const match = contentDisposition.match(/filename\*?=(?:UTF-8''|")?([^"]+)/);
+    if (match && match[1]) {
+      filename = match[1];
+    }
+  }
+
   const blob = new Blob([response.data], { type: "application/pdf" });
   const url = window.URL.createObjectURL(blob);
 
   const link = document.createElement("a");
   link.href = url;
-  link.download = `calculation-${id}.pdf`;
+  link.download = filename;
   link.click();
 
   window.URL.revokeObjectURL(url);
