@@ -18,7 +18,7 @@ interface IncomeEntry {
     name: string;
     amount: string;
     multiplier: string;
-    appit: string;
+    apit: string;
     product: number;
 }
 
@@ -36,7 +36,7 @@ const Employment: React.FC<EmploymentProps> = ({ isOpen, onClose }) => {
                     entry.amount === "" ||
                     entry.multiplier === "" ||
                     entry.multiplier === "0" ||
-                    entry.appit === ""
+                    entry.apit === ""
             ),
         [incomeEntries]
     );
@@ -46,8 +46,8 @@ const Employment: React.FC<EmploymentProps> = ({ isOpen, onClose }) => {
         [incomeEntries]
     );
 
-    const totalAppit = useMemo(
-        () => incomeEntries.reduce((sum, e) => sum + CalculationService.parseAndRound(e.appit), 0),
+    const totalApit = useMemo(
+        () => incomeEntries.reduce((sum, e) => sum + CalculationService.parseAndRound(e.apit), 0),
         [incomeEntries]
     );
 
@@ -59,7 +59,7 @@ const Employment: React.FC<EmploymentProps> = ({ isOpen, onClose }) => {
                     name: income.name,
                     amount: income.value.toString(),
                     multiplier: income.multiplier.toString(),
-                    appit: income.appit.toString(),
+                    apit: income.apit.toString(),
                     product: income.value * income.multiplier
                 })
             );
@@ -67,10 +67,10 @@ const Employment: React.FC<EmploymentProps> = ({ isOpen, onClose }) => {
             setIncomeEntries(
                 entries.length > 0
                     ? entries
-                    : [{ id: 1, name: "", amount: "", multiplier: "1", appit: "", product: 0 }]
+                    : [{ id: 1, name: "", amount: "", multiplier: "1", apit: "", product: 0 }]
             );
         } else if (isOpen && !employmentIncome) {
-            setIncomeEntries([{ id: 1, name: "", amount: "", multiplier: "1", appit: "", product: 0 }]);
+            setIncomeEntries([{ id: 1, name: "", amount: "", multiplier: "1", apit: "", product: 0 }]);
         }
     }, [isOpen, employmentIncome]);
 
@@ -106,7 +106,7 @@ const Employment: React.FC<EmploymentProps> = ({ isOpen, onClose }) => {
 
         setIncomeEntries(prev => [
             ...prev,
-            { id: newId, name: "", amount: "", multiplier: "1", appit: "", product: 0 }
+            { id: newId, name: "", amount: "", multiplier: "1", apit: "", product: 0 }
         ]);
     };
 
@@ -119,18 +119,18 @@ const Employment: React.FC<EmploymentProps> = ({ isOpen, onClose }) => {
     const handleDone = () => {
         const employmentIncome: EmploymentIncome = {
             total: CalculationService.parseAndRound(totalIncome),
-            appitTotal: CalculationService.parseAndRound(totalAppit),
+            apitTotal: CalculationService.parseAndRound(totalApit),
             incomes: incomeEntries.map(entry => {
                 const amount = CalculationService.parseAndRound(entry.amount);
                 const multiplier = CalculationService.parseAndRound(entry.multiplier);
-                const appit = CalculationService.parseAndRound(entry.appit);
+                const apit = CalculationService.parseAndRound(entry.apit);
                 const product = amount * multiplier;
 
                 return {
                     name: entry.name,
                     value: CalculationService.parseAndRound(amount),
                     multiplier: CalculationService.parseAndRoundWhole(multiplier),
-                    appit: CalculationService.parseAndRound(appit),
+                    apit: CalculationService.parseAndRound(apit),
                     total: CalculationService.parseAndRound(product)
                 };
             })
@@ -203,7 +203,7 @@ const Employment: React.FC<EmploymentProps> = ({ isOpen, onClose }) => {
                                     <th className="p-2 py-4 text-center text-gray-300 font-semibold text-sm uppercase tracking-wide">
                                         <div className="flex items-center justify-end space-x-2">
                                             <MdReceipt className="text-orange-300" />
-                                            <span>APPIT</span>
+                                            <span>APIT</span>
                                         </div>
                                     </th>
                                     <th className="p-2 w-8"></th>
@@ -264,8 +264,8 @@ const Employment: React.FC<EmploymentProps> = ({ isOpen, onClose }) => {
                                                 <input
                                                     type="text"
                                                     inputMode="decimal"
-                                                    value={entry.appit}
-                                                    onChange={e => updateEntry(entry.id, "appit", e.target.value)}
+                                                    value={entry.apit}
+                                                    onChange={e => updateEntry(entry.id, "apit", e.target.value)}
                                                     className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-right placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                     placeholder="0.00"
                                                 />
@@ -304,7 +304,7 @@ const Employment: React.FC<EmploymentProps> = ({ isOpen, onClose }) => {
                                     <td className="p-2 text-end">
                                         <div className='inline-block w-full px-4 py-2 bg-blue-400/20 border border-blue-400/30 rounded-lg'>
                                             <Text className="text-blue-300 font-bold text-lg">
-                                                {formatCurrency(totalAppit)}
+                                                {formatCurrency(totalApit)}
                                             </Text>
                                         </div>
                                     </td>

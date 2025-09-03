@@ -59,7 +59,7 @@ const IncomeSources = ({ calculation }: IncomeSourcesProps) => {
                                     {formatCurrency(calculation.calculationData.sourceOfIncome?.employmentIncome?.total)}
                                 </Text>
                                 <Text className="text-gray-400 text-sm mt-1">
-                                    APPIT: {formatCurrency(calculation.calculationData.sourceOfIncome?.employmentIncome?.appitTotal)}
+                                    APIT: {formatCurrency(calculation.calculationData.sourceOfIncome?.employmentIncome?.apitTotal)}
                                 </Text>
                             </div>
                         </div>

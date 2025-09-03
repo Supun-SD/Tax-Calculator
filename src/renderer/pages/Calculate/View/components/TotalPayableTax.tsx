@@ -24,15 +24,15 @@ const TotalPayableTax = ({ calculation }: TotalPayableTaxProps) => {
     const { whtRent } = calculation.calculationData.settings.reliefsAndAit;
 
     const aitRent = rentalIncome ? (rentalIncome.total * whtRent) / 100 : 0.00;
-    const aitInterestTotal = interestIncome.totalAit;
-    const appitTotal = employmentIncome.appitTotal;
+    const aitInterestTotal = interestIncome?.totalAit;
+    const apitTotal = employmentIncome?.apitTotal;
 
-    const fdAit = interestIncome.fdIncome?.ait ?? 0;
-    const repoAit = interestIncome.repoIncome?.ait ?? 0;
-    const unitTrustAit = interestIncome.unitTrustIncome?.ait ?? 0;
-    const treasuryBillAit = interestIncome.treasuryBillIncome?.ait ?? 0;
-    const tBondAit = interestIncome.tBondIncome?.ait ?? 0;
-    const debentureAit = interestIncome.debentureIncome?.ait ?? 0;
+    const fdAit = interestIncome?.fdIncome?.ait ?? 0;
+    const repoAit = interestIncome?.repoIncome?.ait ?? 0;
+    const unitTrustAit = interestIncome?.unitTrustIncome?.ait ?? 0;
+    const treasuryBillAit = interestIncome?.treasuryBillIncome?.ait ?? 0;
+    const tBondAit = interestIncome?.tBondIncome?.ait ?? 0;
+    const debentureAit = interestIncome?.debentureIncome?.ait ?? 0;
 
     const getInterestAitBreakdownContent = () => {
         if (aitInterestTotal === 0) return null;
@@ -75,7 +75,7 @@ const TotalPayableTax = ({ calculation }: TotalPayableTaxProps) => {
         );
     };
 
-    const totalDeductions = aitRent + aitInterestTotal + appitTotal;
+    const totalDeductions = aitRent + aitInterestTotal + apitTotal;
 
     return (
         <div className="mb-8">
@@ -138,11 +138,11 @@ const TotalPayableTax = ({ calculation }: TotalPayableTaxProps) => {
 
                     <div className="grid grid-cols-2 gap-0">
                         <div className="p-3">
-                            <Text className="text-white text-sm">APPIT Total</Text>
+                            <Text className="text-white text-sm">APIT Total</Text>
                         </div>
                         <div className="p-3">
                             <Text className="text-red-300 font-bold text-sm">
-                                ({formatCurrency(appitTotal)})
+                                ({formatCurrency(apitTotal)})
                             </Text>
                         </div>
                     </div>

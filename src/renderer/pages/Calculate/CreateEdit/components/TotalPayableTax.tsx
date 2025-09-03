@@ -15,7 +15,7 @@ const TotalPayableTax = () => {
 
     const rentalIncome = currentCalculation?.calculationData?.sourceOfIncome?.rentalIncome?.total ?? 0;
     const aitInterest = currentCalculation?.calculationData?.sourceOfIncome?.interestIncome?.totalAit ?? 0;
-    const appitTotal = currentCalculation?.calculationData?.sourceOfIncome?.employmentIncome?.appitTotal ?? 0;
+    const apitTotal = currentCalculation?.calculationData?.sourceOfIncome?.employmentIncome?.apitTotal ?? 0;
     const whtRentRate = currentCalculation?.calculationData?.settings?.reliefsAndAit?.whtRent ?? 0;
     const aitInterestRate = currentCalculation?.calculationData?.settings?.reliefsAndAit?.aitInterest ?? 0;
     const totalPayableTax = currentCalculation?.calculationData?.totalPayableTax ?? 0;
@@ -81,9 +81,9 @@ const TotalPayableTax = () => {
             amount: -aitInterest
         },
         {
-            name: "APPIT Total",
+            name: "APIT Total",
             percentage: 0,
-            amount: -appitTotal
+            amount: -apitTotal
         }
     ];
 

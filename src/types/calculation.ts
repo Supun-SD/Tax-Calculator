@@ -48,7 +48,7 @@ interface DeductionsFromAssessableIncome {
 
 export interface EmploymentIncome {
   total : number;
-  appitTotal: number;
+  apitTotal: number;
   incomes : Array<EmploymentIncomeRecord>
 }
 
@@ -57,7 +57,7 @@ export interface EmploymentIncomeRecord {
   value : number;
   multiplier : number;
   total : number;
-  appit: number;
+  apit: number;
 }
 
 export interface RentalIncome {

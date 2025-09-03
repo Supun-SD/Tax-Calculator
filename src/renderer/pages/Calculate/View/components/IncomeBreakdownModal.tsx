@@ -76,8 +76,8 @@ const IncomeBreakdownModal = ({ incomeType, incomeData, calculation }: IncomeBre
                         <Text className="text-2xl font-bold text-blue-400">{formatCurrency(data.total)}</Text>
                     </div>
                     <div className="flex justify-between items-center mt-2">
-                        <Text className="text-gray-400">Total APPIT</Text>
-                        <Text className="text-lg font-semibold text-blue-300">{formatCurrency(data.appitTotal)}</Text>
+                        <Text className="text-gray-400">Total APIT</Text>
+                        <Text className="text-lg font-semibold text-blue-300">{formatCurrency(data.apitTotal)}</Text>
                     </div>
                 </div>
 
@@ -88,7 +88,7 @@ const IncomeBreakdownModal = ({ incomeType, incomeData, calculation }: IncomeBre
                             <Table.ColumnHeaderCell className="text-white border-b border-white/20">Value</Table.ColumnHeaderCell>
                             <Table.ColumnHeaderCell className="text-white border-b border-white/20">Multiplier</Table.ColumnHeaderCell>
                             <Table.ColumnHeaderCell className="text-white border-b border-white/20">Total</Table.ColumnHeaderCell>
-                            <Table.ColumnHeaderCell className="text-white border-b border-white/20">APPIT</Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell className="text-white border-b border-white/20">APIT</Table.ColumnHeaderCell>
                         </Table.Row>
                     </Table.Header>
                     <Table.Body>
@@ -98,7 +98,7 @@ const IncomeBreakdownModal = ({ incomeType, incomeData, calculation }: IncomeBre
                                 <Table.Cell className="text-white border-b border-white/10">{formatCurrency(income.value)}</Table.Cell>
                                 <Table.Cell className="text-white border-b border-white/10">{income.multiplier}</Table.Cell>
                                 <Table.Cell className="text-white font-semibold border-b border-white/10">{formatCurrency(income.total)}</Table.Cell>
-                                <Table.Cell className="text-white border-b border-white/10">{formatCurrency(income.appit)}</Table.Cell>
+                                <Table.Cell className="text-white border-b border-white/10">{formatCurrency(income.apit)}</Table.Cell>
                             </Table.Row>
                         ))}
                     </Table.Body>
