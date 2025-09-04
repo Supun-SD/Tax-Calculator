@@ -8,8 +8,10 @@ if (started) {
   app.quit();
 }
 
+let mainWindow: BrowserWindow | null = null;
+
 const createWindow = () => {
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     minWidth: 1200,
     minHeight: 800,
     resizable: true,
@@ -33,7 +35,8 @@ const createWindow = () => {
 
 app.on('ready', () => {
   createWindow();
-  autoUpdater.checkForUpdatesAndNotify();
+  autoUpdater.autoDownload = false; 
+  autoUpdater.checkForUpdates();
 });
 
 app.on('window-all-closed', () => {
@@ -48,15 +51,32 @@ app.on('activate', () => {
   }
 });
 
-autoUpdater.on('update-available', (info) => {
-  dialog.showMessageBox({
-    type: 'info',
+autoUpdater.on('update-available', async (info) => {
+  const result = await dialog.showMessageBox({
+    type: 'question',
+    buttons: ['Download', 'Close App'],
+    defaultId: 0,
+    cancelId: 1,
     title: 'Update available',
-    message: `A new version (${info.version}) is available. Downloading now...`,
+    message: `A new version (${info.version}) is available.\n\nSize: ${(info.files[0].size / (1024*1024)).toFixed(2)} MB\n\nDo you want to download it now?`,
   });
+
+  if (result === 0) {
+    autoUpdater.downloadUpdate();
+  } else {
+    app.quit();
+  }
+});
+
+autoUpdater.on('download-progress', (progress) => {
+  if (mainWindow) {
+    mainWindow.setProgressBar(progress.percent / 100); 
+  }
 });
 
 autoUpdater.on('update-downloaded', async () => {
+  if (mainWindow) mainWindow.setProgressBar(-1); 
+
   const result = await dialog.showMessageBox({
     type: 'question',
     buttons: ['Install and Restart', 'Later'],
