@@ -69,12 +69,6 @@
   "appId": "com.supun.taxcalculator",
   "compression": "maximum",
   "icon": "public/icon.ico",
-  "files": [
-    "dist/",
-    ".vite/build/",
-    "public/",
-    "package.json"
-  ],
   "publish": [
     {
       "provider": "github",

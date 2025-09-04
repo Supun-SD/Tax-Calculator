@@ -61,7 +61,7 @@ autoUpdater.on('update-available', async (info) => {
     message: `A new version (${info.version}) is available.\n\nSize: ${(info.files[0].size / (1024*1024)).toFixed(2)} MB\n\nDo you want to download it now?`,
   });
 
-  if (result === 0) {
+  if (result.response === 0) {
     autoUpdater.downloadUpdate();
   } else {
     app.quit();
@@ -86,8 +86,7 @@ autoUpdater.on('update-downloaded', async () => {
     message: 'The update has been downloaded. Do you want to install it now?',
   });
 
-  if (result === 0) {
+  if (result.response === 0) {
     autoUpdater.quitAndInstall();
   }
 });
-
