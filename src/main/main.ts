@@ -1,4 +1,5 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, dialog } from 'electron';
+import { autoUpdater } from 'electron-updater';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { HIDE_MENUBAR } from '../renderer/config/api';
@@ -30,7 +31,10 @@ const createWindow = () => {
   }
 };
 
-app.on('ready', createWindow);
+app.on('ready', () => {
+  createWindow();
+  autoUpdater.checkForUpdatesAndNotify();
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
@@ -41,6 +45,29 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
+  }
+});
+
+autoUpdater.on('update-available', (info) => {
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Update available',
+    message: `A new version (${info.version}) is available. Downloading now...`,
+  });
+});
+
+autoUpdater.on('update-downloaded', async () => {
+  const result = await dialog.showMessageBox({
+    type: 'question',
+    buttons: ['Install and Restart', 'Later'],
+    defaultId: 0,
+    cancelId: 1,
+    title: 'Update ready',
+    message: 'The update has been downloaded. Do you want to install it now?',
+  });
+
+  if (result === 0) {
+    autoUpdater.quitAndInstall();
   }
 });
 
