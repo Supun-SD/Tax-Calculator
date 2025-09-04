@@ -66,15 +66,18 @@
     "electron-updater": "^6.3.0"
   },
   "build": {
-  "appId": "com.supun.taxcalculator",
-  "compression": "maximum",
-  "icon": "public/icon.ico",
-  "publish": [
-    {
-      "provider": "github",
-      "owner": "Supun-SD",
-      "repo": "Tax-Calculator"
+    "appId": "com.supun.taxcalculator",
+    "compression": "maximum",
+    "icon": "public/icon.ico",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Supun-SD",
+        "repo": "Tax-Calculator"
+      }
+    ],
+    "nsis": {
+      "differentialPackage": true
     }
-  ]
-}
+  }
 }
