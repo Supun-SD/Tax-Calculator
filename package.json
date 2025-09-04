@@ -9,6 +9,9 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-builder --win --x64 --publish always",
+    "release": "npm version patch && npm run publish",
+    "release-minor": "npm version minor && npm run publish",
+    "release-major": "npm version major && npm run publish",
     "lint": "eslint --ext .ts,.tsx .",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,md}\""
@@ -77,7 +80,18 @@
       }
     ],
     "nsis": {
-      "differentialPackage": true
+      "differentialPackage": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "win": {
+      "publisherName": "Supun D",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ]
     }
   }
 }
