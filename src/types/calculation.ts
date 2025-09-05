@@ -184,7 +184,7 @@ export interface DividendIncomeRecord {
 
 export interface BusinessIncome {
   total: number;
-  professionalPracticeTotal: number;
+  whtTotal: number;
   incomes: Array<BusinessIncomeRecord>;
   amountForAssessableIncome: number;
   assessableIncomePercentage: number;
@@ -193,7 +193,7 @@ export interface BusinessIncome {
 export interface BusinessIncomeRecord {
   hospitalName: string;
   value : number;
-  professionalPractice: number;
+  wht: number;
 }
 
 export interface OtherIncome {

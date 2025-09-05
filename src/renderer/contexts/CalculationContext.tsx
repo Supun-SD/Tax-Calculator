@@ -165,11 +165,12 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
         const rentalIncome = calculation.calculationData.sourceOfIncome.rentalIncome?.total ?? 0;
         const totalAitInterest = calculation.calculationData.sourceOfIncome.interestIncome?.totalAit ?? 0;
         const totalApit = calculation.calculationData.sourceOfIncome.employmentIncome?.apitTotal ?? 0;
+        const whtProfessionalFee = calculation.calculationData.sourceOfIncome.businessIncome?.whtTotal ?? 0;
 
         const whtRentRate = calculation.calculationData.settings.reliefsAndAit.whtRent;
         const aitRent = (rentalIncome * whtRentRate) / 100;
 
-        const totalPayableTax = grossIncomeTax - aitRent - totalAitInterest - totalApit;
+        const totalPayableTax = grossIncomeTax - aitRent - totalAitInterest - totalApit - whtProfessionalFee;
 
         const updatedCalculation = {
             ...calculation,

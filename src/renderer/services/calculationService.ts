@@ -113,7 +113,6 @@ export const downloadCalculationPdf = async (id: number, token: string): Promise
   });
 
   const contentDisposition = response.headers["content-disposition"];
-  console.log('Content-Disposition:', contentDisposition);
   let filename = `calculation_${id}.pdf`;
 
   if (contentDisposition) {

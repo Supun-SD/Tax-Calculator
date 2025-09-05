@@ -18,6 +18,7 @@ const TotalPayableTax = () => {
     const apitTotal = currentCalculation?.calculationData?.sourceOfIncome?.employmentIncome?.apitTotal ?? 0;
     const whtRentRate = currentCalculation?.calculationData?.settings?.reliefsAndAit?.whtRent ?? 0;
     const aitInterestRate = currentCalculation?.calculationData?.settings?.reliefsAndAit?.aitInterest ?? 0;
+    const whtProfessionalFee = currentCalculation?.calculationData?.sourceOfIncome?.businessIncome?.whtTotal ?? 0;
     const totalPayableTax = currentCalculation?.calculationData?.totalPayableTax ?? 0;
 
     const aitRent = (rentalIncome * whtRentRate) / 100;
@@ -84,6 +85,11 @@ const TotalPayableTax = () => {
             name: "APIT Total",
             percentage: 0,
             amount: -apitTotal
+        },
+        {
+            name: "WHT on Professional Fee",
+            percentage: 0,
+            amount: -whtProfessionalFee
         }
     ];
 

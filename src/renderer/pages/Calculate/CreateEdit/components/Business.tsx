@@ -17,7 +17,8 @@ interface BusinessEntry {
     id: number;
     hospital: string;
     amount: string;
-    professionalPractice: string;
+    wht: string;
+    hasWht: boolean;
 }
 
 const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
@@ -33,12 +34,13 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
                 id: index + 1,
                 hospital: income.hospitalName,
                 amount: income.value.toString(),
-                professionalPractice: income.professionalPractice.toString()
+                wht: income.wht.toString(),
+                hasWht: income.wht > 0
             }));
-            setBusinessEntries(entries.length > 0 ? entries : [{ id: 1, hospital: "", amount: "", professionalPractice: "" }]);
+            setBusinessEntries(entries.length > 0 ? entries : [{ id: 1, hospital: "", amount: "", wht: "0", hasWht: false }]);
             setTaxablePercentage(businessIncome.assessableIncomePercentage.toString());
         } else if (isOpen && !businessIncome) {
-            setBusinessEntries([{ id: 1, hospital: "", amount: "", professionalPractice: "" }]);
+            setBusinessEntries([{ id: 1, hospital: "", amount: "", wht: "0", hasWht: false }]);
             setTaxablePercentage("");
         }
     }, [isOpen, businessIncome]);
@@ -49,9 +51,41 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
     const updateEntry = (id: number, field: keyof BusinessEntry, value: string) => {
         if (value.match(/^\d*\.?\d{0,2}$/)) {
             setBusinessEntries(prev =>
-                prev.map(entry => entry.id === id ? { ...entry, [field]: value } : entry)
+                prev.map(entry => {
+                    if (entry.id === id) {
+                        const updatedEntry = { ...entry, [field]: value };
+                        // If amount is being updated and WHT is enabled, recalculate WHT
+                        if (field === 'amount' && entry.hasWht && value) {
+                            const grossAmount = CalculationService.parseAndRound(value);
+                            const whtAmount = CalculationService.parseAndRound((grossAmount * 5) / 100);
+                            updatedEntry.wht = whtAmount.toString();
+                        }
+                        return updatedEntry;
+                    }
+                    return entry;
+                })
             );
         }
+    };
+
+    const handleWhtToggle = (id: number, hasWht: boolean) => {
+        setBusinessEntries(prev =>
+            prev.map(entry => {
+                if (entry.id === id) {
+                    const newEntry = { ...entry, hasWht };
+                    if (hasWht && entry.amount) {
+                        // Calculate 5% of the gross amount
+                        const grossAmount = CalculationService.parseAndRound(entry.amount);
+                        const whtAmount = CalculationService.parseAndRound((grossAmount * 5) / 100);
+                        newEntry.wht = whtAmount.toString();
+                    } else if (!hasWht) {
+                        newEntry.wht = "0";
+                    }
+                    return newEntry;
+                }
+                return entry;
+            })
+        );
     };
 
     const handleHospitalChange = (id: number, value: string) => {
@@ -68,7 +102,7 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
 
     const addNewEntry = () => {
         const newId = businessEntries.length ? Math.max(...businessEntries.map(e => e.id)) + 1 : 1;
-        setBusinessEntries(prev => [...prev, { id: newId, hospital: "", amount: "", professionalPractice: "" }]);
+        setBusinessEntries(prev => [...prev, { id: newId, hospital: "", amount: "", wht: "0", hasWht: false }]);
     };
 
     const removeEntry = (id: number) => {
@@ -78,11 +112,11 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
     const totalAmount = useMemo(() =>
         businessEntries.reduce((sum, e) => sum + CalculationService.parseAndRound(e.amount), 0), [businessEntries]);
 
-    const totalProfessionalPractice = useMemo(() =>
-        businessEntries.reduce((sum, e) => sum + CalculationService.parseAndRound(e.professionalPractice), 0), [businessEntries]);
+    const totalWHT = useMemo(() =>
+        businessEntries.reduce((sum, e) => sum + CalculationService.parseAndRound(e.wht), 0), [businessEntries]);
 
     const isDoneDisabled = useMemo(() =>
-        businessEntries.some(e => e.hospital === "" || e.amount === "" || e.professionalPractice === "") ||
+        businessEntries.some(e => e.hospital === "" || e.amount === "") ||
         taxablePercentage === "" || taxablePercentage === "0",
         [businessEntries, taxablePercentage]
     );
@@ -93,11 +127,11 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
 
         const businessIncome: BusinessIncome = {
             total: CalculationService.parseAndRound(totalAmount),
-            professionalPracticeTotal: CalculationService.parseAndRound(totalProfessionalPractice),
+            whtTotal: CalculationService.parseAndRound(totalWHT),
             incomes: businessEntries.map(entry => ({
                 hospitalName: entry.hospital,
                 value: CalculationService.parseAndRound(entry.amount),
-                professionalPractice: CalculationService.parseAndRound(entry.professionalPractice)
+                wht: CalculationService.parseAndRound(entry.wht)
             })),
             amountForAssessableIncome,
             assessableIncomePercentage
@@ -119,7 +153,7 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
                     <Text className="text-white text-xl font-semibold">Business Income Details</Text>
                 </div>
             }
-            maxWidth="900px"
+            maxWidth="1000px"
             isDark={true}
             actions={[
                 {
@@ -152,13 +186,18 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
                                     <th className="p-2 py-4 text-center text-gray-300 font-semibold text-sm uppercase tracking-wide">
                                         <div className="flex items-center justify-center space-x-2">
                                             <MdAttachMoney className="text-green-300" />
-                                            <span>Amount</span>
+                                            <span>Gross Amount</span>
+                                        </div>
+                                    </th>
+                                    <th className="p-2 py-4 text-center text-gray-300 font-semibold text-sm uppercase tracking-wide">
+                                        <div className="flex items-center justify-center space-x-2">
+                                            <span>Apply WHT (5%)</span>
                                         </div>
                                     </th>
                                     <th className="p-2 py-4 text-center text-gray-300 font-semibold text-sm uppercase tracking-wide">
                                         <div className="flex items-center justify-center space-x-2">
                                             <MdReceipt className="text-blue-300" />
-                                            <span>Professional Practice</span>
+                                            <span>WHT on Professional Fee</span>
                                         </div>
                                     </th>
                                     <th className="p-2 py-4 w-8"></th>
@@ -195,16 +234,32 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
                                             </div>
                                         </td>
 
-                                        {/* Professional Practice */}
+                                        {/* Apply WHT Checkbox */}
+                                        <td className="p-2 py-4 text-center">
+                                            <div className="flex justify-center">
+                                                <label className="flex items-center space-x-2 cursor-pointer">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={entry.hasWht}
+                                                        onChange={e => handleWhtToggle(entry.id, e.target.checked)}
+                                                        className="w-4 h-4 text-blue-600 bg-white/10 border-white/20 rounded focus:ring-blue-500 focus:ring-2"
+                                                    />
+                                                </label>
+                                            </div>
+                                        </td>
+
+                                        {/* WHT on Professional Fee */}
                                         <td className="p-2 py-4 text-center">
                                             <div className="relative">
                                                 <input
                                                     type="text"
                                                     inputMode="decimal"
-                                                    value={entry.professionalPractice}
-                                                    onChange={e => updateEntry(entry.id, "professionalPractice", e.target.value)}
-                                                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-right placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200"
+                                                    value={entry.wht}
+                                                    onChange={e => updateEntry(entry.id, "wht", e.target.value)}
+                                                    disabled={!entry.hasWht}
+                                                    className={`w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-right placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 ${!entry.hasWht ? 'opacity-50 cursor-not-allowed' : ''}`}
                                                     placeholder="0.00"
+                                                    readOnly
                                                 />
                                             </div>
                                         </td>
@@ -239,13 +294,15 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
                                             </Text>
                                         </div>
                                     </td>
+                                    <td></td>
                                     <td className="p-2 text-end">
                                         <div className='inline-block w-full px-4 py-2 bg-red-400/20 border border-red-400/30 rounded-lg'>
                                             <Text className="text-red-300 font-bold text-lg">
-                                                {formatCurrency(totalProfessionalPractice)}
+                                                {formatCurrency(totalWHT)}
                                             </Text>
                                         </div>
                                     </td>
+                                    <td></td>
                                     <td></td>
                                 </tr>
                             </tfoot>

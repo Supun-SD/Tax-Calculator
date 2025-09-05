@@ -427,8 +427,8 @@ const IncomeBreakdownModal = ({ incomeType, incomeData, calculation }: IncomeBre
                         <Text className="text-2xl font-bold text-red-400">{formatCurrency(data.total)}</Text>
                     </div>
                     <div className="flex justify-between items-center mt-2">
-                        <Text className="text-gray-400">Professional Practice</Text>
-                        <Text className="text-lg font-semibold text-red-300">{formatCurrency(data.professionalPracticeTotal)}</Text>
+                        <Text className="text-gray-400">WHT on Professional Fee</Text>
+                        <Text className="text-lg font-semibold text-red-300">{formatCurrency(data.whtTotal)}</Text>
                     </div>
                     <div className="flex justify-between items-center mt-2">
                         <Text className="text-gray-400">Assessable Amount</Text>
@@ -445,7 +445,7 @@ const IncomeBreakdownModal = ({ incomeType, incomeData, calculation }: IncomeBre
                         <Table.Row>
                             <Table.ColumnHeaderCell className="text-white border-b border-white/20">Hospital Name</Table.ColumnHeaderCell>
                             <Table.ColumnHeaderCell className="text-white border-b border-white/20">Value</Table.ColumnHeaderCell>
-                            <Table.ColumnHeaderCell className="text-white border-b border-white/20">Professional Practice</Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell className="text-white border-b border-white/20">WHT on Professional Fee</Table.ColumnHeaderCell>
                         </Table.Row>
                     </Table.Header>
                     <Table.Body>
@@ -453,7 +453,7 @@ const IncomeBreakdownModal = ({ incomeType, incomeData, calculation }: IncomeBre
                             <Table.Row key={index}>
                                 <Table.Cell className="text-white font-semibold border-b border-white/10">{income.hospitalName}</Table.Cell>
                                 <Table.Cell className="text-white border-b border-white/10">{formatCurrency(income.value)}</Table.Cell>
-                                <Table.Cell className="text-white border-b border-white/10">{formatCurrency(income.professionalPractice)}</Table.Cell>
+                                <Table.Cell className="text-white border-b border-white/10">{formatCurrency(income.wht)}</Table.Cell>
                             </Table.Row>
                         ))}
                     </Table.Body>

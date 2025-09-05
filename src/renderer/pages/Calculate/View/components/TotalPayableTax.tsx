@@ -20,12 +20,13 @@ const TotalPayableTax = ({ calculation }: TotalPayableTaxProps) => {
 
     const { totalPayableTax, grossIncomeTax, sourceOfIncome } = calculation.calculationData;
     const { total: grossIncomeTaxTotal } = grossIncomeTax;
-    const { rentalIncome, interestIncome, employmentIncome } = sourceOfIncome;
-    const { whtRent } = calculation.calculationData.settings.reliefsAndAit;
+    const { rentalIncome, interestIncome, employmentIncome, businessIncome } = sourceOfIncome;
+    const { whtRent, aitInterest } = calculation.calculationData.settings.reliefsAndAit;
 
     const aitRent = rentalIncome ? (rentalIncome.total * whtRent) / 100 : 0.00;
     const aitInterestTotal = interestIncome?.totalAit;
     const apitTotal = employmentIncome?.apitTotal;
+    const whtProfessionalFee = businessIncome?.whtTotal;
 
     const fdAit = interestIncome?.fdIncome?.ait ?? 0;
     const repoAit = interestIncome?.repoIncome?.ait ?? 0;
@@ -101,18 +102,18 @@ const TotalPayableTax = ({ calculation }: TotalPayableTaxProps) => {
                         </div>
                     </div>
 
-                    {aitRent > 0 && (
-                        <div className="grid grid-cols-2 gap-0 border-b border-white/10">
-                            <div className="p-3">
-                                <Text className="text-white text-sm">AIT - Rent ({whtRent}%)</Text>
-                            </div>
-                            <div className="p-3">
-                                <Text className="text-red-300 font-bold text-sm">
-                                    ({formatCurrency(aitRent)})
-                                </Text>
-                            </div>
+
+                    <div className="grid grid-cols-2 gap-0 border-b border-white/10">
+                        <div className="p-3">
+                            <Text className="text-white text-sm">AIT - Rent ({whtRent}%)</Text>
                         </div>
-                    )}
+                        <div className="p-3">
+                            <Text className="text-red-300 font-bold text-sm">
+                                ({formatCurrency(aitRent)})
+                            </Text>
+                        </div>
+                    </div>
+
 
                     <div className="grid grid-cols-2 gap-0 border-b border-white/10">
                         <div className="p-3">
@@ -120,13 +121,13 @@ const TotalPayableTax = ({ calculation }: TotalPayableTaxProps) => {
                                 <Tooltip content={getInterestAitBreakdownContent()} className='bg-transparent'>
                                     <div className="flex items-center space-x-2 cursor-help">
                                         <Text className="text-white text-sm hover:text-blue-300 transition-colors duration-200">
-                                            AIT - Interest
+                                            AIT - Interest ({aitInterest}%)
                                         </Text>
                                         <BsFillInfoCircleFill className="text-blue-300/80 text-xs" size={16} />
                                     </div>
                                 </Tooltip>
                             ) : (
-                                <Text className="text-white text-sm">AIT - Interest</Text>
+                                <Text className="text-white text-sm">AIT - Interest ({aitInterest}%)</Text>
                             )}
                         </div>
                         <div className="p-3">
@@ -143,6 +144,17 @@ const TotalPayableTax = ({ calculation }: TotalPayableTaxProps) => {
                         <div className="p-3">
                             <Text className="text-red-300 font-bold text-sm">
                                 ({formatCurrency(apitTotal)})
+                            </Text>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-0">
+                        <div className="p-3">
+                            <Text className="text-white text-sm">WHT on Professional Fee</Text>
+                        </div>
+                        <div className="p-3">
+                            <Text className="text-red-300 font-bold text-sm">
+                                ({formatCurrency(whtProfessionalFee)})
                             </Text>
                         </div>
                     </div>

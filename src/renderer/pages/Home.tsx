@@ -45,9 +45,11 @@ const Home = () => {
           <div className="text-center">
             <Text className="text-red-300 text-2xl font-bold mb-2">System Error</Text><br />
             <div className="text-gray-300 text-sm">Failed to initialize the system</div><br />
-            <Text className="text-red-200 text-xs bg-red-500/10 rounded-lg p-3 border border-red-500/20 mt-3">
-              {error}
-            </Text>
+            {error && (
+              <Text className="text-red-200 text-xs bg-red-500/10 rounded-lg p-3 border border-red-500/20 mt-3">
+                {error}
+              </Text>
+            )}
           </div>
           <button
             onClick={refreshSettings}
