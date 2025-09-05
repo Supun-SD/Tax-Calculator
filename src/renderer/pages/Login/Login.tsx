@@ -92,7 +92,7 @@ const Login = () => {
                         <div className="w-16 h-16 bg-blue-400/20 rounded-xl flex items-center justify-center">
                             <ImCalculator className="text-blue-300 text-4xl" />
                         </div>
-                        <Text className="text-white text-4xl font-bold">TAX CALCULATOR</Text>
+                        <Text className="text-white text-4xl font-bold">TAX CALCULATOR SYSTEM</Text>
                     </div>
                 </div>
 
