@@ -81,17 +81,7 @@
     ],
     "nsis": {
       "differentialPackage": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true
-    },
-    "win": {
-      "publisherName": "Supun D",
-      "target": [
-        {
-          "target": "nsis",
-          "arch": ["x64"]
-        }
-      ]
+      "createDesktopShortcut": true
     }
   }
 }
