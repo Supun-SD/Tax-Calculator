@@ -86,6 +86,8 @@ const Calculate = () => {
     setIsSelectAccountModalOpen(false);
   };
 
+  const isPrerequisitesMet = selectedAccount && assessmentPeriod;
+
   const handleSaveDraft = async () => {
     if (!selectedAccount || !assessmentPeriod) {
       showError('Please select an account and assessment period');
@@ -187,22 +189,39 @@ const Calculate = () => {
                 <button
                   key={key}
                   onClick={() => setOpenModal(key)}
+                  disabled={!isPrerequisitesMet}
                   className={`
-                    group relative p-4 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 
-                    hover:bg-white/10 hover:border-white/20 transition-all duration-200 
+                    group relative p-4 backdrop-blur-sm rounded-xl border transition-all duration-200 
                     focus:outline-none focus:ring-2 focus:ring-${color}-400 focus:border-transparent
-                    transform hover:scale-105 active:scale-95
+                    ${isPrerequisitesMet
+                      ? `bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20 transform hover:scale-105 active:scale-95 cursor-pointer`
+                      : `bg-white/5 border-white/5 cursor-not-allowed opacity-50`
+                    }
                   `}
                 >
                   <div className="flex flex-col items-center space-y-3">
                     <div className={`
-                      w-12 h-12 bg-${color}-400/20 rounded-lg flex items-center justify-center 
-                      group-hover:bg-${color}-400/30 transition-all duration-200
-                      border border-${color}-400/30 group-hover:border-${color}-400/50
+                      w-12 h-12 rounded-lg flex items-center justify-center transition-all duration-200
+                      ${isPrerequisitesMet
+                        ? `bg-${color}-400/20 border border-${color}-400/30 group-hover:bg-${color}-400/30 group-hover:border-${color}-400/50`
+                        : `bg-gray-400/20 border border-gray-400/30`
+                      }
                     `}>
-                      <Icon className={`text-${color}-300 text-xl group-hover:text-${color}-200 transition-colors duration-200`} />
+                      <Icon className={`
+                        text-xl transition-colors duration-200
+                        ${isPrerequisitesMet
+                          ? `text-${color}-300 group-hover:text-${color}-200`
+                          : `text-gray-400`
+                        }
+                      `} />
                     </div>
-                    <span className={`text-${color}-300 font-medium text-sm text-center group-hover:text-${color}-200 transition-colors duration-200`}>
+                    <span className={`
+                      font-medium text-sm text-center transition-colors duration-200
+                      ${isPrerequisitesMet
+                        ? `text-${color}-300 group-hover:text-${color}-200`
+                        : `text-gray-400`
+                      }
+                    `}>
                       {label}
                     </span>
                   </div>
@@ -211,12 +230,30 @@ const Calculate = () => {
             </div>
 
             <div className="mt-10 space-y-8">
-              <TaxableIncomeCalculation />
-              <GrossIncomeTax />
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <TotalPayableTax />
-                <BalancelPayableTax />
-              </div>
+              {isPrerequisitesMet ? (
+                <>
+                  <TaxableIncomeCalculation />
+                  <GrossIncomeTax />
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <TotalPayableTax />
+                    <BalancelPayableTax />
+                  </div>
+                </>
+              ) : (
+                <div className="bg-blue-400/10 border border-blue-400/20 rounded-xl p-8 text-center">
+                  <div className="flex flex-col items-center space-y-4">
+                    <div className="w-16 h-16 bg-blue-400/20 rounded-full flex items-center justify-center">
+                      <MdTrendingUp className="text-blue-300 text-2xl" />
+                    </div>
+                    <div>
+                      <Text className="text-white text-lg font-semibold">Select Account & Assessment Period</Text><br />
+                      <Text className="text-gray-300 text-sm mt-2">
+                        Please select an account and assessment period to start calculating taxes
+                      </Text>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <Flex gap="3" mt="6" justify="end" align="center">
