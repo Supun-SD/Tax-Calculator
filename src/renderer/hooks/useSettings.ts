@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { Settings } from '../../types/settings';
 import { settingsService } from '../services/settingsService';
 import { useToast } from './useToast';
+import { useUserContext } from '../contexts/UserContext';
 
 interface UseSettingsReturn {
     settings: Settings | null;
@@ -19,12 +20,13 @@ export const useSettings = (): UseSettingsReturn => {
     const [error, setError] = useState<string | null>(null);
     const [isUpdating, setIsUpdating] = useState(false);
     const { showSuccess, showError } = useToast();
+    const { token } = useUserContext();
 
     const fetchSettingsByYear = useCallback(async (year: string) => {
         setLoading(true);
         setError(null);
         try {
-            const fetchedSettings = await settingsService.getSettingsByYear(year);
+            const fetchedSettings = await settingsService.getSettingsByYear(year, token);
             setSettings(fetchedSettings);
         } catch (err: any) {
             let errorMessage = 'Error loading settings';
@@ -48,7 +50,7 @@ export const useSettings = (): UseSettingsReturn => {
         setIsUpdating(true);
         setError(null);
         try {
-            const updatedSettings = await settingsService.updateSettings(settingsData.id, settingsData);
+            const updatedSettings = await settingsService.updateSettings(settingsData.id, settingsData, token);
             setSettings(updatedSettings);
             showSuccess('Settings updated successfully');
             return updatedSettings;

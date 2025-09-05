@@ -18,29 +18,27 @@ import PublicRoute from './components/PublicRoute';
 
 const App = () => {
   return (
-    <SettingsProvider>
-      <UserProvider>
-        <Router>
-          <Routes>
-            <Route path="/" element={<PublicRoute><Login /></PublicRoute>} />
-            <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-            <Route path="/calculate" element={<ProtectedRoute><CalculationProvider><Calculate /></CalculationProvider></ProtectedRoute>} />
-            <Route path="/view-calculation/:id" element={<ProtectedRoute><ViewCalculation /></ProtectedRoute>} />
-            <Route path="/accounts" element={<ProtectedRoute><Accounts /></ProtectedRoute>} />
-            <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
-            <Route path="/banks" element={<ProtectedRoute><Banks /></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-          </Routes>
-        </Router>
-        {createPortal(
-          <ToastContainer
-            style={{ zIndex: 9999 }}
-            containerId="toast-container"
-          />,
-          document.body
-        )}
-      </UserProvider>
-    </SettingsProvider >
+    <UserProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<PublicRoute><Login /></PublicRoute>} />
+          <Route path="/home" element={<ProtectedRoute><SettingsProvider><Home /></SettingsProvider></ProtectedRoute>} />
+          <Route path="/calculate" element={<ProtectedRoute><SettingsProvider><CalculationProvider><Calculate /></CalculationProvider></SettingsProvider></ProtectedRoute>} />
+          <Route path="/view-calculation/:id" element={<ProtectedRoute><SettingsProvider><ViewCalculation /></SettingsProvider></ProtectedRoute>} />
+          <Route path="/accounts" element={<ProtectedRoute><SettingsProvider><Accounts /></SettingsProvider></ProtectedRoute>} />
+          <Route path="/history" element={<ProtectedRoute><SettingsProvider><History /></SettingsProvider></ProtectedRoute>} />
+          <Route path="/banks" element={<ProtectedRoute><SettingsProvider><Banks /></SettingsProvider></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><SettingsProvider><Settings /></SettingsProvider></ProtectedRoute>} />
+        </Routes>
+      </Router>
+      {createPortal(
+        <ToastContainer
+          style={{ zIndex: 9999 }}
+          containerId="toast-container"
+        />,
+        document.body
+      )}
+    </UserProvider>
   );
 };
 

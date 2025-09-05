@@ -4,7 +4,6 @@ import { MdLock, MdVisibility, MdVisibilityOff, MdError, MdPerson } from 'react-
 import { Text } from '@radix-ui/themes';
 import { ClipLoader } from 'react-spinners';
 import { useUserContext } from '../../contexts/UserContext';
-import { useSettingsContext } from '../../contexts/SettingsContext';
 import packageJson from '../../../../package.json';
 
 const Login = () => {
@@ -13,7 +12,6 @@ const Login = () => {
         password: ''
     });
     const [showPassword, setShowPassword] = useState(false);
-    const { loading: settingsLoading, error: settingsError, refreshSettings } = useSettingsContext();
     const { login, loading, error } = useUserContext();
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,51 +36,6 @@ const Login = () => {
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
     };
-
-    if (settingsLoading) {
-        return (
-            <div className="flex flex-col items-center p-8 mt-36">
-                <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-12 flex flex-col items-center gap-6">
-                    <div className="w-16 h-16 bg-blue-400/20 rounded-xl flex items-center justify-center">
-                        <ImCalculator className="text-blue-300 text-4xl" />
-                    </div>
-                    <div className="text-center">
-                        <Text className="text-white text-2xl font-bold mb-2">System Loading</Text><br />
-                        <Text className="text-gray-300 text-sm">Initializing Tax Calculation System</Text>
-                    </div>
-                    <ClipLoader color="#60A5FA" size={40} />
-                </div>
-            </div>
-        );
-    }
-
-    if (settingsError) {
-        return (
-            <div className="flex flex-col items-center p-8 mt-36">
-                <div className="bg-red-500/10 backdrop-blur-sm rounded-xl border border-red-500/20 p-12 flex flex-col items-center gap-6 max-w-md">
-                    <div className="w-16 h-16 bg-red-500/20 rounded-xl flex items-center justify-center">
-                        <MdError className="text-red-400 text-4xl" />
-                    </div>
-                    <div className="text-center">
-                        <Text className="text-red-300 text-2xl font-bold mb-2">System Error</Text><br />
-                        <div className="text-gray-300 text-sm">Failed to initialize the system</div><br />
-                        {error && (
-                            <Text className="text-red-200 text-xs bg-red-500/10 rounded-lg p-3 border border-red-500/20 mt-3">
-                                {error}
-                            </Text>
-                        )}
-                    </div>
-                    <button
-                        onClick={refreshSettings}
-                        className="bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/30 rounded-lg px-6 py-3 font-medium transition-all duration-200 hover:scale-105 flex items-center gap-2"
-                    >
-                        <MdError className="text-lg" />
-                        Reload System
-                    </button>
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className="flex flex-col items-center justify-center p-8 mt-12">

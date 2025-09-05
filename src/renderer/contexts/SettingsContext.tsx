@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { Settings, SettingsUpdateReq } from '../../types/settings';
 import { settingsService } from '../services/settingsService';
 import { useToast } from '../hooks/useToast';
+import { useUserContext } from './UserContext';
 
 interface SettingsContextType {
     settings: Settings | null;
@@ -29,12 +30,13 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
     const [isUpdating, setIsUpdating] = useState(false);
     const [currentYear, setCurrentYear] = useState<string>('2024/2025');
     const { showSuccess, showError } = useToast();
+    const { token } = useUserContext();
 
     const fetchSettingsByYear = async (year: string) => {
         setLoading(true);
         setError(null);
         try {
-            const fetchedSettings = await settingsService.getSettingsByYear(year);
+            const fetchedSettings = await settingsService.getSettingsByYear(year, token);
             setSettings(fetchedSettings);
         } catch (err: any) {
             let errorMessage = 'Error loading settings';
@@ -65,7 +67,7 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) 
         }
 
         try {
-            const updatedSettings = await settingsService.updateSettings(settingsData.id, newSettings);
+            const updatedSettings = await settingsService.updateSettings(settingsData.id, newSettings, token);
             setSettings(updatedSettings);
             showSuccess('Settings updated successfully');
             return updatedSettings;
