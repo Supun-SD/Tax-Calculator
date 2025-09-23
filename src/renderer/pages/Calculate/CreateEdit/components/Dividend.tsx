@@ -4,6 +4,7 @@ import { IoAdd } from "react-icons/io5";
 import { MdDelete, MdBusiness, MdAttachMoney, MdCalculate, MdReceipt, MdTrendingUp } from "react-icons/md";
 import { Text, Flex } from '@radix-ui/themes';
 import Button from '../../../../components/Button';
+import ClearConfirmation from './ClearConfirmation';
 import { DividendIncome } from '../../../../../types/calculation';
 import { useCalculationContext } from '../../../../contexts/CalculationContext';
 import { CalculationService } from '../../../../services/calculationService';
@@ -26,6 +27,7 @@ const Dividend: React.FC<DividendProps> = ({ isOpen, onClose }) => {
     const { currentCalculation, updateDividendIncome } = useCalculationContext();
 
     const [dividendEntries, setDividendEntries] = useState<DividendEntry[]>([]);
+    const [showClearConfirmation, setShowClearConfirmation] = useState(false);
 
     const dividendIncome = currentCalculation?.calculationData?.sourceOfIncome?.dividendIncome;
     const aitRate: number = currentCalculation?.calculationData?.settings?.reliefsAndAit?.aitDividend;
@@ -149,6 +151,27 @@ const Dividend: React.FC<DividendProps> = ({ isOpen, onClose }) => {
         if (dividendEntries.length > 1) {
             setDividendEntries(prev => prev.filter(entry => entry.id !== id));
         }
+    };
+
+    const clearAllEntries = () => {
+        setDividendEntries([{
+            id: 1,
+            company: "",
+            grossDividend: "",
+            rate: Math.round(aitRate).toString(),
+            ait: 0,
+            exempted: ""
+        }]);
+        updateDividendIncome(null);
+    };
+
+    const handleConfirmClear = () => {
+        clearAllEntries();
+        setShowClearConfirmation(false);
+    };
+
+    const handleCancelClear = () => {
+        setShowClearConfirmation(false);
     };
 
     const handleDone = () => {
@@ -369,6 +392,15 @@ const Dividend: React.FC<DividendProps> = ({ isOpen, onClose }) => {
 
                 <Flex justify="end">
                     <Button
+                        onClick={() => setShowClearConfirmation(true)}
+                        icon={MdDelete}
+                        size="sm"
+                        variant="secondary"
+                        className="mr-2 bg-red-400/20 hover:bg-red-400/30 text-red-300 border border-red-400/30"
+                    >
+                        Clear All
+                    </Button>
+                    <Button
                         onClick={addNewEntry}
                         icon={IoAdd}
                         size="sm"
@@ -379,6 +411,13 @@ const Dividend: React.FC<DividendProps> = ({ isOpen, onClose }) => {
                     </Button>
                 </Flex>
             </div>
+            <ClearConfirmation
+                open={showClearConfirmation}
+                title="Clear Dividend Income"
+                description="Are you sure you want to clear all dividend income entries? This will remove all rows."
+                onCancel={handleCancelClear}
+                onConfirm={handleConfirmClear}
+            />
         </Modal>
     );
 };

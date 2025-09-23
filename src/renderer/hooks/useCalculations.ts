@@ -51,7 +51,6 @@ export const  useCalculations = (): UseCalculationsReturn => {
       }
       
       setError(errorMessage);
-      showError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -75,7 +74,6 @@ export const  useCalculations = (): UseCalculationsReturn => {
       }
       
       setError(errorMessage);
-      showError(errorMessage);
       return null;
     } finally {
       setLoading(false);

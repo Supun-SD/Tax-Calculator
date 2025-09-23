@@ -4,6 +4,7 @@ import { IoAdd, IoChevronDown } from "react-icons/io5";
 import { MdDelete, MdAccountBalance, MdAttachMoney, MdCalculate, MdReceipt, MdSearch, MdAccountBalanceWallet, MdBusiness, MdTrendingUp, MdSecurity, MdCreditCard } from "react-icons/md";
 import { Text, Flex } from '@radix-ui/themes';
 import Button from '../../../../components/Button';
+import ClearConfirmation from './ClearConfirmation';
 import { ClipLoader } from 'react-spinners';
 import { useBanks } from '../../../../hooks/useBanks';
 import { Bank } from '../../../../../types/bank';
@@ -85,6 +86,7 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
     const [totalAIT, setTotalAIT] = useState<number>(0);
     const [bankSearchTerm, setBankSearchTerm] = useState<string>("");
     const [activeBankDropdown, setActiveBankDropdown] = useState<number | null>(null);
+    const [showClearConfirmation, setShowClearConfirmation] = useState(false);
 
     const { banks, loading: isBanksLoading } = useBanks();
 
@@ -122,6 +124,9 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
 
     const isDoneDisabled = useMemo(() => {
         if (activeTab === 'fd') {
+            if (fdEntries.length === 1) {
+                return false;
+            }
             return fdEntries.some(entry =>
                 entry.bank.name === "Select Bank" ||
                 (!entry.accountNumber && !entry.certificateNumber) ||
@@ -129,6 +134,9 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
             );
         } else {
             const currentEntries = getCurrentEntries();
+            if (currentEntries.length === 1) {
+                return false;
+            }
             return currentEntries.some((entry: any) =>
                 !entry.companyName ||
                 !entry.certificateNumber ||
@@ -186,6 +194,38 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
         value: "",
         ait: 0
     }), []);
+
+    const clearAllEntries = useCallback(() => {
+        switch (activeTab) {
+            case 'fd':
+                setFdEntries([getDefaultFdEntry()]);
+                break;
+            case 'repo':
+                setRepoEntries([getDefaultRepoEntry()]);
+                break;
+            case 'unitTrust':
+                setUnitTrustEntries([getDefaultUnitTrustEntry()]);
+                break;
+            case 'treasuryBill':
+                setTreasuryBillEntries([getDefaultTreasuryBillEntry()]);
+                break;
+            case 'tBond':
+                setTBondEntries([getDefaultTBondEntry()]);
+                break;
+            case 'debenture':
+                setDebentureEntries([getDefaultDebentureEntry()]);
+                break;
+        }
+    }, [activeTab, getDefaultFdEntry, getDefaultRepoEntry, getDefaultUnitTrustEntry, getDefaultTreasuryBillEntry, getDefaultTBondEntry, getDefaultDebentureEntry]);
+
+    const handleConfirmClear = useCallback(() => {
+        clearAllEntries();
+        setShowClearConfirmation(false);
+    }, [clearAllEntries]);
+
+    const handleCancelClear = useCallback(() => {
+        setShowClearConfirmation(false);
+    }, []);
 
     const calculateTotals = useCallback(() => {
         let grossTotal = 0;
@@ -345,6 +385,15 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
     }, [activeTab, fdEntries, getCurrentEntries, setCurrentEntries]);
 
     const handleDone = useCallback(() => {
+        const totalGrossInterestValue = CalculationService.parseAndRound(totalGrossInterest);
+        const totalAitValue = CalculationService.parseAndRound(totalAIT);
+
+        if (totalGrossInterest === 0) {
+            updateInterestIncome(null);
+            onClose();
+            return;
+        }
+
         const fdTotal = fdEntries.reduce((sum, entry) => {
             const gross = CalculationService.parseAndRound(entry.grossInterest);
             const contribution = entry.isJoint ? gross / 2 : gross;
@@ -357,8 +406,8 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
         const debentureTotal = debentureEntries.reduce((sum, entry) => sum + CalculationService.parseAndRound(entry.value), 0);
 
         const interestIncome: InterestIncome = {
-            totalGrossInterest: CalculationService.parseAndRound(totalGrossInterest),
-            totalAit: CalculationService.parseAndRound(totalAIT),
+            totalGrossInterest: totalGrossInterestValue,
+            totalAit: totalAitValue,
             fdIncome: fdTotal > 0 ? {
                 total: roundToTwoDecimals(fdTotal),
                 ait: fdEntries.reduce((sum, entry) => sum + entry.ait, 0),
@@ -668,6 +717,15 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
 
                 <Flex justify="end">
                     <Button
+                        onClick={() => setShowClearConfirmation(true)}
+                        icon={MdDelete}
+                        size="sm"
+                        variant="secondary"
+                        className="mr-2 bg-red-400/20 hover:bg-red-400/30 text-red-300 border border-red-400/30"
+                    >
+                        Clear All
+                    </Button>
+                    <Button
                         onClick={addNewEntry}
                         icon={IoAdd}
                         size="sm"
@@ -712,6 +770,19 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
                     </div>
                 </div>
             </div>
+            <ClearConfirmation
+                open={showClearConfirmation}
+                title="Clear Interest Income"
+                description={`Are you sure you want to clear all ${activeTab === 'fd' ? 'Fixed Deposit' :
+                    activeTab === 'repo' ? 'Repo' :
+                        activeTab === 'unitTrust' ? 'Unit Trust' :
+                            activeTab === 'treasuryBill' ? 'Treasury Bill' :
+                                activeTab === 'tBond' ? 'T-Bond' :
+                                    'Debenture'
+                    } entries? This will remove all rows in this tab.`}
+                onCancel={handleCancelClear}
+                onConfirm={handleConfirmClear}
+            />
         </Modal>
     );
 };

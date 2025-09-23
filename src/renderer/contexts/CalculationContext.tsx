@@ -58,6 +58,7 @@ interface CalculationContextType {
     updateQuarterlyPayment: (quarter: 'one' | 'two' | 'three' | 'four', amount: number) => void;
     isLoading: boolean;
     isEditing: boolean;
+    error: string;
 }
 
 const CalculationContext = createContext<CalculationContextType | undefined>(undefined);
@@ -69,7 +70,7 @@ interface CalculationProviderProps {
 export const CalculationProvider: React.FC<CalculationProviderProps> = ({ children }) => {
     const { settings } = useSettingsContext();
 
-    const { getCalculationById } = useCalculations();
+    const { getCalculationById, error } = useCalculations();
     const [currentCalculation, setCurrentCalculation] = useState<Calculation | CalculationReq | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -601,6 +602,7 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
         updateQuarterlyPayment,
         isLoading,
         isEditing,
+        error
     }), [
         currentCalculation,
         createNewCalculation,
@@ -615,7 +617,8 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({ childr
         updateSolarRelief,
         updateForeignIncome,
         updateQuarterlyPayment,
-        isLoading
+        isLoading,
+        error
     ]);
 
     return (

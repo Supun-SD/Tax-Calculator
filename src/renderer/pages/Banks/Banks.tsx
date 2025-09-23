@@ -9,6 +9,7 @@ import { AlertDialog, Flex, Text } from '@radix-ui/themes';
 import { ClipLoader } from 'react-spinners';
 import { useBanks } from '../../hooks/useBanks';
 import { MdAdd } from 'react-icons/md';
+import Error from '../../components/Error';
 
 const Banks = () => {
   const [searchValue, setSearchValue] = useState('');
@@ -20,10 +21,12 @@ const Banks = () => {
   const {
     banks,
     loading,
+    fetchBanks,
     isDeleting,
     createBank,
     updateBank,
-    deleteBank
+    deleteBank,
+    error
   } = useBanks();
 
   const columns: Column<Bank>[] = [
@@ -91,92 +94,96 @@ const Banks = () => {
     <div className="p-8">
       <Navigation title="Banks" />
 
-      {/* Search and Add section */}
-      <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 mb-6">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex-1 max-w-md">
-            <SearchBar
-              value={searchValue}
-              onChange={handleSearchChange}
-              placeholder="Search by name or TIN number"
-            />
-          </div>
-          <Button
-            onClick={handleAddButtonClick}
-            variant="primary"
-            icon={MdAdd}
-            iconPosition="left"
-          >
-            Add Bank
-          </Button>
-        </div>
-      </div>
-
-      {/* Data Table */}
-      <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl overflow-hidden">
-        {loading ? (
-          <div className="flex items-center justify-center h-60">
-            <ClipLoader color="#3B82F6" />
-          </div>
-        ) : (
-          <DataTable
-            data={banks}
-            columns={columns}
-            searchValue={searchValue}
-            searchKeys={['name', 'tinNumber']}
-            showActions={true}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-        )}
-      </div>
-
-      <BankModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        mode={modalMode}
-        onCreateBank={createBank}
-        onUpdateBank={updateBank}
-        bank={selectedBank}
-      />
-
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog.Root open={!!deletingBank}>
-        <AlertDialog.Content className="bg-surface-2 border border-white/20 rounded-xl">
-          <AlertDialog.Title className="text-white">Delete Bank</AlertDialog.Title>
-          <AlertDialog.Description size="3" className="text-gray-300">
-            Are you sure you want to delete the bank "{deletingBank?.name}"?
-          </AlertDialog.Description>
-
-          <Flex gap="3" mt="6" justify="end" align="center">
-            <AlertDialog.Cancel>
+      {error ? <Error title="Failed to load banks" message={error} onRetry={fetchBanks} /> :
+        <>
+          {/* Search and Add section */}
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 mb-6">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex-1 max-w-md">
+                <SearchBar
+                  value={searchValue}
+                  onChange={handleSearchChange}
+                  placeholder="Search by name or TIN number"
+                />
+              </div>
               <Button
-                variant="secondary"
-                onClick={handleCancelDelete}
-                disabled={isDeleting}
-                size="sm"
+                onClick={handleAddButtonClick}
+                variant="primary"
+                icon={MdAdd}
+                iconPosition="left"
               >
-                Cancel
+                Add Bank
               </Button>
-            </AlertDialog.Cancel>
-            {isDeleting ? (
-              <div className="flex items-center justify-center px-4 py-2">
-                <ClipLoader color="#EF4444" size={20} />
+            </div>
+          </div>
+
+          {/* Data Table */}
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl overflow-hidden">
+            {loading ? (
+              <div className="flex items-center justify-center h-60">
+                <ClipLoader color="#3B82F6" />
               </div>
             ) : (
-              <AlertDialog.Action>
-                <Button
-                  variant="danger"
-                  onClick={handleConfirmDelete}
-                  size="sm"
-                >
-                  Delete Bank
-                </Button>
-              </AlertDialog.Action>
+              <DataTable
+                data={banks}
+                columns={columns}
+                searchValue={searchValue}
+                searchKeys={['name', 'tinNumber']}
+                showActions={true}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
             )}
-          </Flex>
-        </AlertDialog.Content>
-      </AlertDialog.Root>
+          </div>
+
+          <BankModal
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+            mode={modalMode}
+            onCreateBank={createBank}
+            onUpdateBank={updateBank}
+            bank={selectedBank}
+          />
+
+          {/* Delete Confirmation Dialog */}
+          <AlertDialog.Root open={!!deletingBank}>
+            <AlertDialog.Content className="bg-surface-2 border border-white/20 rounded-xl">
+              <AlertDialog.Title className="text-white">Delete Bank</AlertDialog.Title>
+              <AlertDialog.Description size="3" className="text-gray-300">
+                Are you sure you want to delete the bank "{deletingBank?.name}"?
+              </AlertDialog.Description>
+
+              <Flex gap="3" mt="6" justify="end" align="center">
+                <AlertDialog.Cancel>
+                  <Button
+                    variant="secondary"
+                    onClick={handleCancelDelete}
+                    disabled={isDeleting}
+                    size="sm"
+                  >
+                    Cancel
+                  </Button>
+                </AlertDialog.Cancel>
+                {isDeleting ? (
+                  <div className="flex items-center justify-center px-4 py-2">
+                    <ClipLoader color="#EF4444" size={20} />
+                  </div>
+                ) : (
+                  <AlertDialog.Action>
+                    <Button
+                      variant="danger"
+                      onClick={handleConfirmDelete}
+                      size="sm"
+                    >
+                      Delete Bank
+                    </Button>
+                  </AlertDialog.Action>
+                )}
+              </Flex>
+            </AlertDialog.Content>
+          </AlertDialog.Root>
+        </>
+      }
     </div>
   );
 };

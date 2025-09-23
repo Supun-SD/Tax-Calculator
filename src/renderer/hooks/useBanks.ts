@@ -42,7 +42,6 @@ export const useBanks = (): UseBanksReturn => {
       }
       
       setError(errorMessage);
-      showError(errorMessage);
     } finally {
       setLoading(false);
     }

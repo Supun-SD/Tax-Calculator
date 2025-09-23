@@ -10,6 +10,7 @@ import ViewAccountModal from './components/ViewAccountModal';
 import { AlertDialog, Flex } from '@radix-ui/themes';
 import { useAccounts } from '../../hooks/useAccounts';
 import { ClipLoader } from 'react-spinners';
+import Error from '../../components/Error';
 
 const Accounts = () => {
   const [searchValue, setSearchValue] = useState('');
@@ -23,10 +24,12 @@ const Accounts = () => {
   const {
     accounts,
     loading,
+    fetchAccounts,
     isDeleting,
     createAccount,
     updateAccount,
-    deleteAccount
+    deleteAccount,
+    error
   } = useAccounts();
 
   const columns: Column<Account>[] = [
@@ -99,106 +102,110 @@ const Accounts = () => {
     <div className="p-8">
       <Navigation title="Accounts" />
 
-      {/* Search and Add Section */}
-      <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-6 mb-6">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          {/* Search Bar */}
-          <div className="flex-1 max-w-md">
-            <SearchBar
-              value={searchValue}
-              onChange={handleSearchChange}
-              placeholder="Search by name or TIN number"
-            />
-          </div>
+      {error ? <Error title="Failed to load accounts" message={error} onRetry={fetchAccounts} /> :
+        <>
+          {/* Search and Add Section */}
+          <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-6 mb-6">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              {/* Search Bar */}
+              <div className="flex-1 max-w-md">
+                <SearchBar
+                  value={searchValue}
+                  onChange={handleSearchChange}
+                  placeholder="Search by name or TIN number"
+                />
+              </div>
 
-          {/* Add Button */}
-          <Button
-            onClick={handleAddButtonClick}
-            variant="primary"
-            icon={MdAdd}
-            iconPosition="left"
-          >
-            Add Account
-          </Button>
-        </div>
-      </div>
-
-      {/* Data Table Section */}
-      <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden">
-        {loading ? (
-          <div className="flex items-center justify-center h-60">
-            <div className="flex items-center space-x-3">
-              <ClipLoader color="#60A5FA" size={32} />
-              <span className="text-gray-300">Loading accounts...</span>
+              {/* Add Button */}
+              <Button
+                onClick={handleAddButtonClick}
+                variant="primary"
+                icon={MdAdd}
+                iconPosition="left"
+              >
+                Add Account
+              </Button>
             </div>
           </div>
-        ) : (
-          <DataTable
-            data={accounts}
-            columns={columns}
-            searchValue={searchValue}
-            searchKeys={['name', 'tinNumber']}
-            showActions={true}
-            onEdit={handleEdit}
-            onView={handleView}
-            onDelete={handleDelete}
-          />
-        )}
-      </div>
 
-      <AccountModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        mode={modalMode}
-        onCreateAccount={createAccount}
-        onUpdateAccount={updateAccount}
-        account={selectedAccount}
-      />
-      <ViewAccountModal
-        isOpen={isViewModalOpen}
-        onClose={() => setIsViewModalOpen(false)}
-        account={viewingAccount}
-      />
-
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog.Root open={!!deletingAccount}>
-        <AlertDialog.Content className="bg-surface-2 border border-white/20 rounded-xl">
-          <AlertDialog.Title className="text-white text-lg font-semibold">
-            Delete Account
-          </AlertDialog.Title>
-          <AlertDialog.Description size="3" className="text-gray-300 mt-2">
-            Are you sure you want to delete the account "{deletingAccount?.name}"?
-          </AlertDialog.Description>
-
-          <Flex gap="3" mt="6" justify="end" align="center">
-            <AlertDialog.Cancel>
-              <Button
-                variant="secondary"
-                onClick={handleCancelDelete}
-                disabled={isDeleting}
-                size="sm"
-              >
-                Cancel
-              </Button>
-            </AlertDialog.Cancel>
-            {isDeleting ? (
-              <div className="flex items-center justify-center px-6 py-2">
-                <ClipLoader color="#EF4444" size={20} />
+          {/* Data Table Section */}
+          <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden">
+            {loading ? (
+              <div className="flex items-center justify-center h-60">
+                <div className="flex items-center space-x-3">
+                  <ClipLoader color="#60A5FA" size={32} />
+                  <span className="text-gray-300">Loading accounts...</span>
+                </div>
               </div>
             ) : (
-              <AlertDialog.Action>
-                <Button
-                  variant="danger"
-                  onClick={handleConfirmDelete}
-                  size="sm"
-                >
-                  Delete Account
-                </Button>
-              </AlertDialog.Action>
+              <DataTable
+                data={accounts}
+                columns={columns}
+                searchValue={searchValue}
+                searchKeys={['name', 'tinNumber']}
+                showActions={true}
+                onEdit={handleEdit}
+                onView={handleView}
+                onDelete={handleDelete}
+              />
             )}
-          </Flex>
-        </AlertDialog.Content>
-      </AlertDialog.Root>
+          </div>
+
+          <AccountModal
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+            mode={modalMode}
+            onCreateAccount={createAccount}
+            onUpdateAccount={updateAccount}
+            account={selectedAccount}
+          />
+          <ViewAccountModal
+            isOpen={isViewModalOpen}
+            onClose={() => setIsViewModalOpen(false)}
+            account={viewingAccount}
+          />
+
+          {/* Delete Confirmation Dialog */}
+          <AlertDialog.Root open={!!deletingAccount}>
+            <AlertDialog.Content className="bg-surface-2 border border-white/20 rounded-xl">
+              <AlertDialog.Title className="text-white text-lg font-semibold">
+                Delete Account
+              </AlertDialog.Title>
+              <AlertDialog.Description size="3" className="text-gray-300 mt-2">
+                Are you sure you want to delete the account "{deletingAccount?.name}"?
+              </AlertDialog.Description>
+
+              <Flex gap="3" mt="6" justify="end" align="center">
+                <AlertDialog.Cancel>
+                  <Button
+                    variant="secondary"
+                    onClick={handleCancelDelete}
+                    disabled={isDeleting}
+                    size="sm"
+                  >
+                    Cancel
+                  </Button>
+                </AlertDialog.Cancel>
+                {isDeleting ? (
+                  <div className="flex items-center justify-center px-6 py-2">
+                    <ClipLoader color="#EF4444" size={20} />
+                  </div>
+                ) : (
+                  <AlertDialog.Action>
+                    <Button
+                      variant="danger"
+                      onClick={handleConfirmDelete}
+                      size="sm"
+                    >
+                      Delete Account
+                    </Button>
+                  </AlertDialog.Action>
+                )}
+              </Flex>
+            </AlertDialog.Content>
+          </AlertDialog.Root>
+        </>
+      }
     </div>
   );
 };

@@ -42,7 +42,6 @@ export const useAccounts = (): UseAccountsReturn => {
             }
             
             setError(errorMessage);
-            showError(errorMessage);
         } finally {
             setLoading(false);
         }

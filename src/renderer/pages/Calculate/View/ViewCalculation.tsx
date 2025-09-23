@@ -12,6 +12,7 @@ import TaxableIncome from './components/TaxableIncome';
 import GrossIncomeTax from './components/GrossIncomeTax';
 import TotalPayableTax from './components/TotalPayableTax';
 import BalancePayableTax from './components/BalancePayableTax';
+import Error from '../../../components/Error';
 
 const ViewCalculation = () => {
     const navigate = useNavigate();
@@ -19,7 +20,7 @@ const ViewCalculation = () => {
     const calculationId = id ? parseInt(id) : null;
 
     const [calculation, setCalculation] = useState<Calculation | null>(null);
-    const { getCalculationById, loading } = useCalculations();
+    const { getCalculationById, loading, error } = useCalculations();
 
     useEffect(() => {
         const fetchCalculation = async () => {
@@ -31,15 +32,18 @@ const ViewCalculation = () => {
             const fetchedCalculation = await getCalculationById(calculationId);
             if (fetchedCalculation) {
                 setCalculation(fetchedCalculation);
-            } else {
-                navigate('/history');
             }
         };
 
         fetchCalculation();
     }, [calculationId, getCalculationById, navigate]);
 
-
+    const reloadCalculationData = async () => {
+        const fetchedCalculation = await getCalculationById(calculationId);
+        if (fetchedCalculation) {
+            setCalculation(fetchedCalculation);
+        }
+    }
 
     if (loading) {
         return (
@@ -52,43 +56,36 @@ const ViewCalculation = () => {
         );
     }
 
-    if (!calculation) {
-        return (
-            <div className="p-8">
-                <Navigation title="View Calculation" />
-                <div className="flex justify-center items-center h-96">
-                    <Text className="text-white text-xl">Calculation not found</Text>
-                </div>
-            </div>
-        );
-    }
-
     return (
         <div className="p-8">
             <Navigation title="View Calculation" />
-            <div className="max-w-7xl mx-auto px-6 py-8">
-                {/* Header Component */}
-                <Header calculation={calculation} />
+
+            {!calculation ? <Error title="Failed to load calculation data" message={error} onRetry={reloadCalculationData} />
+                :
+                <div className="max-w-7xl mx-auto px-6 py-8">
+                    {/* Header Component */}
+                    <Header calculation={calculation} />
 
 
-                {/* Income Sources Section */}
-                <IncomeSources calculation={calculation} />
+                    {/* Income Sources Section */}
+                    <IncomeSources calculation={calculation} />
 
-                {/* Taxable Income Section */}
-                <TaxableIncome calculation={calculation} />
+                    {/* Taxable Income Section */}
+                    <TaxableIncome calculation={calculation} />
 
-                {/* Gross income tax section */}
-                <GrossIncomeTax calculation={calculation} />
+                    {/* Gross income tax section */}
+                    <GrossIncomeTax calculation={calculation} />
 
-                {/* Total Payable Tax and Balance Payable Tax Section */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                    <TotalPayableTax calculation={calculation} />
-                    <BalancePayableTax calculation={calculation} />
+                    {/* Total Payable Tax and Balance Payable Tax Section */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                        <TotalPayableTax calculation={calculation} />
+                        <BalancePayableTax calculation={calculation} />
+                    </div>
+
+                    {/* Metadata */}
+                    <Footer calculation={calculation} />
                 </div>
-
-                {/* Metadata */}
-                <Footer calculation={calculation} />
-            </div>
+            }
         </div>
     );
 };

@@ -4,6 +4,7 @@ import { IoAdd } from "react-icons/io5";
 import { MdDelete, MdBusiness, MdAttachMoney, MdCalculate, MdReceipt, MdLocalHospital } from "react-icons/md";
 import { Text, Flex } from '@radix-ui/themes';
 import Button from '../../../../components/Button';
+import ClearConfirmation from './ClearConfirmation';
 import { BusinessIncome } from '../../../../../types/calculation';
 import { useCalculationContext } from '../../../../contexts/CalculationContext';
 import { CalculationService } from '../../../../services/calculationService';
@@ -25,6 +26,7 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
     const { currentCalculation, updateBusinessIncome } = useCalculationContext();
     const [businessEntries, setBusinessEntries] = useState<BusinessEntry[]>([]);
     const [taxablePercentage, setTaxablePercentage] = useState<string>("");
+    const [showClearConfirmation, setShowClearConfirmation] = useState(false);
 
     const businessIncome = currentCalculation?.calculationData?.sourceOfIncome?.businessIncome;
 
@@ -107,6 +109,21 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
 
     const removeEntry = (id: number) => {
         if (businessEntries.length > 1) setBusinessEntries(prev => prev.filter(entry => entry.id !== id));
+    };
+
+    const clearAllEntries = () => {
+        setBusinessEntries([{ id: 1, hospital: "", amount: "", wht: "0", hasWht: false }]);
+        setTaxablePercentage("");
+        updateBusinessIncome(null);
+    };
+
+    const handleConfirmClear = () => {
+        clearAllEntries();
+        setShowClearConfirmation(false);
+    };
+
+    const handleCancelClear = () => {
+        setShowClearConfirmation(false);
     };
 
     const totalAmount = useMemo(() =>
@@ -310,8 +327,17 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
                     </div>
                 </div>
 
-                {/* Add Button */}
+                {/* Add/Clear Buttons */}
                 <Flex justify="end">
+                    <Button
+                        onClick={() => setShowClearConfirmation(true)}
+                        icon={MdDelete}
+                        size="sm"
+                        variant="secondary"
+                        className="mr-2 bg-red-400/20 hover:bg-red-400/30 text-red-300 border border-red-400/30"
+                    >
+                        Clear All
+                    </Button>
                     <Button
                         onClick={addNewEntry}
                         icon={IoAdd}
@@ -353,6 +379,13 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
                     </div>
                 </div>
             </div>
+            <ClearConfirmation
+                open={showClearConfirmation}
+                title="Clear Business Income"
+                description="Are you sure you want to clear all business income entries? This will remove all rows and reset the taxable percentage."
+                onCancel={handleCancelClear}
+                onConfirm={handleConfirmClear}
+            />
         </Modal>
     );
 };

@@ -4,6 +4,7 @@ import { IoAdd } from "react-icons/io5";
 import { MdDelete, MdTrendingUp, MdAttachMoney, MdCalculate, MdDescription } from "react-icons/md";
 import { Text, Flex } from '@radix-ui/themes';
 import Button from '../../../../components/Button';
+import ClearConfirmation from './ClearConfirmation';
 import { OtherIncome } from '../../../../../types/calculation';
 import { useCalculationContext } from '../../../../contexts/CalculationContext';
 import { CalculationService } from '../../../../services/calculationService';
@@ -22,6 +23,7 @@ interface OtherEntry {
 const Other: React.FC<OtherProps> = ({ isOpen, onClose }) => {
     const { currentCalculation, updateOtherIncome } = useCalculationContext();
     const [otherEntries, setOtherEntries] = useState<OtherEntry[]>([]);
+    const [showClearConfirmation, setShowClearConfirmation] = useState(false);
 
     const otherIncome = currentCalculation?.calculationData?.sourceOfIncome?.otherIncome;
 
@@ -62,6 +64,20 @@ const Other: React.FC<OtherProps> = ({ isOpen, onClose }) => {
 
     const removeEntry = (id: number) => {
         if (otherEntries.length > 1) setOtherEntries(prev => prev.filter(entry => entry.id !== id));
+    };
+
+    const clearAllEntries = () => {
+        setOtherEntries([{ id: 1, description: "", amount: "" }]);
+        updateOtherIncome(null);
+    };
+
+    const handleConfirmClear = () => {
+        clearAllEntries();
+        setShowClearConfirmation(false);
+    };
+
+    const handleCancelClear = () => {
+        setShowClearConfirmation(false);
     };
 
     const totalIncome = useMemo(() =>
@@ -202,8 +218,17 @@ const Other: React.FC<OtherProps> = ({ isOpen, onClose }) => {
                     </div>
                 </div>
 
-                {/* Add Button */}
+                {/* Add/Clear Buttons */}
                 <Flex justify="end">
+                    <Button
+                        onClick={() => setShowClearConfirmation(true)}
+                        icon={MdDelete}
+                        size="sm"
+                        variant="secondary"
+                        className="mr-2 bg-red-400/20 hover:bg-red-400/30 text-red-300 border border-red-400/30"
+                    >
+                        Clear All
+                    </Button>
                     <Button
                         onClick={addNewEntry}
                         icon={IoAdd}
@@ -215,6 +240,13 @@ const Other: React.FC<OtherProps> = ({ isOpen, onClose }) => {
                     </Button>
                 </Flex>
             </div>
+            <ClearConfirmation
+                open={showClearConfirmation}
+                title="Clear Other Income"
+                description="Are you sure you want to clear all other income entries? This will remove all rows."
+                onCancel={handleCancelClear}
+                onConfirm={handleConfirmClear}
+            />
         </Modal>
     );
 };

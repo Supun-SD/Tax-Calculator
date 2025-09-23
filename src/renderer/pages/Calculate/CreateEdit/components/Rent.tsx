@@ -4,6 +4,7 @@ import Modal from "../../../../components/Modal";
 import { IoAdd } from "react-icons/io5";
 import { MdDelete, MdHome, MdAttachMoney, MdCalculate } from "react-icons/md";
 import Button from '../../../../components/Button';
+import ClearConfirmation from './ClearConfirmation';
 import { RentalIncome, RentalIncomeRecord } from '../../../../../types/calculation';
 import { useCalculationContext } from '../../../../contexts/CalculationContext';
 import { CalculationService } from '../../../../services/calculationService';
@@ -24,6 +25,7 @@ interface IncomeEntry {
 const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
     const { currentCalculation, updateRentalIncome } = useCalculationContext();
     const [incomeEntries, setIncomeEntries] = useState<IncomeEntry[]>([]);
+    const [showClearConfirmation, setShowClearConfirmation] = useState(false);
 
     const rentalIncome = currentCalculation?.calculationData?.sourceOfIncome?.rentalIncome;
 
@@ -107,6 +109,20 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
         if (incomeEntries.length > 1) {
             setIncomeEntries(prev => prev.filter(entry => entry.id !== id));
         }
+    };
+
+    const clearAllEntries = () => {
+        setIncomeEntries([{ id: 1, name: "", amount: "", multiplier: "1", product: 0 }]);
+        updateRentalIncome(null);
+    };
+
+    const handleConfirmClear = () => {
+        clearAllEntries();
+        setShowClearConfirmation(false);
+    };
+
+    const handleCancelClear = () => {
+        setShowClearConfirmation(false);
     };
 
     const handleDone = () => {
@@ -285,6 +301,15 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
 
                 <Flex justify="end">
                     <Button
+                        onClick={() => setShowClearConfirmation(true)}
+                        icon={MdDelete}
+                        size="sm"
+                        variant="secondary"
+                        className="mr-2 bg-red-400/20 hover:bg-red-400/30 text-red-300 border border-red-400/30"
+                    >
+                        Clear All
+                    </Button>
+                    <Button
                         onClick={addNewEntry}
                         icon={IoAdd}
                         size="sm"
@@ -295,6 +320,13 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
                     </Button>
                 </Flex>
             </div>
+            <ClearConfirmation
+                open={showClearConfirmation}
+                title="Clear Rental Income"
+                description="Are you sure you want to clear all rental income entries? This will remove all rows."
+                onCancel={handleCancelClear}
+                onConfirm={handleConfirmClear}
+            />
         </Modal>
     );
 };
