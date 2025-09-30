@@ -294,6 +294,7 @@ const Calculate = () => {
             isOpen={isSelectAccountModalOpen}
             onClose={() => setIsSelectAccountModalOpen(false)}
             onSelect={handleSelectAccount}
+            setIsEditing={setIsEditing}
           />
 
           {/* Submit Confirmation Dialog */}

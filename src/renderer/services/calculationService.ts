@@ -104,6 +104,11 @@ const getCalculationByAccountId = async (accountId: number, token: string): Prom
   return response.data.data;
 }
 
+const checkCalculation = async (accountId: number, year: string, token: string): Promise<Calculation> => {
+  const response = await axios.post(`${API_BASE_URL}/calculation/check`, { accountId, year }, getHeaders(token));
+  return response.data.data;
+}
+
 export const downloadCalculationPdf = async (id: number, token: string): Promise<void> => {
   const response = await axios.get(`${API_BASE_URL}/calculation/print/${id}`, {
     responseType: "blob",
@@ -140,5 +145,6 @@ export const calculationService = {
   updateCalculation,
   deleteCalculation,
   getCalculationByAccountId,
-  downloadCalculationPdf
+  downloadCalculationPdf,
+  checkCalculation
 }

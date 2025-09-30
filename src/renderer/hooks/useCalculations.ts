@@ -12,6 +12,7 @@ interface UseCalculationsReturn {
   isSubmitting: boolean;
   isDraftSaving: boolean;
   isDownloading: boolean;
+  isChecking: boolean;
   fetchCalculations: () => Promise<void>;
   getCalculationById: (id: number) => Promise<Calculation | null>;
   createCalculation: (calculation: CalculationReq) => Promise<Calculation | null>;
@@ -20,11 +21,13 @@ interface UseCalculationsReturn {
   getCalculationsByAccountId: (accountId: number) => Promise<Calculation[] | null>;
   clearError: () => void;
   downloadCalculationPdf: (id: number) => Promise<void>;
+  checkCalculation: (accountId: number, year: string) => Promise<CalculationOverview | null>;
 }
 
 export const  useCalculations = (): UseCalculationsReturn => {
   const [calculations, setCalculations] = useState<CalculationOverview[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDraftSaving, setIsDraftSaving] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -210,6 +213,22 @@ export const  useCalculations = (): UseCalculationsReturn => {
     }
   }, [token]);
 
+  const checkCalculation = useCallback(async (accountId: number, year: string): Promise<CalculationOverview | null> => {
+    setIsChecking(true);
+    setError(null);
+    try {
+      const calculation = await calculationService.checkCalculation(accountId, year, token);
+      return calculation;
+    } catch (err: any) {
+      let errorMessage = 'Error checking existing calculations';
+      setError(errorMessage);
+      showError(errorMessage);
+      return null;
+    } finally {
+      setIsChecking(false);
+    }
+  }, [token]);
+
   const downloadCalculationPdf = useCallback(async (id: number): Promise<void> => {
     setIsDownloading(true);
     try {
@@ -240,6 +259,7 @@ export const  useCalculations = (): UseCalculationsReturn => {
     isSubmitting,
     isDraftSaving,
     isDownloading,
+    isChecking,
     fetchCalculations,
     getCalculationById,
     createCalculation,
@@ -247,6 +267,7 @@ export const  useCalculations = (): UseCalculationsReturn => {
     deleteCalculation,
     getCalculationsByAccountId,
     clearError,
+    checkCalculation,
     downloadCalculationPdf
   };
 };
