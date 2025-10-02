@@ -9,6 +9,7 @@ import { ClipLoader } from 'react-spinners';
 import Button from '../../components/Button';
 import { MdReceipt, MdDrafts } from 'react-icons/md';
 import Error from '../../components/Error';
+import SearchBar from '../../components/SearchBar';
 
 const History = () => {
   const navigate = useNavigate();
@@ -16,6 +17,11 @@ const History = () => {
     'submitted'
   );
   const [deletingCalculation, setDeletingCalculation] = useState<CalculationOverview | undefined>(undefined);
+  const [searchValue, setSearchValue] = useState('');
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(e.target.value);
+  };
 
   const {
     calculations,
@@ -107,9 +113,15 @@ const History = () => {
     navigate(`/view-calculation/${calculation.id}`);
   };
 
-  const filteredCalculations = calculations.filter(
-    (calculation) => calculation.status === activeTab
-  );
+  const filteredCalculations = calculations.filter((calculation) => {
+    const statusMatch = calculation.status === activeTab;
+
+    const searchMatch = searchValue === '' ||
+      (calculation.account?.name?.toLowerCase().includes(searchValue.toLowerCase()) ||
+        calculation.account?.tinNumber?.toString().toLowerCase().includes(searchValue.toLowerCase()));
+
+    return statusMatch && searchMatch;
+  });
 
   return (
     <div className="p-8">
@@ -118,7 +130,7 @@ const History = () => {
       {error ? <Error title="Failed to load calculations" message={error} onRetry={fetchCalculations} /> :
         <>
           {/* Tabs Section */}
-          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 mb-6">
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 mb-6 flex items-center justify-between">
             <div className="flex space-x-1">
               <button
                 onClick={() => setActiveTab('submitted')}
@@ -152,6 +164,13 @@ const History = () => {
                   {calculations.filter((c) => c.status === 'draft').length}
                 </span>
               </button>
+            </div>
+            <div className="flex-1 max-w-md">
+              <SearchBar
+                value={searchValue}
+                onChange={handleSearchChange}
+                placeholder="Search by name or TIN number"
+              />
             </div>
           </div>
 
