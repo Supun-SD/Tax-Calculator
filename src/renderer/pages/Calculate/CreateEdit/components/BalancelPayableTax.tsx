@@ -16,9 +16,9 @@ const BalancelPayableTax = () => {
     };
 
     const [quarterlyOne, setQuarterlyOne] = useState<string>(quarterlyPayments.one === 0 ? '' : quarterlyPayments.one.toString());
-    const [quarterlyTwo, setQuarterlyTwo] = useState<string>('');
-    const [quarterlyThree, setQuarterlyThree] = useState<string>('');
-    const [quarterlyFour, setQuarterlyFour] = useState<string>('');
+    const [quarterlyTwo, setQuarterlyTwo] = useState<string>(quarterlyPayments.two === 0 ? '' : quarterlyPayments.two.toString());
+    const [quarterlyThree, setQuarterlyThree] = useState<string>(quarterlyPayments.three === 0 ? '' : quarterlyPayments.three.toString());
+    const [quarterlyFour, setQuarterlyFour] = useState<string>(quarterlyPayments.four === 0 ? '' : quarterlyPayments.four.toString());
 
     const handleQuarterlyOneChange = (value: string) => {
         if (value.match(/^\d*\.?\d{0,2}$/)) {
