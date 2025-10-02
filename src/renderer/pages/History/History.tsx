@@ -113,6 +113,11 @@ const History = () => {
     navigate(`/view-calculation/${calculation.id}`);
   };
 
+  const handleActiveTabChange = (tab: 'submitted' | 'draft') => {
+    setActiveTab(tab);
+    setSearchValue('');
+  };
+
   const filteredCalculations = calculations.filter((calculation) => {
     const statusMatch = calculation.status === activeTab;
 
@@ -133,7 +138,7 @@ const History = () => {
           <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 mb-6 flex items-center justify-between">
             <div className="flex space-x-1">
               <button
-                onClick={() => setActiveTab('submitted')}
+                onClick={() => handleActiveTabChange('submitted')}
                 className={`flex items-center space-x-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${activeTab === 'submitted'
                   ? 'bg-green-400/20 text-green-300 border border-green-400/30'
                   : 'text-gray-400 hover:text-white hover:bg-white/10'
@@ -149,7 +154,7 @@ const History = () => {
                 </span>
               </button>
               <button
-                onClick={() => setActiveTab('draft')}
+                onClick={() => handleActiveTabChange('draft')}
                 className={`flex items-center space-x-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${activeTab === 'draft'
                   ? 'bg-yellow-400/20 text-yellow-300 border border-yellow-400/30'
                   : 'text-gray-400 hover:text-white hover:bg-white/10'
