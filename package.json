@@ -1,17 +1,16 @@
 {
   "name": "tax-calculator",
   "productName": "tax-calculator",
-  "version": "1.0.6",
+  "version": "1.0.4",
   "description": "My Electron application description",
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "publish": "electron-builder --win --x64 --publish always",
-    "release": "npm version patch && npm run publish",
-    "release-minor": "npm version minor && npm run publish",
-    "release-major": "npm version major && npm run publish",
+    "release": "npm version patch && electron-forge publish",
+    "release-minor": "npm version minor && electron-forge publish",
+    "release-major": "npm version major && electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,md}\""
