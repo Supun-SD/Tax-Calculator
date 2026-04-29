@@ -29,7 +29,7 @@ interface FdEntry {
     certificateNumber: string;
     isJoint: boolean;
     grossInterest: string;
-    ait: number;
+    ait: string;
 }
 
 interface RepoEntry {
@@ -152,7 +152,7 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
         certificateNumber: "",
         isJoint: false,
         grossInterest: "",
-        ait: 0
+        ait: ""
     }), []);
 
     const getDefaultRepoEntry = useCallback((): RepoEntry => ({
@@ -234,10 +234,8 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
         fdEntries.forEach(entry => {
             const gross = CalculationService.parseAndRound(entry.grossInterest);
             const contribution = entry.isJoint ? gross / 2 : gross;
-            const aitAmount = CalculationService.parseAndRound((contribution * aitRate) / 100);
-            entry.ait = aitAmount;
             grossTotal += contribution;
-            aitTotal += aitAmount;
+            aitTotal += CalculationService.parseAndRound(entry.ait);
         });
 
         [repoEntries, unitTrustEntries, treasuryBillEntries, tBondEntries, debentureEntries].forEach(entries => {
@@ -267,7 +265,7 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
 
     const updateEntry = useCallback((id: number, field: string, value: any) => {
         if (activeTab === 'fd') {
-            if (field === "grossInterest") {
+            if (field === "grossInterest" || field === "ait") {
                 if (!/^\d*\.?\d*$/.test(value) && value !== "") return;
                 const parts = value.split(".");
                 if (parts[1] && parts[1].length > 2) return;
@@ -278,12 +276,11 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
                     if (entry.id === id) {
                         const updatedEntry = { ...entry, [field]: value };
 
-
                         if (field === "grossInterest" || field === "isJoint") {
                             const gross = CalculationService.parseAndRound(updatedEntry.grossInterest);
                             const contribution = updatedEntry.isJoint ? gross / 2 : gross;
                             const aitAmount = CalculationService.parseAndRound((contribution * aitRate) / 100);
-                            updatedEntry.ait = aitAmount;
+                            updatedEntry.ait = aitAmount.toString();
                         }
 
                         return updatedEntry;
@@ -410,7 +407,7 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
             totalAit: totalAitValue,
             fdIncome: fdTotal > 0 ? {
                 total: roundToTwoDecimals(fdTotal),
-                ait: fdEntries.reduce((sum, entry) => sum + entry.ait, 0),
+                ait: fdEntries.reduce((sum, entry) => sum + CalculationService.parseAndRound(entry.ait), 0),
                 incomes: fdEntries.map(e => {
                     const gross = CalculationService.parseAndRound(e.grossInterest);
                     const contribution = e.isJoint ? gross / 2 : gross;
@@ -490,7 +487,7 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
                     certificateNumber: income.certificateNumber || "",
                     isJoint: income.isJoint,
                     grossInterest: income.grossInterest.toString(),
-                    ait: income.ait
+                    ait: income.ait.toString()
                 }));
                 setFdEntries(fdEntries.length > 0 ? fdEntries : [getDefaultFdEntry()]);
             } else {
@@ -823,7 +820,7 @@ const FdTable: React.FC<FdTableProps> = React.memo(({
             return sum + contribution;
         }, 0);
 
-        const aitTotal = entries.reduce((sum, entry) => sum + entry.ait, 0);
+        const aitTotal = entries.reduce((sum, entry) => sum + CalculationService.parseAndRound(entry.ait), 0);
 
         return { contributionTotal, aitTotal };
     }, [entries]);
@@ -1001,9 +998,9 @@ const FdTable: React.FC<FdTableProps> = React.memo(({
                                     <input
                                         type="text"
                                         value={entry.ait}
+                                        onChange={e => updateEntry(entry.id, "ait", e.target.value)}
                                         className="w-full min-w-36 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-right placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-all duration-200"
                                         placeholder="0.00"
-                                        readOnly
                                     />
                                 </div>
                             </td>

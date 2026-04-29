@@ -431,12 +431,12 @@ const IncomeBreakdownModal = ({ incomeType, incomeData, calculation }: IncomeBre
                         <Text className="text-lg font-semibold text-red-300">{formatCurrency(data.whtTotal)}</Text>
                     </div>
                     <div className="flex justify-between items-center mt-2">
-                        <Text className="text-gray-400">Assessable Amount</Text>
-                        <Text className="text-lg font-semibold text-red-300">{formatCurrency(data.amountForAssessableIncome)}</Text>
+                        <Text className="text-gray-400">Expenses Amount</Text>
+                        <Text className="text-lg font-semibold text-red-300">{formatCurrency(data.total - data.amountForAssessableIncome)}</Text>
                     </div>
                     <div className="flex justify-between items-center mt-2">
-                        <Text className="text-gray-400">Assessable Percentage</Text>
-                        <Text className="text-lg font-semibold text-red-300">{data.assessableIncomePercentage}%</Text>
+                        <Text className="text-gray-400">Expenses Percentage</Text>
+                        <Text className="text-lg font-semibold text-red-300">{100 - data.assessableIncomePercentage}%</Text>
                     </div>
                 </div>
 

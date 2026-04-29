@@ -154,7 +154,11 @@ const IncomeSources = ({ calculation }: IncomeSourcesProps) => {
                                 <Text className="text-white font-semibold">Business</Text>
                             </div>
                             <Text className="text-2xl font-bold text-red-300">
-                                {formatCurrency(calculation.calculationData.sourceOfIncome?.businessIncome?.total)}
+                                {formatCurrency(calculation.calculationData.sourceOfIncome?.businessIncome?.amountForAssessableIncome)}
+                            </Text>
+                            <br />
+                            <Text className="text-gray-400 text-sm mt-1">
+                                Total Income: {formatCurrency(calculation.calculationData.sourceOfIncome?.businessIncome?.total)}
                             </Text>
                         </div>
                     )

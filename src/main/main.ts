@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog } from 'electron';
+import { app, BrowserWindow } from 'electron';
 // import { autoUpdater } from 'electron-updater';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
@@ -9,7 +9,6 @@ if (started) {
 }
 
 let mainWindow: BrowserWindow | null = null;
-let progressWindow: BrowserWindow | null = null;
 
 const createWindow = () => {
   mainWindow = new BrowserWindow({

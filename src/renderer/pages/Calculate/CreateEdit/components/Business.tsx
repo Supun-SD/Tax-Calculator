@@ -139,7 +139,7 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
     );
 
     const handleDone = () => {
-        const assessableIncomePercentage = CalculationService.parseAndRoundWhole(taxablePercentage);
+        const assessableIncomePercentage = 100 - CalculationService.parseAndRoundWhole(taxablePercentage);
         const amountForAssessableIncome = CalculationService.parseAndRound((totalAmount * assessableIncomePercentage) / 100);
 
         const businessIncome: BusinessIncome = {
@@ -354,7 +354,7 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
                     <div className="flex justify-between items-center">
                         <div className="flex items-center space-x-2">
                             <MdCalculate className="text-red-300" />
-                            <Text className="text-white font-medium">Percentage for taxable income</Text>
+                            <Text className="text-white font-medium">Percentage for expenses</Text>
                         </div>
                         <div className='flex items-center gap-5'>
                             <div className="bg-white/10 border border-white/20 rounded-lg px-4 py-2 focus-within:ring-2 focus-within:ring-red-400 focus-within:border-transparent transition-all duration-200">

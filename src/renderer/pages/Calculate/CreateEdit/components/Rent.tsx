@@ -25,6 +25,7 @@ interface IncomeEntry {
 const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
     const { currentCalculation, updateRentalIncome } = useCalculationContext();
     const [incomeEntries, setIncomeEntries] = useState<IncomeEntry[]>([]);
+    const [applyRentRelief, setApplyRentRelief] = useState(true);
     const [showClearConfirmation, setShowClearConfirmation] = useState(false);
 
     const rentalIncome = currentCalculation?.calculationData?.sourceOfIncome?.rentalIncome;
@@ -64,8 +65,10 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
                     ? entries
                     : [{ id: 1, name: "", amount: "", multiplier: "1", product: 0 }]
             );
+            setApplyRentRelief(rentalIncome.applyRentRelief !== false);
         } else if (isOpen && !rentalIncome) {
             setIncomeEntries([{ id: 1, name: "", amount: "", multiplier: "1", product: 0 }]);
+            setApplyRentRelief(true);
         }
     }, [isOpen, rentalIncome]);
 
@@ -128,6 +131,7 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
     const handleDone = () => {
         const rentalIncome: RentalIncome = {
             total: CalculationService.parseAndRound(totalIncome),
+            applyRentRelief,
             incomes: incomeEntries.map(entry => {
                 const amount = CalculationService.parseAndRound(entry.amount);
                 const multiplier = CalculationService.parseAndRound(entry.multiplier);
@@ -297,6 +301,19 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
                             </tfoot>
                         </table>
                     </div>
+                </div>
+
+                <div className="flex items-center space-x-3 px-1">
+                    <input
+                        type="checkbox"
+                        id="applyRentRelief"
+                        checked={applyRentRelief}
+                        onChange={e => setApplyRentRelief(e.target.checked)}
+                        className="w-4 h-4 accent-green-400 cursor-pointer"
+                    />
+                    <label htmlFor="applyRentRelief" className="text-gray-300 text-sm cursor-pointer select-none">
+                        Apply Rent Relief deduction
+                    </label>
                 </div>
 
                 <Flex justify="end">

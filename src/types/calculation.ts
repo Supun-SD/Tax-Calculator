@@ -63,6 +63,7 @@ export interface EmploymentIncomeRecord {
 export interface RentalIncome {
   total : number;
   incomes : Array<RentalIncomeRecord>
+  applyRentRelief: boolean;
 }
 
 export interface RentalIncomeRecord {
@@ -75,12 +76,12 @@ export interface RentalIncomeRecord {
 export interface InterestIncome {
   totalGrossInterest : number;
   totalAit : number;
-  fdIncome: FdIncome;
-  repoIncome: ReposIncome;
-  unitTrustIncome: UnitTrustIncome;
-  treasuryBillIncome: TreasuryBillIncome;
-  tBondIncome: TBondIncome;
-  debentureIncome: DebentureIncome;
+  fdIncome: FdIncome | null;
+  repoIncome: ReposIncome | null;
+  unitTrustIncome: UnitTrustIncome | null;
+  treasuryBillIncome: TreasuryBillIncome | null;
+  tBondIncome: TBondIncome | null;
+  debentureIncome: DebentureIncome | null;
 }
 
 export interface FdIncome {
