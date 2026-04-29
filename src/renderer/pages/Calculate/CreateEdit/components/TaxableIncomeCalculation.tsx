@@ -161,7 +161,7 @@ const TaxableIncomeCalculation = () => {
 
                         <div className="grid grid-cols-2 gap-0 border-b border-white/10">
                             <div className="p-2.5 px-6">
-                                <Text className="text-white text-sm">Business income ({businessIncomePercentage}%)</Text>
+                                <Text className="text-white text-sm">Business income ({100 - businessIncomePercentage}%)</Text>
                             </div>
                             <div className="p-2">
                                 <Text className="text-white text-sm">{CalculationService.formatCurrency(businessIncome)}</Text>
