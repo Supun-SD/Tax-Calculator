@@ -80,12 +80,14 @@ const IncomeSources = ({ calculation }: IncomeSourcesProps) => {
                                 </div>
                                 <Text className="text-white font-semibold">Rental</Text>
                             </div>
-                            <Text className="text-2xl font-bold text-green-300">
-                                {formatCurrency(calculation.calculationData.sourceOfIncome?.rentalIncome?.total)}
-                            </Text>
-                            <Text className="text-gray-400 text-sm mt-1">
+                            <div className="flex flex-col">
+                                <Text className="text-2xl font-bold text-green-300">
+                                    {formatCurrency(calculation.calculationData.sourceOfIncome?.rentalIncome?.total)}
+                                </Text>
+                                <Text className="text-gray-400 text-sm mt-1">
                                     AIT: {formatCurrency(calculation.calculationData.sourceOfIncome?.rentalIncome?.totalAit)}
-                            </Text>
+                                </Text>
+                            </div>
                         </div>
                     )
                 }
