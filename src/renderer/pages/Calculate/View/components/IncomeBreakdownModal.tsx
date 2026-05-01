@@ -116,6 +116,10 @@ const IncomeBreakdownModal = ({ incomeType, incomeData, calculation }: IncomeBre
                         <Text className="text-white font-semibold">Total Rental Income</Text>
                         <Text className="text-2xl font-bold text-green-400">{formatCurrency(data.total)}</Text>
                     </div>
+                    <div className="flex justify-between items-center mt-2">
+                        <Text className="text-gray-400">Total AIT ({calculation.calculationData.settings.reliefsAndAit.whtRent}%)</Text>
+                        <Text className="text-lg font-semibold text-green-300">{formatCurrency(data.totalAit)}</Text>
+                    </div>
                 </div>
 
                 <Table.Root>
@@ -125,6 +129,8 @@ const IncomeBreakdownModal = ({ incomeType, incomeData, calculation }: IncomeBre
                             <Table.ColumnHeaderCell className="text-white border-b border-white/20">Value</Table.ColumnHeaderCell>
                             <Table.ColumnHeaderCell className="text-white border-b border-white/20">Multiplier</Table.ColumnHeaderCell>
                             <Table.ColumnHeaderCell className="text-white border-b border-white/20">Total</Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell className="text-white border-b border-white/20">AIT Deducted</Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell className="text-white border-b border-white/20">AIT</Table.ColumnHeaderCell>
                         </Table.Row>
                     </Table.Header>
                     <Table.Body>
@@ -134,6 +140,8 @@ const IncomeBreakdownModal = ({ incomeType, incomeData, calculation }: IncomeBre
                                 <Table.Cell className="text-white border-b border-white/10">{formatCurrency(income.value)}</Table.Cell>
                                 <Table.Cell className="text-white border-b border-white/10">{income.multiplier}</Table.Cell>
                                 <Table.Cell className="text-white font-semibold border-b border-white/10">{formatCurrency(income.total)}</Table.Cell>
+                                <Table.Cell className="text-white border-b border-white/10">{income.aitDeducted ? 'Yes' : 'No'}</Table.Cell>
+                                <Table.Cell className="text-white border-b border-white/10">{income.aitDeducted ? formatCurrency(income.ait) : '-'}</Table.Cell>
                             </Table.Row>
                         ))}
                     </Table.Body>

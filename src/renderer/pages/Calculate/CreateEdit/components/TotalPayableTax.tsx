@@ -1,7 +1,6 @@
-import { Text } from '@radix-ui/themes';
-import { MdCalculate, MdRemoveCircle, MdInfo } from 'react-icons/md';
+import { Text, Tooltip } from '@radix-ui/themes';
+import { MdCalculate, MdRemoveCircle } from 'react-icons/md';
 import { useCalculationContext } from '../../../../contexts/CalculationContext';
-import { Tooltip } from '@radix-ui/themes';
 import { BsFillInfoCircleFill } from 'react-icons/bs';
 
 interface TaxComponent {
@@ -13,15 +12,13 @@ interface TaxComponent {
 const TotalPayableTax = () => {
     const { currentCalculation } = useCalculationContext();
 
-    const rentalIncome = currentCalculation?.calculationData?.sourceOfIncome?.rentalIncome?.total ?? 0;
+    const aitRent = currentCalculation?.calculationData?.sourceOfIncome?.rentalIncome?.totalAit ?? 0;
     const aitInterest = currentCalculation?.calculationData?.sourceOfIncome?.interestIncome?.totalAit ?? 0;
     const apitTotal = currentCalculation?.calculationData?.sourceOfIncome?.employmentIncome?.apitTotal ?? 0;
     const whtRentRate = currentCalculation?.calculationData?.settings?.reliefsAndAit?.whtRent ?? 0;
     const aitInterestRate = currentCalculation?.calculationData?.settings?.reliefsAndAit?.aitInterest ?? 0;
     const whtProfessionalFee = currentCalculation?.calculationData?.sourceOfIncome?.businessIncome?.whtTotal ?? 0;
     const totalPayableTax = currentCalculation?.calculationData?.totalPayableTax ?? 0;
-
-    const aitRent = (rentalIncome * whtRentRate) / 100;
 
     const interestIncome = currentCalculation?.calculationData?.sourceOfIncome?.interestIncome;
     const fdAit = interestIncome?.fdIncome?.ait ?? 0;

@@ -20,6 +20,8 @@ interface IncomeEntry {
     amount: string;
     multiplier: string;
     product: number;
+    aitDeducted: boolean;
+    ait: number;
 }
 
 const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
@@ -29,6 +31,7 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
     const [showClearConfirmation, setShowClearConfirmation] = useState(false);
 
     const rentalIncome = currentCalculation?.calculationData?.sourceOfIncome?.rentalIncome;
+    const aitRate = currentCalculation?.calculationData?.settings?.reliefsAndAit?.whtRent;
 
     const isDoneDisabled = useMemo(
         () =>
@@ -48,26 +51,37 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
         [incomeEntries]
     );
 
+    const totalAit = useMemo(
+        () => incomeEntries.reduce((sum, e) => sum + e.ait, 0),
+        [incomeEntries]
+    );
+
     useEffect(() => {
         if (isOpen && rentalIncome) {
             const entries = rentalIncome.incomes.map(
-                (income: RentalIncomeRecord, index: number) => ({
-                    id: index + 1,
-                    name: income.name,
-                    amount: income.value.toString(),
-                    multiplier: income.multiplier.toString(),
-                    product: income.value * income.multiplier
-                })
+                (income: RentalIncomeRecord, index: number) => {
+                    const product = income.value * income.multiplier;
+                    const aitDeducted = income.aitDeducted ?? true;
+                    return {
+                        id: index + 1,
+                        name: income.name,
+                        amount: income.value.toString(),
+                        multiplier: income.multiplier.toString(),
+                        product,
+                        aitDeducted,
+                        ait: aitDeducted ? product * (aitRate ?? 0) / 100 : 0
+                    };
+                }
             );
 
             setIncomeEntries(
                 entries.length > 0
                     ? entries
-                    : [{ id: 1, name: "", amount: "", multiplier: "1", product: 0 }]
+                    : [{ id: 1, name: "", amount: "", multiplier: "1", product: 0, aitDeducted: true, ait: 0 }]
             );
             setApplyRentRelief(rentalIncome.applyRentRelief !== false);
         } else if (isOpen && !rentalIncome) {
-            setIncomeEntries([{ id: 1, name: "", amount: "", multiplier: "1", product: 0 }]);
+            setIncomeEntries([{ id: 1, name: "", amount: "", multiplier: "1", product: 0, aitDeducted: true, ait: 0 }]);
             setApplyRentRelief(true);
         }
     }, [isOpen, rentalIncome]);
@@ -84,11 +98,22 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
                     const amount = CalculationService.parseAndRound(updated.amount);
                     const multiplier = CalculationService.parseAndRound(updated.multiplier);
                     updated.product = amount * multiplier;
+                    updated.ait = updated.aitDeducted ? updated.product * (aitRate ?? 0) / 100 : 0;
 
                     return updated;
                 })
             );
         }
+    };
+
+    const toggleAitDeducted = (id: number) => {
+        setIncomeEntries(prev =>
+            prev.map(entry => {
+                if (entry.id !== id) return entry;
+                const aitDeducted = !entry.aitDeducted;
+                return { ...entry, aitDeducted, ait: aitDeducted ? entry.product * (aitRate ?? 0) / 100 : 0 };
+            })
+        );
     };
 
     const handleNameChange = (id: number, value: string) => {
@@ -104,7 +129,7 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
 
         setIncomeEntries(prev => [
             ...prev,
-            { id: newId, name: "", amount: "", multiplier: "1", product: 0 }
+            { id: newId, name: "", amount: "", multiplier: "1", product: 0, aitDeducted: true, ait: 0 }
         ]);
     };
 
@@ -115,7 +140,7 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
     };
 
     const clearAllEntries = () => {
-        setIncomeEntries([{ id: 1, name: "", amount: "", multiplier: "1", product: 0 }]);
+        setIncomeEntries([{ id: 1, name: "", amount: "", multiplier: "1", product: 0, aitDeducted: true, ait: 0 }]);
         updateRentalIncome(null);
     };
 
@@ -131,6 +156,7 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
     const handleDone = () => {
         const rentalIncome: RentalIncome = {
             total: CalculationService.parseAndRound(totalIncome),
+            totalAit: CalculationService.parseAndRound(totalAit),
             applyRentRelief,
             incomes: incomeEntries.map(entry => {
                 const amount = CalculationService.parseAndRound(entry.amount);
@@ -141,7 +167,9 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
                     name: entry.name,
                     value: CalculationService.parseAndRound(amount),
                     multiplier: CalculationService.parseAndRoundWhole(multiplier),
-                    total: CalculationService.parseAndRound(product)
+                    total: CalculationService.parseAndRound(product),
+                    aitDeducted: entry.aitDeducted,
+                    ait: CalculationService.parseAndRound(entry.ait)
                 };
             })
         };
@@ -162,7 +190,7 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
                     <Text className="text-white text-xl font-semibold">Rental Income Details</Text>
                 </div>
             }
-            maxWidth="900px"
+            maxWidth="1000px"
             isDark={true}
             actions={[
                 {
@@ -211,10 +239,12 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
                                         </div>
                                     </th>
                                     <th className="p-2 py-4 text-center text-gray-300 font-semibold text-sm uppercase tracking-wide">
-                                        <div className="flex items-center justify-end space-x-2">
-                                            <span></span>
+                                        <div className="flex items-center justify-center space-x-2">
+                                            <MdAttachMoney className="text-blue-300" />
+                                            <span>AIT({aitRate}%)</span>
                                         </div>
                                     </th>
+                                    <th className="p-2 py-4"></th>
                                 </tr>
                             </thead>
 
@@ -267,6 +297,24 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
                                             </div>
                                         </td>
 
+                                        <td className="p-2 py-4">
+                                            <div
+                                                className="flex items-center justify-between px-3 py-2 bg-blue-400/20 border border-blue-400/30 rounded-lg cursor-pointer"
+                                                onClick={() => toggleAitDeducted(entry.id)}
+                                            >
+                                                <Text className="text-blue-300 font-semibold text-sm">
+                                                    {entry.aitDeducted ? formatCurrency(entry.ait) : '-'}
+                                                </Text>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={entry.aitDeducted}
+                                                    onChange={() => toggleAitDeducted(entry.id)}
+                                                    onClick={e => e.stopPropagation()}
+                                                    className="w-4 h-4 accent-blue-400 cursor-pointer"
+                                                />
+                                            </div>
+                                        </td>
+
                                         <td className="px-4 py-4 text-center">
                                             {incomeEntries.length > 1 && (
                                                 <button
@@ -293,6 +341,13 @@ const Rent: React.FC<RentProps> = ({ isOpen, onClose }) => {
                                         <div className='inline-block w-full px-4 py-2 bg-green-400/20 border border-green-400/30 rounded-lg'>
                                             <Text className="text-green-300 font-bold text-lg">
                                                 {formatCurrency(totalIncome)}
+                                            </Text>
+                                        </div>
+                                    </td>
+                                    <td className="p-2 text-end">
+                                        <div className='inline-block w-full px-4 py-2 bg-blue-400/20 border border-blue-400/30 rounded-lg'>
+                                            <Text className="text-blue-300 font-bold text-lg">
+                                                {formatCurrency(totalAit)}
                                             </Text>
                                         </div>
                                     </td>

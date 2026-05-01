@@ -62,6 +62,7 @@ export interface EmploymentIncomeRecord {
 
 export interface RentalIncome {
   total : number;
+  totalAit: number;
   incomes : Array<RentalIncomeRecord>
   applyRentRelief: boolean;
 }
@@ -71,6 +72,8 @@ export interface RentalIncomeRecord {
   value : number;
   multiplier : number;
   total : number;
+  aitDeducted: boolean;
+  ait: number;
 }
 
 export interface InterestIncome {

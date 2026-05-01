@@ -23,7 +23,7 @@ const TotalPayableTax = ({ calculation }: TotalPayableTaxProps) => {
     const { rentalIncome, interestIncome, employmentIncome, businessIncome } = sourceOfIncome;
     const { whtRent, aitInterest } = calculation.calculationData.settings.reliefsAndAit;
 
-    const aitRent = rentalIncome ? (rentalIncome.total * whtRent) / 100 : 0.00;
+    const aitRent = rentalIncome?.totalAit;
     const aitInterestTotal = interestIncome?.totalAit;
     const apitTotal = employmentIncome?.apitTotal;
     const whtProfessionalFee = businessIncome?.whtTotal;
