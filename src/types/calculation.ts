@@ -44,6 +44,7 @@ interface SourceOfIncome {
 interface DeductionsFromAssessableIncome {
   rentRelief: number;
   solarRelief: number;
+  donations?: number;
 }
 
 export interface EmploymentIncome {

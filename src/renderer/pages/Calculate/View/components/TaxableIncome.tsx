@@ -25,7 +25,7 @@ const TaxableIncome = ({ calculation }: TaxableIncomeProps) => {
     const { totalAssessableIncome } = sourceOfIncome;
 
     const { personalRelief, rentRelief } = calculation.calculationData.settings.reliefsAndAit;
-    const { solarRelief, rentRelief: rentReliefDeduction } = deductionsFromAssessableIncome;
+    const { solarRelief, rentRelief: rentReliefDeduction, donations = 0 } = deductionsFromAssessableIncome;
 
     const rentalIncomeTotal = calculation.calculationData.sourceOfIncome.rentalIncome?.total || 0;
 
@@ -44,7 +44,7 @@ const TaxableIncome = ({ calculation }: TaxableIncomeProps) => {
                     <Text className="text-white text-xl font-semibold">Deductions</Text>
                 </div>
 
-                <Grid columns="3" gap="6">
+                <Grid columns="4" gap="6">
                     {/* Personal Relief */}
                     <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
                         <div className="flex items-center space-x-3 mb-4">
@@ -93,6 +93,19 @@ const TaxableIncome = ({ calculation }: TaxableIncomeProps) => {
                             {formatCurrency(solarRelief)}
                         </Text>
                     </div>
+
+                    {/* Donations */}
+                    <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+                        <div className="flex items-center space-x-3 mb-4">
+                            <div className="w-10 h-10 bg-purple-400/20 rounded-lg flex items-center justify-center">
+                                <MdAttachMoney className="text-purple-300 text-lg" />
+                            </div>
+                            <Text className="text-white font-semibold">Donations</Text>
+                        </div>
+                        <Text className="text-2xl font-bold text-purple-300">
+                            {formatCurrency(donations)}
+                        </Text>
+                    </div>
                 </Grid>
             </div>
 
@@ -118,6 +131,12 @@ const TaxableIncome = ({ calculation }: TaxableIncomeProps) => {
                         <div className="flex justify-between items-center text-yellow-300">
                             <Text>Less: Solar Relief</Text>
                             <Text className="font-semibold">- {formatCurrency(solarRelief)}</Text>
+                        </div>
+                    )}
+                    {donations > 0 && (
+                        <div className="flex justify-between items-center text-purple-300">
+                            <Text>Less: Donations</Text>
+                            <Text className="font-semibold">- {formatCurrency(donations)}</Text>
                         </div>
                     )}
                     <div className="border-t border-white/20 pt-3 mt-3">

@@ -8,9 +8,10 @@ import { useCalculationContext } from '../../../../contexts/CalculationContext';
 
 const TaxableIncomeCalculation = () => {
 
-    const { currentCalculation, recalculateTotalAssessableIncome, updateSolarRelief } = useCalculationContext();
+    const { currentCalculation, recalculateTotalAssessableIncome, updateSolarRelief, updateDonations } = useCalculationContext();
 
     const [solarRelief, setSolarRelief] = useState<string>('');
+    const [donations, setDonations] = useState<string>('');
 
     useEffect(() => {
         const currentSolarRelief = currentCalculation?.calculationData?.deductionsFromAssessableIncome?.solarRelief ?? '';
@@ -21,11 +22,28 @@ const TaxableIncomeCalculation = () => {
         }
     }, [currentCalculation?.calculationData?.deductionsFromAssessableIncome?.solarRelief]);
 
+    useEffect(() => {
+        const currentDonations = currentCalculation?.calculationData?.deductionsFromAssessableIncome?.donations ?? '';
+        if (currentDonations === 0) {
+            setDonations('');
+        } else {
+            setDonations(currentDonations.toString());
+        }
+    }, [currentCalculation?.calculationData?.deductionsFromAssessableIncome?.donations]);
+
     const handleSolarReliefChange = (value: string) => {
         if (value.match(/^\d*\.?\d{0,2}$/)) {
             setSolarRelief(value);
             const numericValue = parseFloat(value) || 0;
             updateSolarRelief(numericValue);
+        }
+    };
+
+    const handleDonationsChange = (value: string) => {
+        if (value.match(/^\d*\.?\d{0,2}$/)) {
+            setDonations(value);
+            const numericValue = parseFloat(value) || 0;
+            updateDonations(numericValue);
         }
     };
 
@@ -232,63 +250,70 @@ const TaxableIncomeCalculation = () => {
                             <Text className="text-white text-lg font-semibold">Deductions</Text>
                         </div>
 
-                        <div className="space-y-3">
+                        <div className="grid grid-cols-2 gap-3">
                             {/* Personal Relief */}
                             <div className="bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center space-x-3">
-                                        <div className="w-8 h-8 bg-red-400/20 rounded-lg flex items-center justify-center">
-                                            <MdAttachMoney className="text-red-300 text-sm" />
-                                        </div>
-                                        <div>
-                                            <Text className="text-white font-semibold text-sm">Personal Relief</Text>
-                                        </div>
+                                <div className="flex items-center space-x-3 mb-3">
+                                    <div className="w-8 h-8 bg-red-400/20 rounded-lg flex items-center justify-center">
+                                        <MdAttachMoney className="text-red-300 text-sm" />
                                     </div>
-                                    <Text className="text-lg font-bold text-red-300">
-                                        ({CalculationService.formatCurrency(personalRelief)})
-                                    </Text>
+                                    <Text className="text-white font-semibold text-sm">Personal Relief</Text>
                                 </div>
+                                <Text className="text-lg font-bold text-red-300">
+                                    ({CalculationService.formatCurrency(personalRelief)})
+                                </Text>
                             </div>
 
                             {/* Rent Relief */}
                             <div className="bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center space-x-3">
-                                        <div className="w-8 h-8 bg-orange-400/20 rounded-lg flex items-center justify-center">
-                                            <MdAttachMoney className="text-orange-300 text-sm" />
-                                        </div>
-                                        <div className='flex gap-3 items-end'>
-                                            <Text className="text-white font-semibold text-sm">Rent Relief</Text>
-                                            <Text className="text-gray-400 text-xs">
-                                                {currentCalculation?.calculationData?.settings?.reliefsAndAit?.rentRelief}% of {CalculationService.formatCurrency(rentalIncome)}
-                                            </Text>
-                                        </div>
+                                <div className="flex items-center space-x-3 mb-3">
+                                    <div className="w-8 h-8 bg-orange-400/20 rounded-lg flex items-center justify-center shrink-0">
+                                        <MdAttachMoney className="text-orange-300 text-sm" />
                                     </div>
-                                    <Text className="text-lg font-bold text-orange-300">
-                                        ({CalculationService.formatCurrency(rentRelief)})
-                                    </Text>
+                                    <div>
+                                        <Text className="text-white font-semibold text-sm">Rent Relief</Text>
+                                        <Text className="text-gray-400 text-xs ml-2">
+                                            {currentCalculation?.calculationData?.settings?.reliefsAndAit?.rentRelief}% of {CalculationService.formatCurrency(rentalIncome)}
+                                        </Text>
+                                    </div>
                                 </div>
+                                <Text className="text-lg font-bold text-orange-300">
+                                    ({CalculationService.formatCurrency(rentRelief)})
+                                </Text>
                             </div>
 
                             {/* Solar Relief */}
                             <div className="bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center space-x-3">
-                                        <div className="w-8 h-8 bg-yellow-400/20 rounded-lg flex items-center justify-center">
-                                            <MdAttachMoney className="text-yellow-300 text-sm" />
-                                        </div>
-                                        <Text className="text-white font-semibold text-sm">Solar Relief</Text>
+                                <div className="flex items-center space-x-3 mb-3">
+                                    <div className="w-8 h-8 bg-yellow-400/20 rounded-lg flex items-center justify-center">
+                                        <MdAttachMoney className="text-yellow-300 text-sm" />
                                     </div>
-
-                                    <input
-                                        type="text"
-                                        value={solarRelief}
-                                        onChange={(e) => handleSolarReliefChange(e.target.value)}
-                                        className="bg-white/10 rounded px-3 py-1 w-36 text-white text-right outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-sm focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 focus:border-blue-400"
-                                        placeholder='0.00'
-                                    />
-
+                                    <Text className="text-white font-semibold text-sm">Solar Relief</Text>
                                 </div>
+                                <input
+                                    type="text"
+                                    value={solarRelief}
+                                    onChange={(e) => handleSolarReliefChange(e.target.value)}
+                                    className="bg-white/10 rounded px-3 py-1 w-full text-white text-right outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-sm focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 focus:border-blue-400"
+                                    placeholder='0.00'
+                                />
+                            </div>
+
+                            {/* Donations */}
+                            <div className="bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10">
+                                <div className="flex items-center space-x-3 mb-3">
+                                    <div className="w-8 h-8 bg-purple-400/20 rounded-lg flex items-center justify-center">
+                                        <MdAttachMoney className="text-purple-300 text-sm" />
+                                    </div>
+                                    <Text className="text-white font-semibold text-sm">Donations</Text>
+                                </div>
+                                <input
+                                    type="text"
+                                    value={donations}
+                                    onChange={(e) => handleDonationsChange(e.target.value)}
+                                    className="bg-white/10 rounded px-3 py-1 w-full text-white text-right outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-sm focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 focus:border-blue-400"
+                                    placeholder='0.00'
+                                />
                             </div>
                         </div>
                     </div>
@@ -317,6 +342,12 @@ const TaxableIncomeCalculation = () => {
                         <div className="flex justify-between items-center text-yellow-300">
                             <Text className="text-sm">Less: Solar Relief</Text>
                             <Text className="font-semibold text-sm">- {CalculationService.formatCurrency(parseFloat(solarRelief) || 0)}</Text>
+                        </div>
+                    )}
+                    {parseFloat(donations) > 0 && (
+                        <div className="flex justify-between items-center text-purple-300">
+                            <Text className="text-sm">Less: Donations</Text>
+                            <Text className="font-semibold text-sm">- {CalculationService.formatCurrency(parseFloat(donations) || 0)}</Text>
                         </div>
                     )}
                     <div className="border-t border-white/20 pt-2 mt-2">

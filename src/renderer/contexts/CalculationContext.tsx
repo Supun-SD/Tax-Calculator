@@ -76,6 +76,7 @@ interface CalculationContextType {
   updateOtherIncome: (otherIncome: OtherIncome | null) => void;
   recalculateTotalAssessableIncome: () => void;
   updateSolarRelief: (solarRelief: number) => void;
+  updateDonations: (donations: number) => void;
   updateForeignIncome: (foreignIncome: number) => void;
   updateQuarterlyPayment: (
     quarter: 'one' | 'two' | 'three' | 'four',
@@ -116,10 +117,12 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({
         calculation.calculationData.deductionsFromAssessableIncome.rentRelief;
       const solarRelief =
         calculation.calculationData.deductionsFromAssessableIncome.solarRelief;
+      const donations =
+        calculation.calculationData.deductionsFromAssessableIncome.donations ?? 0;
 
       const totalTaxableIncome = Math.max(
         0,
-        totalAssessableIncome - personalRelief - rentRelief - solarRelief
+        totalAssessableIncome - personalRelief - rentRelief - solarRelief - donations
       );
 
       const updatedCalculation = {
@@ -327,6 +330,7 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({
               deductionsFromAssessableIncome: {
                 rentRelief: 0,
                 solarRelief: 0,
+                donations: 0,
               },
               totalTaxableIncome: 0,
               grossIncomeTax: {
@@ -654,6 +658,28 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({
     [currentCalculation, calculateAndUpdateTotalTaxableIncome]
   );
 
+  const updateDonations = useCallback(
+    (donations: number) => {
+      if (currentCalculation) {
+        const updatedCalculation = {
+          ...currentCalculation,
+          calculationData: {
+            ...currentCalculation.calculationData,
+            deductionsFromAssessableIncome: {
+              ...currentCalculation.calculationData
+                .deductionsFromAssessableIncome,
+              donations: Math.round(donations * 100) / 100,
+            },
+          },
+        };
+        setCurrentCalculation(updatedCalculation);
+
+        calculateAndUpdateTotalTaxableIncome(updatedCalculation);
+      }
+    },
+    [currentCalculation, calculateAndUpdateTotalTaxableIncome]
+  );
+
   const updateForeignIncome = useCallback(
     (foreignIncome: number) => {
       if (currentCalculation) {
@@ -733,6 +759,7 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({
       updateOtherIncome,
       recalculateTotalAssessableIncome,
       updateSolarRelief,
+      updateDonations,
       updateForeignIncome,
       updateQuarterlyPayment,
       isLoading,
@@ -751,6 +778,7 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({
       updateOtherIncome,
       recalculateTotalAssessableIncome,
       updateSolarRelief,
+      updateDonations,
       updateForeignIncome,
       updateQuarterlyPayment,
       isLoading,
