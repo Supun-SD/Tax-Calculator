@@ -65,9 +65,13 @@ const TaxableIncomeCalculation = () => {
     const treasuryBillIncome: number = currentCalculation?.calculationData?.sourceOfIncome?.interestIncome?.treasuryBillIncome?.total ?? 0;
     const tBondIncome: number = currentCalculation?.calculationData?.sourceOfIncome?.interestIncome?.tBondIncome?.total ?? 0;
     const debentureIncome: number = currentCalculation?.calculationData?.sourceOfIncome?.interestIncome?.debentureIncome?.total ?? 0;
+    const applyManagementFee = currentCalculation?.calculationData?.sourceOfIncome?.interestIncome?.applyManagementFee ?? false;
+    const managementFee: number = applyManagementFee
+        ? (currentCalculation?.calculationData?.sourceOfIncome?.interestIncome?.managementFee ?? 0)
+        : 0;
 
     const getInterestBreakdownContent = () => {
-        if (interestIncome === 0) return null;
+        if (interestIncome === 0 && managementFee === 0) return null;
 
         const breakdownItems = [];
         if (fdIncome > 0) breakdownItems.push({ label: 'Fixed Deposit', value: fdIncome });
@@ -92,6 +96,14 @@ const TaxableIncomeCalculation = () => {
                             </span>
                         </div>
                     ))}
+                    {managementFee > 0 && (
+                        <div className="flex items-center justify-between p-2 bg-gray-700 rounded-lg border border-gray-600">
+                            <span className="text-xs text-gray-200 font-medium">Management Fee</span>
+                            <span className="text-xs font-bold text-red-300">
+                                - {CalculationService.formatCurrency(managementFee)}
+                            </span>
+                        </div>
+                    )}
                 </div>
                 <div className="mt-3 pt-2 border-t border-gray-600">
                     <div className="flex items-center justify-between">

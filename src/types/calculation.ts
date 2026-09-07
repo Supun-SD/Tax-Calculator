@@ -80,6 +80,8 @@ export interface RentalIncomeRecord {
 export interface InterestIncome {
   totalGrossInterest : number;
   totalAit : number;
+  applyManagementFee?: boolean;
+  managementFee?: number;
   fdIncome: FdIncome | null;
   repoIncome: ReposIncome | null;
   unitTrustIncome: UnitTrustIncome | null;

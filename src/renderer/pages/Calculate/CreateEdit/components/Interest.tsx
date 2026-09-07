@@ -84,6 +84,8 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
     const [debentureEntries, setDebentureEntries] = useState<DebentureEntry[]>([]);
     const [totalGrossInterest, setTotalGrossInterest] = useState<number>(0);
     const [totalAIT, setTotalAIT] = useState<number>(0);
+    const [applyManagementFee, setApplyManagementFee] = useState(false);
+    const [managementFee, setManagementFee] = useState<string>('');
     const [bankSearchTerm, setBankSearchTerm] = useState<string>("");
     const [activeBankDropdown, setActiveBankDropdown] = useState<number | null>(null);
     const [showClearConfirmation, setShowClearConfirmation] = useState(false);
@@ -248,11 +250,13 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
             });
         });
 
+        const fee = applyManagementFee ? CalculationService.parseAndRound(managementFee) : 0;
+
         return {
-            grossTotal: CalculationService.parseAndRound(grossTotal),
+            grossTotal: CalculationService.parseAndRound(Math.max(0, grossTotal - fee)),
             aitTotal: CalculationService.parseAndRound(aitTotal)
         };
-    }, [fdEntries, repoEntries, unitTrustEntries, treasuryBillEntries, tBondEntries, debentureEntries, aitRate]);
+    }, [fdEntries, repoEntries, unitTrustEntries, treasuryBillEntries, tBondEntries, debentureEntries, aitRate, applyManagementFee, managementFee]);
 
     useEffect(() => {
         const { grossTotal, aitTotal } = calculateTotals();
@@ -347,7 +351,7 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
                     certificateNumber: "",
                     isJoint: false,
                     grossInterest: "",
-                    ait: 0
+                    ait: ""
                 }
             ]);
         } else {
@@ -384,8 +388,11 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
     const handleDone = useCallback(() => {
         const totalGrossInterestValue = CalculationService.parseAndRound(totalGrossInterest);
         const totalAitValue = CalculationService.parseAndRound(totalAIT);
+        const managementFeeValue = applyManagementFee
+            ? CalculationService.parseAndRound(managementFee)
+            : 0;
 
-        if (totalGrossInterest === 0) {
+        if (totalGrossInterest === 0 && managementFeeValue === 0) {
             updateInterestIncome(null);
             onClose();
             return;
@@ -402,9 +409,17 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
         const tBondTotal = tBondEntries.reduce((sum, entry) => sum + CalculationService.parseAndRound(entry.value), 0);
         const debentureTotal = debentureEntries.reduce((sum, entry) => sum + CalculationService.parseAndRound(entry.value), 0);
 
+        if (fdTotal + repoTotal + unitTrustTotal + treasuryBillTotal + tBondTotal + debentureTotal === 0) {
+            updateInterestIncome(null);
+            onClose();
+            return;
+        }
+
         const interestIncome: InterestIncome = {
             totalGrossInterest: totalGrossInterestValue,
             totalAit: totalAitValue,
+            applyManagementFee,
+            managementFee: managementFeeValue,
             fdIncome: fdTotal > 0 ? {
                 total: roundToTwoDecimals(fdTotal),
                 ait: fdEntries.reduce((sum, entry) => sum + CalculationService.parseAndRound(entry.ait), 0),
@@ -475,7 +490,7 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
         };
         updateInterestIncome(interestIncome);
         onClose();
-    }, [fdEntries, repoEntries, unitTrustEntries, treasuryBillEntries, tBondEntries, debentureEntries, totalGrossInterest, totalAIT, roundToTwoDecimals, updateInterestIncome, onClose]);
+    }, [fdEntries, repoEntries, unitTrustEntries, treasuryBillEntries, tBondEntries, debentureEntries, totalGrossInterest, totalAIT, applyManagementFee, managementFee, roundToTwoDecimals, updateInterestIncome, onClose]);
 
     useEffect(() => {
         if (isOpen && interestIncome) {
@@ -533,6 +548,13 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
                 value: income.value.toString(),
                 ait: income.ait
             })) || [getDefaultDebentureEntry()]);
+
+            setApplyManagementFee(interestIncome.applyManagementFee ?? false);
+            setManagementFee(
+                interestIncome.managementFee
+                    ? interestIncome.managementFee.toString()
+                    : ''
+            );
         } else if (isOpen && !interestIncome) {
             setFdEntries([getDefaultFdEntry()]);
             setRepoEntries([getDefaultRepoEntry()]);
@@ -540,6 +562,8 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
             setTreasuryBillEntries([getDefaultTreasuryBillEntry()]);
             setTBondEntries([getDefaultTBondEntry()]);
             setDebentureEntries([getDefaultDebentureEntry()]);
+            setApplyManagementFee(false);
+            setManagementFee('');
         }
     }, [isOpen, interestIncome, getDefaultFdEntry, getDefaultRepoEntry, getDefaultUnitTrustEntry, getDefaultTreasuryBillEntry, getDefaultTBondEntry, getDefaultDebentureEntry]);
 
@@ -732,6 +756,64 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
                         Add New Entry
                     </Button>
                 </Flex>
+
+                {/* Management Fee */}
+                <div className="bg-white/5 rounded-xl border border-white/10 p-4">
+                    <div className="flex items-center justify-between gap-6">
+                        <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-lg bg-purple-400/15 border border-purple-400/20 flex items-center justify-center">
+                                <MdAccountBalanceWallet className="text-purple-300 text-lg" />
+                            </div>
+
+                            <div>
+                                <Text className="text-white text-sm font-semibold mr-4">
+                                    Management Fee
+                                </Text>
+                                <Text className="text-gray-400 text-xs mt-0.5">
+                                    Deduct the management fee from the gross interest income
+                                </Text>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-4">
+                            <label
+                                htmlFor="applyManagementFee"
+                                className="flex items-center gap-2.5 cursor-pointer select-none"
+                            >
+                                <input
+                                    type="checkbox"
+                                    id="applyManagementFee"
+                                    checked={applyManagementFee}
+                                    onChange={e => setApplyManagementFee(e.target.checked)}
+                                    className="w-4 h-4 accent-purple-400 cursor-pointer"
+                                />
+                                <span className="text-gray-300 text-sm">
+                                    Apply Fee
+                                </span>
+                            </label>
+
+                            <div className="relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+                                    {CalculationService.formatCurrency(0).replace(/[0-9.,\s]/g, '')}
+                                </span>
+
+                                <input
+                                    type="text"
+                                    value={managementFee}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (value.match(/^\d*\.?\d{0,2}$/)) {
+                                            setManagementFee(value);
+                                        }
+                                    }}
+                                    disabled={!applyManagementFee}
+                                    className="w-44 pl-8 pr-3 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white text-right text-sm outline-none transition-all duration-200 focus:ring-2 focus:ring-purple-400/40 focus:border-purple-400/50 disabled:opacity-40 disabled:cursor-not-allowed placeholder-gray-500"
+                                    placeholder="0.00"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 {/* Total Summary */}
                 <div className="bg-white/5 rounded-xl border border-white/20 p-4 px-6">

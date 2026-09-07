@@ -335,8 +335,22 @@ const IncomeBreakdownModal = ({ incomeType, incomeData, calculation }: IncomeBre
                 <div className="bg-gradient-to-r from-purple-500/20 to-purple-600/20 rounded-xl p-4 border border-purple-500/30">
                     <div className="flex justify-between items-center">
                         <Text className="text-white font-semibold">Total Gross Interest</Text>
-                        <Text className="text-2xl font-bold text-purple-400">{formatCurrency(data.totalGrossInterest)}</Text>
+                        <Text className="text-2xl font-bold text-purple-400">{formatCurrency(
+                            data.totalGrossInterest + ((data.applyManagementFee ? data.managementFee : 0) ?? 0)
+                        )}</Text>
                     </div>
+                    {data.applyManagementFee && (data.managementFee ?? 0) > 0 && (
+                        <div className="flex justify-between items-center mt-2">
+                            <Text className="text-gray-400">Management Fee</Text>
+                            <Text className="text-lg font-semibold text-red-300">- {formatCurrency(data.managementFee ?? 0)}</Text>
+                        </div>
+                    )}
+                    {data.applyManagementFee && (data.managementFee ?? 0) > 0 && (
+                        <div className="flex justify-between items-center mt-2">
+                            <Text className="text-white font-semibold">Net Interest</Text>
+                            <Text className="text-lg font-semibold text-purple-300">{formatCurrency(data.totalGrossInterest)}</Text>
+                        </div>
+                    )}
                     <div className="flex justify-between items-center mt-2">
                         <Text className="text-gray-400">Total AIT ({calculation.calculationData.settings.reliefsAndAit.aitInterest}%)</Text>
                         <Text className="text-lg font-semibold text-purple-300">{formatCurrency(data.totalAit)}</Text>
