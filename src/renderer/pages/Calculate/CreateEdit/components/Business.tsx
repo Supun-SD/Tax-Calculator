@@ -40,7 +40,7 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
                 hasWht: income.wht > 0
             }));
             setBusinessEntries(entries.length > 0 ? entries : [{ id: 1, hospital: "", amount: "", wht: "0", hasWht: false }]);
-            setTaxablePercentage(businessIncome.assessableIncomePercentage.toString());
+            setTaxablePercentage((100 - businessIncome.assessableIncomePercentage).toString());
         } else if (isOpen && !businessIncome) {
             setBusinessEntries([{ id: 1, hospital: "", amount: "", wht: "0", hasWht: false }]);
             setTaxablePercentage("");
@@ -134,7 +134,7 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
 
     const isDoneDisabled = useMemo(() =>
         businessEntries.some(e => e.hospital === "" || e.amount === "") ||
-        taxablePercentage === "" || taxablePercentage === "0",
+        taxablePercentage === "",
         [businessEntries, taxablePercentage]
     );
 
@@ -373,6 +373,28 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
                             <div className='bg-red-400/20 border border-red-400/30 rounded-lg px-4 py-2'>
                                 <Text className="text-red-300 font-semibold">
                                     {formatCurrency(totalAmount * CalculationService.parseAndRound(taxablePercentage) / 100)}
+                                </Text>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Amount for Assessable Income */}
+                <div className="bg-white/5 rounded-xl border border-white/10 p-6">
+                    <div className="flex justify-between items-center">
+                        <div className="flex items-center space-x-2">
+                            <MdAttachMoney className="text-green-300" />
+                            <Text className="text-white font-medium">Amount for Assessable Income</Text>
+                        </div>
+                        <div className='flex items-center gap-5'>
+                            <div className='bg-white/10 border border-white/20 rounded-lg px-4 py-2'>
+                                <Text className="text-gray-300 font-semibold">
+                                    {100 - CalculationService.parseAndRoundWhole(taxablePercentage)}%
+                                </Text>
+                            </div>
+                            <div className='bg-green-400/20 border border-green-400/30 rounded-lg px-4 py-2'>
+                                <Text className="text-green-300 font-bold text-lg">
+                                    {formatCurrency(totalAmount * (100 - CalculationService.parseAndRound(taxablePercentage)) / 100)}
                                 </Text>
                             </div>
                         </div>
