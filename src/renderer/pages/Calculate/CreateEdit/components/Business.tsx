@@ -254,12 +254,12 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
                                         {/* Apply WHT Checkbox */}
                                         <td className="p-2 py-4 text-center">
                                             <div className="flex justify-center">
-                                                <label className="flex items-center space-x-2 cursor-pointer">
+                                                <label className="flex items-center space-x-2">
                                                     <input
                                                         type="checkbox"
                                                         checked={entry.hasWht}
                                                         onChange={e => handleWhtToggle(entry.id, e.target.checked)}
-                                                        className="w-4 h-4 text-blue-600 bg-white/10 border-white/20 rounded focus:ring-blue-500 focus:ring-2"
+                                                        className="w-4 h-4 text-blue-600 bg-white/10 border-white/20 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer"
                                                     />
                                                 </label>
                                             </div>
@@ -276,7 +276,6 @@ const Business: React.FC<BusinessProps> = ({ isOpen, onClose }) => {
                                                     disabled={!entry.hasWht}
                                                     className={`w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-right placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 ${!entry.hasWht ? 'opacity-50 cursor-not-allowed' : ''}`}
                                                     placeholder="0.00"
-                                                    readOnly
                                                 />
                                             </div>
                                         </td>
