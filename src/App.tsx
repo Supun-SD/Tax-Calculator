@@ -1,18 +1,76 @@
-import "./App.css";
+import { useState } from "react";
+import { check } from "@tauri-apps/plugin-updater";
 
 function App() {
+  const [message, setMessage] = useState("");
+  const [updateAvailable, setUpdateAvailable] = useState(false);
+  const [update, setUpdate] = useState<any>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const checkForUpdates = async () => {
+    try {
+      setMessage("Checking for updates...");
+      setUpdateAvailable(false);
+
+      const result = await check();
+
+      if (result) {
+        setUpdate(result);
+        setUpdateAvailable(true);
+        setMessage(`Update available: ${result.version}`);
+      } else {
+        setMessage("You are using the latest version.");
+      }
+    } catch (error) {
+      console.error("Update check failed:", error);
+      setMessage("Failed to check for updates.");
+    }
+  };
+
+  const installUpdate = async () => {
+    if (!update) return;
+
+    try {
+      setIsUpdating(true);
+      setMessage("Downloading update...");
+
+      await update.downloadAndInstall();
+
+      setMessage("Update installed. Restarting...");
+    } catch (error) {
+      console.error("Update installation failed:", error);
+      setMessage("Failed to install update.");
+      setIsUpdating(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="bg-white rounded-xl shadow-lg p-8">
-        <h1 className="text-3xl font-bold text-gray-900">Finance Tracker</h1>
+    <main className="flex min-h-screen items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-3xl font-bold">Tax Calculator</h1>
 
-        <p className="mt-2 text-gray-600">Tailwind CSS is working.</p>
+        <p className="mt-4">{message}</p>
 
-        <button className="mt-6 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
-          Test Button
-        </button>
+        {!updateAvailable && (
+          <button
+            onClick={checkForUpdates}
+            className="mt-6 rounded-lg bg-black px-4 py-2 text-white"
+          >
+            Check for Updates
+          </button>
+        )}
+
+        {updateAvailable && (
+          <button
+            onClick={installUpdate}
+            disabled={isUpdating}
+            className="mt-6 rounded-lg bg-black px-4 py-2 text-white disabled:opacity-50"
+          >
+            {isUpdating ? "Updating..." : "Install Update"}
+          </button>
+        )}
       </div>
-    </div>
+    </main>
   );
 }
 
