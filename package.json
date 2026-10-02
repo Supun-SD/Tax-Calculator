@@ -1,7 +1,7 @@
 {
   "name": "tax-calculator",
   "private": true,
-  "version": "1.0.14",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,36 +10,19 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@headlessui/react": "^2.2.7",
-    "@radix-ui/themes": "^3.2.1",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-opener": "^2",
-    "@tauri-apps/plugin-updater": "^2",
-    "axios": "^1.11.0",
-    "postcss-import": "^16.1.1",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "react-icons": "^5.5.0",
-    "react-router-dom": "^7.8.0",
-    "react-spinners": "^0.17.0",
-    "react-toastify": "^11.0.5"
+    "@tauri-apps/plugin-updater": "^2.13.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
     "@tauri-apps/cli": "^2",
-    "@types/node": "^24.2.0",
-    "@types/react": "^19.1.9",
-    "@types/react-dom": "^19.1.7",
-    "@typescript-eslint/eslint-plugin": "^5.62.0",
-    "@typescript-eslint/parser": "^5.62.0",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^6.0.2",
-    "autoprefixer": "^10.4.21",
-    "eslint": "^8.57.1",
-    "eslint-plugin-import": "^2.32.0",
-    "postcss": "^8.5.6",
-    "prettier": "^3.6.2",
-    "prettier-plugin-tailwindcss": "^0.6.14",
-    "tailwindcss": "^3.4.17",
+    "tailwindcss": "^4.3.3",
     "typescript": "~6.0.3",
     "vite": "^8.0.16"
   }
