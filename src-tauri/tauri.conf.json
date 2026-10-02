@@ -14,7 +14,11 @@
       {
         "title": "Tax Calculator",
         "width": 1200,
-        "height": 800
+        "height": 800,
+        "minWidth": 1200,
+        "minHeight": 800,
+        "resizable": true,
+        "fullscreen": false
       }
     ],
     "security": {
