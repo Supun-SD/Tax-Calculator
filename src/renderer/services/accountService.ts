@@ -6,7 +6,7 @@ import {
   AccountUpdateReq,
 } from "../../types/account";
 
-const getHeaders = (token: string) => {
+const getHeaders = (token: string | null) => {
   return {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -14,7 +14,7 @@ const getHeaders = (token: string) => {
   };
 };
 
-const getAllAccounts = async (token: string): Promise<Account[]> => {
+const getAllAccounts = async (token: string | null): Promise<Account[]> => {
   const response = await axios.get(
     `${API_BASE_URL}/account`,
     getHeaders(token)
@@ -24,7 +24,7 @@ const getAllAccounts = async (token: string): Promise<Account[]> => {
 
 const createAccount = async (
   account: AccountCreateReq,
-  token: string
+  token: string | null
 ): Promise<Account> => {
   const response = await axios.post(
     `${API_BASE_URL}/account`,
@@ -37,7 +37,7 @@ const createAccount = async (
 const updateAccount = async (
   id: number,
   account: AccountUpdateReq,
-  token: string
+  token: string | null
 ): Promise<Account> => {
   const response = await axios.put(
     `${API_BASE_URL}/account/${id}`,
@@ -47,7 +47,10 @@ const updateAccount = async (
   return response.data.data;
 };
 
-const deleteAccount = async (id: number, token: string): Promise<void> => {
+const deleteAccount = async (
+  id: number,
+  token: string | null
+): Promise<void> => {
   await axios.delete(`${API_BASE_URL}/account/${id}`, getHeaders(token));
 };
 

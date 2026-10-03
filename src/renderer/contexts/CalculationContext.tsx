@@ -20,6 +20,7 @@ import {
 import { useSettingsContext } from "./SettingsContext";
 import { Status } from "../../types/enums/status";
 import { useCalculations } from "../hooks/useCalculations";
+import { useToast } from "../hooks/useToast";
 
 const calculateTotalAssessableIncome = (
   employmentIncome: EmploymentIncome | null,
@@ -84,7 +85,7 @@ interface CalculationContextType {
   ) => void;
   isLoading: boolean;
   isEditing: boolean;
-  error: string;
+  error: string | null;
 }
 
 const CalculationContext = createContext<CalculationContextType | undefined>(
@@ -106,11 +107,12 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({
   >(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const { showError } = useToast();
 
   const calculateAndUpdateTotalTaxableIncome = useCallback(
     (calculation: Calculation | CalculationReq) => {
       const totalAssessableIncome =
-        calculation.calculationData.sourceOfIncome.totalAssessableIncome;
+        calculation.calculationData.sourceOfIncome.totalAssessableIncome ?? 0;
       const personalRelief =
         calculation.calculationData.settings.reliefsAndAit.personalRelief;
       const rentRelief =
@@ -314,6 +316,12 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({
           setIsEditing(true);
         } else {
           setIsEditing(false);
+
+          if (!settings) {
+            showError("Settings are not available");
+            return;
+          }
+
           const newCalculation: CalculationReq = {
             year: "",
             status: Status.DRAFT,

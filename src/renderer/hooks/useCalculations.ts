@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import {
   Calculation,
   CalculationOverview,
@@ -273,7 +273,7 @@ export const useCalculations = (): UseCalculationsReturn => {
         );
         return calculation;
       } catch (err: any) {
-        let errorMessage = "Error checking existing calculations";
+        const errorMessage = "Error checking existing calculations";
         setError(errorMessage);
         showError(errorMessage);
         return null;
@@ -291,7 +291,7 @@ export const useCalculations = (): UseCalculationsReturn => {
         await calculationService.downloadCalculationPdf(id, token);
         showSuccess("Calculation downloaded successfully");
       } catch (err: any) {
-        let errorMessage = "Error downloading calculation";
+        const errorMessage = "Error downloading calculation";
 
         setError(errorMessage);
         showError(errorMessage);
@@ -305,8 +305,6 @@ export const useCalculations = (): UseCalculationsReturn => {
   const clearError = useCallback(() => {
     setError(null);
   }, []);
-
-  useEffect(() => {}, []);
 
   return {
     calculations,

@@ -35,13 +35,13 @@ export interface CalculationSettings {
 }
 
 interface SourceOfIncome {
-  employmentIncome: EmploymentIncome;
-  rentalIncome: RentalIncome;
-  interestIncome: InterestIncome;
-  dividendIncome: DividendIncome;
-  businessIncome: BusinessIncome;
-  otherIncome: OtherIncome;
-  totalAssessableIncome: number;
+  employmentIncome: EmploymentIncome | null;
+  rentalIncome: RentalIncome | null;
+  interestIncome: InterestIncome | null;
+  dividendIncome: DividendIncome | null;
+  businessIncome: BusinessIncome | null;
+  otherIncome: OtherIncome | null;
+  totalAssessableIncome: number | null;
 }
 
 interface DeductionsFromAssessableIncome {
