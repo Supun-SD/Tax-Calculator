@@ -1,5 +1,5 @@
-const API_BASE_DEV = 'http://localhost:8080/api';
-const API_BASE_PROD = 'https://tax-calculator-be.onrender.com/api';
+const API_BASE_DEV = "http://localhost:8080/api";
+const API_BASE_PROD = "https://tax-calculator-be.onrender.com/api";
 
 const IS_DEV = false;
 

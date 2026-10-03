@@ -1,26 +1,26 @@
-import { ReactNode, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useUserContext } from '../contexts/UserContext';
+import { ReactNode, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useUserContext } from "../contexts/UserContext";
 
 interface PublicRouteProps {
-    children: ReactNode;
+  children: ReactNode;
 }
 
 const PublicRoute = ({ children }: PublicRouteProps) => {
-    const { token } = useUserContext();
-    const navigate = useNavigate();
+  const { token } = useUserContext();
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        if (token) {
-            navigate('/home');
-        }
-    }, [token]);
-
+  useEffect(() => {
     if (token) {
-        return null;
+      navigate("/home");
     }
+  }, [token]);
 
-    return <>{children}</>;
+  if (token) {
+    return null;
+  }
+
+  return <>{children}</>;
 };
 
 export default PublicRoute;

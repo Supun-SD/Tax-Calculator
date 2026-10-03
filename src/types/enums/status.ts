@@ -1,4 +1,4 @@
 export enum Status {
-    SUBMITTED = 'submitted',
-    DRAFT = 'draft',
+  SUBMITTED = "submitted",
+  DRAFT = "draft",
 }

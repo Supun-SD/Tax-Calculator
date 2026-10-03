@@ -1,10 +1,10 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef } from "react";
 
 interface InputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> {
   label?: string;
-  variant?: 'default' | 'outline' | 'filled';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: "default" | "outline" | "filled";
+  size?: "sm" | "md" | "lg";
   error?: string;
   helperText?: string;
   leftIcon?: React.ReactNode;
@@ -19,42 +19,42 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
   (
     {
       label,
-      variant = 'default',
-      size = 'md',
+      variant = "default",
+      size = "md",
       error,
       helperText,
       leftIcon,
       rightIcon,
       prefix,
       suffix,
-      className = '',
-      labelClassName = '',
+      className = "",
+      labelClassName = "",
       ...props
     },
     ref
   ) => {
     const baseClasses =
-      'w-full font-medium outline-none transition-all duration-200 rounded-lg';
+      "w-full font-medium outline-none transition-all duration-200 rounded-lg";
 
     const variantClasses = {
-      default: 'bg-surface-2 text-white',
-      outline: 'bg-transparent text-white border-2 border-gray-600',
-      filled: 'bg-surface-2 text-white border',
+      default: "bg-surface-2 text-white",
+      outline: "bg-transparent text-white border-2 border-gray-600",
+      filled: "bg-surface-2 text-white border",
     };
 
     const sizeClasses = {
-      sm: 'px-3 py-1.5 text-sm',
-      md: 'px-3 py-2 text-base',
-      lg: 'px-4 py-3 text-lg',
+      sm: "px-3 py-1.5 text-sm",
+      md: "px-3 py-2 text-base",
+      lg: "px-4 py-3 text-lg",
     };
 
     const errorClasses = error
-      ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
-      : '';
+      ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+      : "";
 
     const inputClasses = `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${errorClasses} ${className}`;
 
-    const labelBaseClasses = 'block text-white font-medium mb-2';
+    const labelBaseClasses = "block text-white font-medium mb-2";
     const labelClasses = `${labelBaseClasses} ${labelClassName}`;
 
     return (
@@ -69,7 +69,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           )}
           <input
             ref={ref}
-            className={`${inputClasses} ${leftIcon || prefix ? 'pl-10' : ''} ${rightIcon || suffix ? 'pr-10' : ''}`}
+            className={`${inputClasses} ${leftIcon || prefix ? "pl-10" : ""} ${rightIcon || suffix ? "pr-10" : ""}`}
             {...props}
           />
           {suffix && (
@@ -92,6 +92,6 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
   }
 );
 
-Input.displayName = 'Input';
+Input.displayName = "Input";
 
 export default Input;

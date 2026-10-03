@@ -1,20 +1,20 @@
-import axios from 'axios';
-import { 
+import axios from "axios";
+import {
   CalculationOverview,
   Calculation,
-  CalculationReq
-} from '../../types/calculation';
-import { API_BASE_URL } from '../config/api';
+  CalculationReq,
+} from "../../types/calculation";
+import { API_BASE_URL } from "../config/api";
 
 export class CalculationService {
   /**
    * Convert string to number safely, returning 0 for invalid values
    */
   static toNumber(value: string | number | null | undefined): number {
-    if (value === null || value === undefined || value === '') {
+    if (value === null || value === undefined || value === "") {
       return 0;
     }
-    if (typeof value === 'number') {
+    if (typeof value === "number") {
       return value;
     }
     const parsed = parseFloat(value);
@@ -60,9 +60,9 @@ export class CalculationService {
    * Format currency for display
    */
   static formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('en-US', { 
-      minimumFractionDigits: 2, 
-      maximumFractionDigits: 2 
+    return new Intl.NumberFormat("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
     }).format(amount);
   }
 }
@@ -70,51 +70,94 @@ export class CalculationService {
 const getHeaders = (token: string) => {
   return {
     headers: {
-      Authorization: `Bearer ${token}`
-    }
-  }
-}
+      Authorization: `Bearer ${token}`,
+    },
+  };
+};
 
-const getAllCalculations = async (token: string): Promise<CalculationOverview[]> => {
-  const response = await axios.get(`${API_BASE_URL}/calculation`, getHeaders(token));
+const getAllCalculations = async (
+  token: string
+): Promise<CalculationOverview[]> => {
+  const response = await axios.get(
+    `${API_BASE_URL}/calculation`,
+    getHeaders(token)
+  );
   return response.data.data;
-}
+};
 
-const getCalculationById = async (id: number, token: string): Promise<Calculation> => {
-  const response = await axios.get(`${API_BASE_URL}/calculation/${id}`, getHeaders(token));
+const getCalculationById = async (
+  id: number,
+  token: string
+): Promise<Calculation> => {
+  const response = await axios.get(
+    `${API_BASE_URL}/calculation/${id}`,
+    getHeaders(token)
+  );
   return response.data.data;
-}
+};
 
-const createCalculation = async (calculation: CalculationReq, token: string): Promise<Calculation> => {
-  const response = await axios.post(`${API_BASE_URL}/calculation`, calculation, getHeaders(token));
+const createCalculation = async (
+  calculation: CalculationReq,
+  token: string
+): Promise<Calculation> => {
+  const response = await axios.post(
+    `${API_BASE_URL}/calculation`,
+    calculation,
+    getHeaders(token)
+  );
   return response.data.data;
-}
+};
 
-const updateCalculation = async (id: number, calculation: CalculationReq, token: string): Promise<Calculation> => {
-  const response = await axios.put(`${API_BASE_URL}/calculation/${id}`, calculation, getHeaders(token));
+const updateCalculation = async (
+  id: number,
+  calculation: CalculationReq,
+  token: string
+): Promise<Calculation> => {
+  const response = await axios.put(
+    `${API_BASE_URL}/calculation/${id}`,
+    calculation,
+    getHeaders(token)
+  );
   return response.data.data;
-}
+};
 
 const deleteCalculation = async (id: number, token: string): Promise<void> => {
   await axios.delete(`${API_BASE_URL}/calculation/${id}`, getHeaders(token));
-}
+};
 
-const getCalculationByAccountId = async (accountId: number, token: string): Promise<Calculation[]> => {
-  const response = await axios.get(`${API_BASE_URL}/calculation/account/${accountId}`, getHeaders(token));
+const getCalculationByAccountId = async (
+  accountId: number,
+  token: string
+): Promise<Calculation[]> => {
+  const response = await axios.get(
+    `${API_BASE_URL}/calculation/account/${accountId}`,
+    getHeaders(token)
+  );
   return response.data.data;
-}
+};
 
-const checkCalculation = async (accountId: number, year: string, token: string): Promise<Calculation> => {
-  const response = await axios.post(`${API_BASE_URL}/calculation/check`, { accountId, year }, getHeaders(token));
+const checkCalculation = async (
+  accountId: number,
+  year: string,
+  token: string
+): Promise<Calculation> => {
+  const response = await axios.post(
+    `${API_BASE_URL}/calculation/check`,
+    { accountId, year },
+    getHeaders(token)
+  );
   return response.data.data;
-}
+};
 
-export const downloadCalculationPdf = async (id: number, token: string): Promise<void> => {
+export const downloadCalculationPdf = async (
+  id: number,
+  token: string
+): Promise<void> => {
   const response = await axios.get(`${API_BASE_URL}/calculation/print/${id}`, {
     responseType: "blob",
     headers: {
-      Authorization: `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   });
 
   const contentDisposition = response.headers["content-disposition"];
@@ -146,5 +189,5 @@ export const calculationService = {
   deleteCalculation,
   getCalculationByAccountId,
   downloadCalculationPdf,
-  checkCalculation
-}
+  checkCalculation,
+};

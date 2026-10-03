@@ -1,6 +1,6 @@
-import { Account } from './account';
-import { Status } from './enums/status';
-import { ReliefsAndAit, TaxRates } from './settings';
+import { Account } from "./account";
+import { Status } from "./enums/status";
+import { ReliefsAndAit, TaxRates } from "./settings";
 
 export interface Calculation {
   id: number;
@@ -13,7 +13,10 @@ export interface Calculation {
   calculationData: CalculationData;
 }
 
-export type CalculationReq = Omit<Calculation, "id" | "createdAt" | "updatedAt" | "account">;
+export type CalculationReq = Omit<
+  Calculation,
+  "id" | "createdAt" | "updatedAt" | "account"
+>;
 export type CalculationOverview = Omit<Calculation, "calculationData">;
 
 interface CalculationData {
@@ -32,13 +35,13 @@ export interface CalculationSettings {
 }
 
 interface SourceOfIncome {
-  employmentIncome : EmploymentIncome,
-  rentalIncome : RentalIncome,
-  interestIncome : InterestIncome,
-  dividendIncome : DividendIncome,
-  businessIncome : BusinessIncome,
-  otherIncome : OtherIncome,
-  totalAssessableIncome : number;
+  employmentIncome: EmploymentIncome;
+  rentalIncome: RentalIncome;
+  interestIncome: InterestIncome;
+  dividendIncome: DividendIncome;
+  businessIncome: BusinessIncome;
+  otherIncome: OtherIncome;
+  totalAssessableIncome: number;
 }
 
 interface DeductionsFromAssessableIncome {
@@ -48,38 +51,38 @@ interface DeductionsFromAssessableIncome {
 }
 
 export interface EmploymentIncome {
-  total : number;
+  total: number;
   apitTotal: number;
-  incomes : Array<EmploymentIncomeRecord>
+  incomes: Array<EmploymentIncomeRecord>;
 }
 
 export interface EmploymentIncomeRecord {
   name: string;
-  value : number;
-  multiplier : number;
-  total : number;
+  value: number;
+  multiplier: number;
+  total: number;
   apit: number;
 }
 
 export interface RentalIncome {
-  total : number;
+  total: number;
   totalAit: number;
-  incomes : Array<RentalIncomeRecord>
+  incomes: Array<RentalIncomeRecord>;
   applyRentRelief: boolean;
 }
 
 export interface RentalIncomeRecord {
   name: string;
-  value : number;
-  multiplier : number;
-  total : number;
+  value: number;
+  multiplier: number;
+  total: number;
   aitDeducted: boolean;
   ait: number;
 }
 
 export interface InterestIncome {
-  totalGrossInterest : number;
-  totalAit : number;
+  totalGrossInterest: number;
+  totalAit: number;
   applyManagementFee?: boolean;
   managementFee?: number;
   fdIncome: FdIncome | null;
@@ -105,7 +108,7 @@ export interface FdIncomeRecord {
   certificateNumber?: string;
   isJoint: boolean;
   grossInterest: number;
-  contribution: number; 
+  contribution: number;
   ait: number;
 }
 
@@ -199,18 +202,18 @@ export interface BusinessIncome {
 
 export interface BusinessIncomeRecord {
   hospitalName: string;
-  value : number;
+  value: number;
   wht: number;
 }
 
 export interface OtherIncome {
-  total : number;
-  incomes : Array<OtherIncomeRecord>;
+  total: number;
+  incomes: Array<OtherIncomeRecord>;
 }
 
 export interface OtherIncomeRecord {
-  incomeType : string;
-  value : number;
+  incomeType: string;
+  value: number;
 }
 
 export interface GrossIncomeTax {

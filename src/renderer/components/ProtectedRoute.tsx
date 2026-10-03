@@ -1,27 +1,26 @@
-import { ReactNode, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useUserContext } from '../contexts/UserContext';
-import { ClipLoader } from 'react-spinners';
+import { ReactNode, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useUserContext } from "../contexts/UserContext";
 
 interface ProtectedRouteProps {
-    children: ReactNode;
+  children: ReactNode;
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-    const { token } = useUserContext();
-    const navigate = useNavigate();
+  const { token } = useUserContext();
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        if (!token) {
-            navigate('/');
-        }
-    }, [token]);
-
+  useEffect(() => {
     if (!token) {
-        return null;
+      navigate("/");
     }
+  }, [token]);
 
-    return <>{children}</>;
+  if (!token) {
+    return null;
+  }
+
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;

@@ -1,5 +1,5 @@
-import { FiSearch } from 'react-icons/fi';
-import React from 'react';
+import { FiSearch } from "react-icons/fi";
+import React from "react";
 
 interface SearchBarProps extends React.InputHTMLAttributes<HTMLInputElement> {
   value: string;
@@ -11,18 +11,18 @@ interface SearchBarProps extends React.InputHTMLAttributes<HTMLInputElement> {
 const SearchBar: React.FC<SearchBarProps> = ({
   value,
   onChange,
-  placeholder = 'Search...',
-  className = '',
+  placeholder = "Search...",
+  className = "",
   ...inputProps
 }) => {
   return (
     <div className={`relative ${className}`}>
-      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <FiSearch className="text-gray-400 text-lg" />
+      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+        <FiSearch className="text-lg text-gray-400" />
       </div>
       <input
         type="text"
-        className="w-full h-12 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 pl-10 pr-4"
+        className="h-12 w-full rounded-lg border border-white/20 bg-white/10 pl-10 pr-4 text-white placeholder-gray-300 transition-all duration-200 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-400"
         value={value}
         onChange={onChange}
         placeholder={placeholder}

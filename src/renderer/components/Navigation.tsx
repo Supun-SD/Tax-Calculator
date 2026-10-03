@@ -1,8 +1,8 @@
-import { useNavigate } from 'react-router-dom';
-import { IoIosArrowBack } from 'react-icons/io';
+import { useNavigate } from "react-router-dom";
+import { IoIosArrowBack } from "react-icons/io";
 import { AiFillHome } from "react-icons/ai";
 import { LuLogOut } from "react-icons/lu";
-import { useUserContext } from '../contexts/UserContext';
+import { useUserContext } from "../contexts/UserContext";
 
 interface NavigationProps {
   title: string;
@@ -10,13 +10,17 @@ interface NavigationProps {
   showHomeButton?: boolean;
 }
 
-const Navigation = ({ title, showBackButton = true, showHomeButton = true }: NavigationProps) => {
+const Navigation = ({
+  title,
+  showBackButton = true,
+  showHomeButton = true,
+}: NavigationProps) => {
   const navigate = useNavigate();
   const { logout } = useUserContext();
 
   const handleLogout = () => {
     logout();
-  }
+  };
 
   return (
     <div className="mb-8 flex items-center justify-between">
@@ -34,7 +38,7 @@ const Navigation = ({ title, showBackButton = true, showHomeButton = true }: Nav
       <div className="flex items-center gap-4">
         {showHomeButton && (
           <button
-            onClick={() => navigate('/home')}
+            onClick={() => navigate("/home")}
             className="ml-auto text-white transition-colors hover:text-gray-300"
             title="Go to Home"
           >
