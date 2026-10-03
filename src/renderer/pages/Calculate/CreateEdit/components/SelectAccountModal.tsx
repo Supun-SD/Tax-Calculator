@@ -1,15 +1,15 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Flex, Text } from '@radix-ui/themes';
-import Modal from '../../../../components/Modal';
-import { Account } from '../../../../../types/account';
-import { FiCalendar } from 'react-icons/fi';
+import React, { useState, useMemo, useEffect } from "react";
+import { Flex, Text } from "@radix-ui/themes";
+import Modal from "../../../../components/Modal";
+import { Account } from "../../../../../types/account";
+import { FiCalendar } from "react-icons/fi";
 import { MdAccountCircle, MdSearch, MdDescription } from "react-icons/md";
-import { useAccounts } from '../../../../hooks/useAccounts';
-import { ClipLoader } from 'react-spinners';
-import { useCalculations } from '../../../../hooks/useCalculations';
-import { useToast } from '../../../../hooks/useToast';
-import { Status } from '../../../../../types/enums/status';
-import { useCalculationContext } from '../../../../contexts/CalculationContext';
+import { useAccounts } from "../../../../hooks/useAccounts";
+import { ClipLoader } from "react-spinners";
+import { useCalculations } from "../../../../hooks/useCalculations";
+import { useToast } from "../../../../hooks/useToast";
+import { Status } from "../../../../../types/enums/status";
+import { useCalculationContext } from "../../../../contexts/CalculationContext";
 
 interface SelectAccountModalProps {
   isOpen: boolean;
@@ -24,10 +24,10 @@ const SelectAccountModal: React.FC<SelectAccountModalProps> = ({
   onSelect,
   setIsEditing,
 }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const { accounts, loading } = useAccounts();
   const { checkCalculation, isChecking } = useCalculations();
   const { createNewCalculation } = useCalculationContext();
@@ -52,34 +52,37 @@ const SelectAccountModal: React.FC<SelectAccountModalProps> = ({
     if (selectedAccount) {
       onSelect(selectedAccount, startDate, endDate);
       onClose();
-      setSearchTerm('');
+      setSearchTerm("");
     }
   };
 
   const handleAccountClick = (account: Account) => {
     setSelectedAccount(account);
-    setSearchTerm('');
+    setSearchTerm("");
   };
 
   const handleCancel = () => {
     onClose();
-    setSearchTerm('');
+    setSearchTerm("");
   };
 
   const resetForm = () => {
     setSelectedAccount(null);
-    setStartDate('');
-    setEndDate('');
-    setSearchTerm('');
+    setStartDate("");
+    setEndDate("");
+    setSearchTerm("");
   };
 
   useEffect(() => {
     async function checkExistingCalculation() {
       try {
-        const calculation = await checkCalculation(selectedAccount.id, `${startDate}/${endDate}`);
+        const calculation = await checkCalculation(
+          selectedAccount.id,
+          `${startDate}/${endDate}`
+        );
         if (calculation && calculation.status === Status.SUBMITTED) {
           resetForm();
-          showError('Calculation already submitted');
+          showError("Calculation already submitted");
         }
 
         if (calculation && calculation.status === Status.DRAFT) {
@@ -104,31 +107,36 @@ const SelectAccountModal: React.FC<SelectAccountModalProps> = ({
         setSelectedAccount(null);
       }}
       title={
-        <div className="flex items-center space-x-3 mb-6">
-          <div className="w-10 h-10 bg-blue-400/20 rounded-lg flex items-center justify-center">
-            <MdAccountCircle className="text-blue-300 text-lg" />
+        <div className="mb-6 flex items-center space-x-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-400/20">
+            <MdAccountCircle className="text-lg text-blue-300" />
           </div>
-          <Text className="text-white text-xl font-semibold">Select Account</Text>
+          <Text className="text-xl font-semibold text-white">
+            Select Account
+          </Text>
         </div>
       }
       maxWidth="600px"
       isDark={true}
       actions={[
         {
-          label: 'Cancel',
+          label: "Cancel",
           onClick: () => {
             handleCancel();
             setSelectedAccount(null);
           },
-          variant: 'secondary',
-          className: 'bg-gray-600 hover:bg-gray-700 text-white',
+          variant: "secondary",
+          className: "bg-gray-600 hover:bg-gray-700 text-white",
         },
         {
-          label: 'Select',
+          label: "Select",
           onClick: handleSelect,
-          variant: 'primary',
+          variant: "primary",
           disabled: !selectedAccount || !startDate || !endDate,
-          className: !selectedAccount || !startDate || !endDate ? 'opacity-50 cursor-not-allowed' : '',
+          className:
+            !selectedAccount || !startDate || !endDate
+              ? "opacity-50 cursor-not-allowed"
+              : "",
         },
       ]}
     >
@@ -137,14 +145,17 @@ const SelectAccountModal: React.FC<SelectAccountModalProps> = ({
           {/* Search Bar with Overlay */}
           <div className="relative">
             <div className="relative">
-              <MdSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <MdSearch
+                className="absolute left-3 top-1/2 -translate-y-1/2 transform text-gray-400"
+                size={20}
+              />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search by name or TIN number"
                 disabled={isChecking}
-                className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200"
+                className="w-full rounded-lg border border-white/20 bg-white/10 py-3 pl-10 pr-4 text-white placeholder-gray-400 transition-all duration-200 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
 
@@ -155,20 +166,27 @@ const SelectAccountModal: React.FC<SelectAccountModalProps> = ({
                   <div className="flex items-center justify-center p-10">
                     <div className="flex items-center gap-2">
                       <ClipLoader color="#60A5FA" size={20} />
-                      <Text size="3" className="text-gray-300">Loading accounts...</Text>
+                      <Text size="3" className="text-gray-300">
+                        Loading accounts...
+                      </Text>
                     </div>
                   </div>
                 ) : filteredAccounts.length > 0 ? (
                   filteredAccounts.map((account) => (
                     <div
                       key={account.id}
-                      className={`cursor-pointer border-b border-white/10 p-3 last:border-b-0 hover:bg-white/5 transition-colors ${selectedAccount?.id === account.id ? 'bg-blue-400/20' : ''
-                        }`}
+                      className={`cursor-pointer border-b border-white/10 p-3 transition-colors last:border-b-0 hover:bg-white/5 ${
+                        selectedAccount?.id === account.id
+                          ? "bg-blue-400/20"
+                          : ""
+                      }`}
                       onClick={() => handleAccountClick(account)}
                     >
                       <Flex justify="between" className="text-white">
                         <Text size="3">{account.name}</Text>
-                        <Text size="3" className="text-gray-300">{account.tinNumber}</Text>
+                        <Text size="3" className="text-gray-300">
+                          {account.tinNumber}
+                        </Text>
                       </Flex>
                     </div>
                   ))
@@ -183,24 +201,26 @@ const SelectAccountModal: React.FC<SelectAccountModalProps> = ({
 
           {/* Account Details */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="flex flex-col bg-white/5 rounded-lg px-6 py-4 border border-white/10">
-              <div className="flex items-center space-x-2 mb-2">
+            <div className="flex flex-col rounded-lg border border-white/10 bg-white/5 px-6 py-4">
+              <div className="mb-2 flex items-center space-x-2">
                 <MdDescription className="text-blue-300" size={16} />
                 <Text size="3" className="font-medium text-gray-300">
                   Name
                 </Text>
               </div>
-              <Text size="3" className="text-white">{selectedAccount ? selectedAccount.name : '-'}</Text>
+              <Text size="3" className="text-white">
+                {selectedAccount ? selectedAccount.name : "-"}
+              </Text>
             </div>
-            <div className="flex flex-col bg-white/5 rounded-lg px-6 py-4 border border-white/10">
-              <div className="flex items-center space-x-2 mb-2">
+            <div className="flex flex-col rounded-lg border border-white/10 bg-white/5 px-6 py-4">
+              <div className="mb-2 flex items-center space-x-2">
                 <MdAccountCircle className="text-blue-300" size={16} />
                 <Text size="3" className="font-medium text-gray-300">
                   TIN Number
                 </Text>
               </div>
               <Text size="3" className="text-white">
-                {selectedAccount ? selectedAccount.tinNumber : '-'}
+                {selectedAccount ? selectedAccount.tinNumber : "-"}
               </Text>
             </div>
           </div>
@@ -226,13 +246,17 @@ const SelectAccountModal: React.FC<SelectAccountModalProps> = ({
                       setEndDate(nextYear);
                     }
                   }}
-                  className="w-full appearance-none rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200"
+                  className="w-full appearance-none rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white transition-all duration-200 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-400"
                 >
                   <option value="" disabled className="bg-surface-2 text-white">
                     Select year
                   </option>
                   {years.map((year) => (
-                    <option key={`start-${year}`} value={year} className="bg-surface-2 text-white">
+                    <option
+                      key={`start-${year}`}
+                      value={year}
+                      className="bg-surface-2 text-white"
+                    >
                       {year}
                     </option>
                   ))}
@@ -240,8 +264,8 @@ const SelectAccountModal: React.FC<SelectAccountModalProps> = ({
                 <FiCalendar className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400" />
               </div>
               <div className="relative flex-1">
-                <div className="w-full appearance-none rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200">
-                  {endDate || '-'}
+                <div className="w-full appearance-none rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white transition-all duration-200 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-400">
+                  {endDate || "-"}
                 </div>
                 <FiCalendar className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400" />
               </div>
@@ -253,7 +277,9 @@ const SelectAccountModal: React.FC<SelectAccountModalProps> = ({
         <div className="absolute inset-0 z-20 flex items-center justify-center backdrop-blur-md">
           <div className="flex items-center gap-3 rounded-lg border border-white/20 bg-white/20 px-4 py-3">
             <ClipLoader color="#60A5FA" size={20} />
-            <Text size="3" className="text-gray-100">Checking existing calculations...</Text>
+            <Text size="3" className="text-gray-100">
+              Checking existing calculations...
+            </Text>
           </div>
         </div>
       )}

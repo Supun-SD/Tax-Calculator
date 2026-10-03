@@ -5,7 +5,7 @@ import React, {
   ReactNode,
   useMemo,
   useCallback,
-} from 'react';
+} from "react";
 import {
   Calculation,
   CalculationReq,
@@ -16,10 +16,10 @@ import {
   BusinessIncome,
   OtherIncome,
   GrossIncomeTaxSlab,
-} from '../../types/calculation';
-import { useSettingsContext } from './SettingsContext';
-import { Status } from '../../types/enums/status';
-import { useCalculations } from '../hooks/useCalculations';
+} from "../../types/calculation";
+import { useSettingsContext } from "./SettingsContext";
+import { Status } from "../../types/enums/status";
+import { useCalculations } from "../hooks/useCalculations";
 
 const calculateTotalAssessableIncome = (
   employmentIncome: EmploymentIncome | null,
@@ -79,7 +79,7 @@ interface CalculationContextType {
   updateDonations: (donations: number) => void;
   updateForeignIncome: (foreignIncome: number) => void;
   updateQuarterlyPayment: (
-    quarter: 'one' | 'two' | 'three' | 'four',
+    quarter: "one" | "two" | "three" | "four",
     amount: number
   ) => void;
   isLoading: boolean;
@@ -118,11 +118,16 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({
       const solarRelief =
         calculation.calculationData.deductionsFromAssessableIncome.solarRelief;
       const donations =
-        calculation.calculationData.deductionsFromAssessableIncome.donations ?? 0;
+        calculation.calculationData.deductionsFromAssessableIncome.donations ??
+        0;
 
       const totalTaxableIncome = Math.max(
         0,
-        totalAssessableIncome - personalRelief - rentRelief - solarRelief - donations
+        totalAssessableIncome -
+          personalRelief -
+          rentRelief -
+          solarRelief -
+          donations
       );
 
       const updatedCalculation = {
@@ -153,21 +158,21 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({
 
       if (totalTaxableIncome > 0) {
         const slabLimits =
-          year === '2025/2026'
+          year === "2025/2026"
             ? [
-                { limit: 1000000, rate: taxRates.first, name: 'First' },
-                { limit: 1500000, rate: taxRates.third, name: 'Second' },
-                { limit: 2000000, rate: taxRates.fourth, name: 'Third' },
-                { limit: 2500000, rate: taxRates.fifth, name: 'Fourth' },
-                { limit: Infinity, rate: taxRates.other, name: 'Balance' },
+                { limit: 1000000, rate: taxRates.first, name: "First" },
+                { limit: 1500000, rate: taxRates.third, name: "Second" },
+                { limit: 2000000, rate: taxRates.fourth, name: "Third" },
+                { limit: 2500000, rate: taxRates.fifth, name: "Fourth" },
+                { limit: Infinity, rate: taxRates.other, name: "Balance" },
               ]
             : [
-                { limit: 500000, rate: taxRates.first, name: 'First' },
-                { limit: 1000000, rate: taxRates.second, name: 'Second' },
-                { limit: 1500000, rate: taxRates.third, name: 'Third' },
-                { limit: 2000000, rate: taxRates.fourth, name: 'Fourth' },
-                { limit: 2500000, rate: taxRates.fifth, name: 'Fifth' },
-                { limit: Infinity, rate: taxRates.other, name: 'Balance' },
+                { limit: 500000, rate: taxRates.first, name: "First" },
+                { limit: 1000000, rate: taxRates.second, name: "Second" },
+                { limit: 1500000, rate: taxRates.third, name: "Third" },
+                { limit: 2000000, rate: taxRates.fourth, name: "Fourth" },
+                { limit: 2500000, rate: taxRates.fifth, name: "Fifth" },
+                { limit: Infinity, rate: taxRates.other, name: "Balance" },
               ];
 
         let remainingIncome = totalTaxableIncome;
@@ -310,7 +315,7 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({
         } else {
           setIsEditing(false);
           const newCalculation: CalculationReq = {
-            year: '',
+            year: "",
             status: Status.DRAFT,
             accountId: 0,
             calculationData: {
@@ -712,7 +717,7 @@ export const CalculationProvider: React.FC<CalculationProviderProps> = ({
   );
 
   const updateQuarterlyPayment = useCallback(
-    (quarter: 'one' | 'two' | 'three' | 'four', amount: number) => {
+    (quarter: "one" | "two" | "three" | "four", amount: number) => {
       if (currentCalculation) {
         const currentQuarterlyPayments = currentCalculation.calculationData
           .balancePayableTax?.quarterly ?? {
@@ -797,7 +802,7 @@ export const useCalculationContext = (): CalculationContextType => {
   const context = useContext(CalculationContext);
   if (context === undefined) {
     throw new Error(
-      'useCalculationContext must be used within a CalculationProvider'
+      "useCalculationContext must be used within a CalculationProvider"
     );
   }
   return context;

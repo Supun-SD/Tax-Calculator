@@ -1,131 +1,152 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { Settings, SettingsUpdateReq } from '../../types/settings';
-import { settingsService } from '../services/settingsService';
-import { useToast } from '../hooks/useToast';
-import { useUserContext } from './UserContext';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import { Settings, SettingsUpdateReq } from "../../types/settings";
+import { settingsService } from "../services/settingsService";
+import { useToast } from "../hooks/useToast";
+import { useUserContext } from "./UserContext";
 
 interface SettingsContextType {
-    settings: Settings | null;
-    loading: boolean;
-    error: string | null;
-    isUpdating: boolean;
-    currentYear: string;
-    setCurrentYear: (year: string) => void;
-    fetchSettingsByYear: (year: string) => Promise<void>;
-    updateSettings: (settings: Settings) => Promise<Settings | null>;
-    clearError: () => void;
-    refreshSettings: () => Promise<void>;
+  settings: Settings | null;
+  loading: boolean;
+  error: string | null;
+  isUpdating: boolean;
+  currentYear: string;
+  setCurrentYear: (year: string) => void;
+  fetchSettingsByYear: (year: string) => Promise<void>;
+  updateSettings: (settings: Settings) => Promise<Settings | null>;
+  clearError: () => void;
+  refreshSettings: () => Promise<void>;
 }
 
-const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
+const SettingsContext = createContext<SettingsContextType | undefined>(
+  undefined
+);
 
 interface SettingsProviderProps {
-    children: ReactNode;
+  children: ReactNode;
 }
 
-export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) => {
-    const [settings, setSettings] = useState<Settings | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [isUpdating, setIsUpdating] = useState(false);
-    const [currentYear, setCurrentYear] = useState<string>('2024/2025');
-    const { showSuccess, showError } = useToast();
-    const { token } = useUserContext();
+export const SettingsProvider: React.FC<SettingsProviderProps> = ({
+  children,
+}) => {
+  const [settings, setSettings] = useState<Settings | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [currentYear, setCurrentYear] = useState<string>("2024/2025");
+  const { showSuccess, showError } = useToast();
+  const { token } = useUserContext();
 
-    const fetchSettingsByYear = async (year: string) => {
-        setLoading(true);
-        setError(null);
-        try {
-            const fetchedSettings = await settingsService.getSettingsByYear(year, token);
-            setSettings(fetchedSettings);
-        } catch (err: any) {
-            let errorMessage = 'Error loading settings';
+  const fetchSettingsByYear = async (year: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const fetchedSettings = await settingsService.getSettingsByYear(
+        year,
+        token
+      );
+      setSettings(fetchedSettings);
+    } catch (err: any) {
+      let errorMessage = "Error loading settings";
 
-            if (err?.response?.data?.message) {
-                errorMessage = err.response.data.message;
-            } else if (err?.response?.data) {
-                errorMessage = err.response.data;
-            } else if (err?.message) {
-                errorMessage = err.message;
-            }
+      if (err?.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err?.response?.data) {
+        errorMessage = err.response.data;
+      } else if (err?.message) {
+        errorMessage = err.message;
+      }
 
-            setError(errorMessage);
-            showError(errorMessage);
-        } finally {
-            setLoading(false);
-        }
+      setError(errorMessage);
+      showError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateSettings = async (
+    settingsData: Settings
+  ): Promise<Settings | null> => {
+    setIsUpdating(true);
+    setError(null);
+
+    const newSettings: SettingsUpdateReq = {
+      year: settingsData.year,
+      reliefsAndAit: settingsData.reliefsAndAit,
+      taxRates: settingsData.taxRates,
     };
 
-    const updateSettings = async (settingsData: Settings): Promise<Settings | null> => {
-        setIsUpdating(true);
-        setError(null);
+    try {
+      const updatedSettings = await settingsService.updateSettings(
+        settingsData.id,
+        newSettings,
+        token
+      );
+      setSettings(updatedSettings);
+      showSuccess("Settings updated successfully");
+      return updatedSettings;
+    } catch (err: any) {
+      let errorMessage = "Error updating settings";
 
-        const newSettings: SettingsUpdateReq = {
-            year: settingsData.year,
-            reliefsAndAit: settingsData.reliefsAndAit,
-            taxRates: settingsData.taxRates
-        }
+      if (err?.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err?.response?.data) {
+        errorMessage = err.response.data;
+      } else if (err?.message) {
+        errorMessage = err.message;
+      }
 
-        try {
-            const updatedSettings = await settingsService.updateSettings(settingsData.id, newSettings, token);
-            setSettings(updatedSettings);
-            showSuccess('Settings updated successfully');
-            return updatedSettings;
-        } catch (err: any) {
-            let errorMessage = 'Error updating settings';
+      setError(errorMessage);
+      showError(errorMessage);
+      return null;
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
-            if (err?.response?.data?.message) {
-                errorMessage = err.response.data.message;
-            } else if (err?.response?.data) {
-                errorMessage = err.response.data;
-            } else if (err?.message) {
-                errorMessage = err.message;
-            }
+  const clearError = () => {
+    setError(null);
+  };
 
-            setError(errorMessage);
-            showError(errorMessage);
-            return null;
-        } finally {
-            setIsUpdating(false);
-        }
-    };
+  const refreshSettings = async () => {
+    await fetchSettingsByYear(currentYear);
+  };
 
-    const clearError = () => {
-        setError(null);
-    };
+  useEffect(() => {
+    fetchSettingsByYear(currentYear);
+  }, [currentYear]);
 
-    const refreshSettings = async () => {
-        await fetchSettingsByYear(currentYear);
-    };
+  const value: SettingsContextType = {
+    settings,
+    loading,
+    error,
+    isUpdating,
+    currentYear,
+    setCurrentYear,
+    fetchSettingsByYear,
+    updateSettings,
+    clearError,
+    refreshSettings,
+  };
 
-    useEffect(() => {
-        fetchSettingsByYear(currentYear);
-    }, [currentYear]);
-
-    const value: SettingsContextType = {
-        settings,
-        loading,
-        error,
-        isUpdating,
-        currentYear,
-        setCurrentYear,
-        fetchSettingsByYear,
-        updateSettings,
-        clearError,
-        refreshSettings
-    };
-
-    return (
-        <SettingsContext.Provider value={value}>
-            {children}
-        </SettingsContext.Provider>
-    );
+  return (
+    <SettingsContext.Provider value={value}>
+      {children}
+    </SettingsContext.Provider>
+  );
 };
 
 export const useSettingsContext = (): SettingsContextType => {
-    const context = useContext(SettingsContext);
-    if (context === undefined) {
-        throw new Error('useSettingsContext must be used within a SettingsProvider');
-    }
-    return context;
+  const context = useContext(SettingsContext);
+  if (context === undefined) {
+    throw new Error(
+      "useSettingsContext must be used within a SettingsProvider"
+    );
+  }
+  return context;
 };

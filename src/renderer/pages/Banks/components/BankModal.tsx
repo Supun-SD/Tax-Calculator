@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import Modal from '../../../components/Modal';
-import { Text } from '@radix-ui/themes';
-import { Bank, BankCreateReq, BankUpdateReq } from '../../../../types/bank';
-import { MdAccountBalance, MdBusiness, MdReceipt } from 'react-icons/md';
+import React, { useState, useEffect } from "react";
+import Modal from "../../../components/Modal";
+import { Text } from "@radix-ui/themes";
+import { Bank, BankCreateReq, BankUpdateReq } from "../../../../types/bank";
+import { MdAccountBalance, MdBusiness, MdReceipt } from "react-icons/md";
 
-type ModalMode = 'add' | 'edit';
+type ModalMode = "add" | "edit";
 
 interface BankModalProps {
   isOpen: boolean;
@@ -24,8 +24,8 @@ const BankModal: React.FC<BankModalProps> = ({
   bank,
 }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    tinNumber: '',
+    name: "",
+    tinNumber: "",
   });
   const [loading, setLoading] = useState(false);
 
@@ -36,11 +36,11 @@ const BankModal: React.FC<BankModalProps> = ({
         tinNumber: bank.tinNumber.toString(),
       });
     } else {
-      setFormData({ name: '', tinNumber: '' });
+      setFormData({ name: "", tinNumber: "" });
     }
   }, [bank]);
 
-  const handleInputChange = (field: 'name' | 'tinNumber', value: string) => {
+  const handleInputChange = (field: "name" | "tinNumber", value: string) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -50,24 +50,24 @@ const BankModal: React.FC<BankModalProps> = ({
   const handleSubmit = async () => {
     setLoading(true);
 
-    if (mode === 'edit' && bank) {  
+    if (mode === "edit" && bank) {
       const newBankData: BankUpdateReq = {
         name: formData.name.trim(),
         tinNumber: formData.tinNumber.trim(),
-      }
+      };
       const result = await onUpdateBank(bank.id, newBankData);
       if (result) {
-        setFormData({ name: '', tinNumber: '' });
+        setFormData({ name: "", tinNumber: "" });
         onClose();
       }
-    } else if (mode === 'add') {
+    } else if (mode === "add") {
       const newBankData: BankCreateReq = {
         name: formData.name.trim(),
         tinNumber: formData.tinNumber.trim(),
-      }
+      };
       const result = await onCreateBank(newBankData);
       if (result) {
-        setFormData({ name: '', tinNumber: '' });
+        setFormData({ name: "", tinNumber: "" });
         onClose();
       }
     }
@@ -75,7 +75,7 @@ const BankModal: React.FC<BankModalProps> = ({
   };
 
   const handleCancel = () => {
-    setFormData({ name: '', tinNumber: '' });
+    setFormData({ name: "", tinNumber: "" });
     onClose();
   };
 
@@ -83,29 +83,29 @@ const BankModal: React.FC<BankModalProps> = ({
 
   const getTitle = () => {
     switch (mode) {
-      case 'add':
-        return 'Add new bank';
-      case 'edit':
-        return 'Edit bank';
+      case "add":
+        return "Add new bank";
+      case "edit":
+        return "Edit bank";
       default:
-        return 'Bank';
+        return "Bank";
     }
   };
 
   const getActions = () => {
     return [
       {
-        label: 'Cancel',
+        label: "Cancel",
         onClick: handleCancel,
-        variant: 'secondary' as const,
-        className: 'bg-gray-600 hover:bg-gray-700 text-white',
+        variant: "secondary" as const,
+        className: "bg-gray-600 hover:bg-gray-700 text-white",
       },
       {
-        label: mode === 'edit' ? 'Update' : 'Add',
+        label: mode === "edit" ? "Update" : "Add",
         onClick: handleSubmit,
-        variant: 'primary' as const,
+        variant: "primary" as const,
         disabled: !isFormValid,
-        className: isFormValid ? '' : 'opacity-50 cursor-not-allowed',
+        className: isFormValid ? "" : "opacity-50 cursor-not-allowed",
       },
     ];
   };
@@ -115,11 +115,11 @@ const BankModal: React.FC<BankModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       title={
-        <div className="flex items-center space-x-3 mb-6">
-          <div className="w-10 h-10 bg-blue-400/20 rounded-lg flex items-center justify-center">
-            <MdAccountBalance className="text-blue-300 text-lg" />
+        <div className="mb-6 flex items-center space-x-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-400/20">
+            <MdAccountBalance className="text-lg text-blue-300" />
           </div>
-          <Text className="text-white text-xl font-semibold">{getTitle()}</Text>
+          <Text className="text-xl font-semibold text-white">{getTitle()}</Text>
         </div>
       }
       actions={getActions()}
@@ -129,9 +129,9 @@ const BankModal: React.FC<BankModalProps> = ({
     >
       <div className="space-y-6">
         <div>
-          <div className="flex items-center space-x-2 mb-3">
-            <MdBusiness className="text-green-300 text-sm" />
-            <Text as="div" size="3" className="text-gray-300 font-medium">
+          <div className="mb-3 flex items-center space-x-2">
+            <MdBusiness className="text-sm text-green-300" />
+            <Text as="div" size="3" className="font-medium text-gray-300">
               Bank name
             </Text>
           </div>
@@ -139,16 +139,16 @@ const BankModal: React.FC<BankModalProps> = ({
             <input
               type="text"
               value={formData.name}
-              onChange={(e) => handleInputChange('name', e.target.value)}
+              onChange={(e) => handleInputChange("name", e.target.value)}
               placeholder="Enter bank name"
-              className="w-full h-12 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-300/50 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all duration-200 px-3"
+              className="h-12 w-full rounded-lg border border-white/20 bg-white/10 px-3 text-white placeholder-gray-300/50 transition-all duration-200 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-green-400"
             />
           </div>
         </div>
         <div>
-          <div className="flex items-center space-x-2 mb-3">
-            <MdReceipt className="text-purple-300 text-sm" />
-            <Text as="div" size="3" className="text-gray-300 font-medium">
+          <div className="mb-3 flex items-center space-x-2">
+            <MdReceipt className="text-sm text-purple-300" />
+            <Text as="div" size="3" className="font-medium text-gray-300">
               TIN number
             </Text>
           </div>
@@ -156,9 +156,9 @@ const BankModal: React.FC<BankModalProps> = ({
             <input
               type="text"
               value={formData.tinNumber}
-              onChange={(e) => handleInputChange('tinNumber', e.target.value)}
+              onChange={(e) => handleInputChange("tinNumber", e.target.value)}
               placeholder="Enter TIN number"
-              className="w-full h-12 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-300/50 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-200 px-3"
+              className="h-12 w-full rounded-lg border border-white/20 bg-white/10 px-3 text-white placeholder-gray-300/50 transition-all duration-200 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-400"
             />
           </div>
         </div>

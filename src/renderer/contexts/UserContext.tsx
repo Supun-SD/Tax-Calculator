@@ -1,7 +1,7 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
-import { useToast } from '../hooks/useToast';
-import { loginService } from '../services/loginService';
-import { User } from '../../types/user';
+import { createContext, useContext, useState, ReactNode } from "react";
+import { useToast } from "../hooks/useToast";
+import { loginService } from "../services/loginService";
+import { User } from "../../types/user";
 
 interface UserContextType {
   token: string | null;
@@ -33,9 +33,9 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       const response = await loginService.login(username, password);
       setToken(response.token);
       setUser(response.user);
-      showSuccess('Login successful');
+      showSuccess("Login successful");
     } catch (err: any) {
-      let errorMessage = 'Login failed';
+      let errorMessage = "Login failed";
 
       if (err?.response?.data?.message) {
         errorMessage = err.response.data.message;
@@ -72,7 +72,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 export const useUserContext = (): UserContextType => {
   const context = useContext(UserContext);
   if (!context) {
-    throw new Error('useUserContext must be used within a UserProvider');
+    throw new Error("useUserContext must be used within a UserProvider");
   }
   return context;
 };

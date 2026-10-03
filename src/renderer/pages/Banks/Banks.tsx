@@ -1,20 +1,20 @@
-import Navigation from '../../components/Navigation';
-import Button from '../../components/Button';
-import { DataTable, Column } from '../../components/DataTable';
-import { useState } from 'react';
-import SearchBar from '../../components/SearchBar';
-import { Bank } from '../../../types/bank';
-import BankModal from './components/BankModal';
-import { AlertDialog, Flex, Text } from '@radix-ui/themes';
-import { ClipLoader } from 'react-spinners';
-import { useBanks } from '../../hooks/useBanks';
-import { MdAdd } from 'react-icons/md';
-import Error from '../../components/Error';
+import Navigation from "../../components/Navigation";
+import Button from "../../components/Button";
+import { DataTable, Column } from "../../components/DataTable";
+import { useState } from "react";
+import SearchBar from "../../components/SearchBar";
+import { Bank } from "../../../types/bank";
+import BankModal from "./components/BankModal";
+import { AlertDialog, Flex } from "@radix-ui/themes";
+import { ClipLoader } from "react-spinners";
+import { useBanks } from "../../hooks/useBanks";
+import { MdAdd } from "react-icons/md";
+import Error from "../../components/Error";
 
 const Banks = () => {
-  const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
+  const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [selectedBank, setSelectedBank] = useState<Bank | undefined>(undefined);
   const [deletingBank, setDeletingBank] = useState<Bank | undefined>(undefined);
 
@@ -26,27 +26,27 @@ const Banks = () => {
     createBank,
     updateBank,
     deleteBank,
-    error
+    error,
   } = useBanks();
 
   const columns: Column<Bank>[] = [
     {
-      key: 'id',
-      header: 'ID',
-      width: 'w-1/6',
+      key: "id",
+      header: "ID",
+      width: "w-1/6",
       sortable: true,
     },
     {
-      key: 'name',
-      header: 'Name',
-      width: 'w-2/5',
+      key: "name",
+      header: "Name",
+      width: "w-2/5",
       sortable: true,
       searchable: true,
     },
     {
-      key: 'tinNumber',
-      header: 'TIN Number',
-      width: 'w-1/6',
+      key: "tinNumber",
+      header: "TIN Number",
+      width: "w-1/6",
       sortable: true,
       searchable: true,
     },
@@ -57,13 +57,13 @@ const Banks = () => {
   };
 
   const handleAddButtonClick = () => {
-    setModalMode('add');
+    setModalMode("add");
     setSelectedBank(undefined);
     setIsModalOpen(true);
   };
 
   const handleEdit = (bank: Bank) => {
-    setModalMode('edit');
+    setModalMode("edit");
     setSelectedBank(bank);
     setIsModalOpen(true);
   };
@@ -94,12 +94,18 @@ const Banks = () => {
     <div className="p-8">
       <Navigation title="Banks" />
 
-      {error ? <Error title="Failed to load banks" message={error} onRetry={fetchBanks} /> :
+      {error ? (
+        <Error
+          title="Failed to load banks"
+          message={error}
+          onRetry={fetchBanks}
+        />
+      ) : (
         <>
           {/* Search and Add section */}
-          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 mb-6">
+          <div className="mb-6 rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
             <div className="flex items-center justify-between gap-4">
-              <div className="flex-1 max-w-md">
+              <div className="max-w-md flex-1">
                 <SearchBar
                   value={searchValue}
                   onChange={handleSearchChange}
@@ -118,9 +124,9 @@ const Banks = () => {
           </div>
 
           {/* Data Table */}
-          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl overflow-hidden">
+          <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm">
             {loading ? (
-              <div className="flex items-center justify-center h-60">
+              <div className="flex h-60 items-center justify-center">
                 <ClipLoader color="#3B82F6" />
               </div>
             ) : (
@@ -128,7 +134,7 @@ const Banks = () => {
                 data={banks}
                 columns={columns}
                 searchValue={searchValue}
-                searchKeys={['name', 'tinNumber']}
+                searchKeys={["name", "tinNumber"]}
                 showActions={true}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
@@ -147,8 +153,10 @@ const Banks = () => {
 
           {/* Delete Confirmation Dialog */}
           <AlertDialog.Root open={!!deletingBank}>
-            <AlertDialog.Content className="bg-surface-2 border border-white/20 rounded-xl">
-              <AlertDialog.Title className="text-white">Delete Bank</AlertDialog.Title>
+            <AlertDialog.Content className="rounded-xl border border-white/20 bg-surface-2">
+              <AlertDialog.Title className="text-white">
+                Delete Bank
+              </AlertDialog.Title>
               <AlertDialog.Description size="3" className="text-gray-300">
                 Are you sure you want to delete the bank "{deletingBank?.name}"?
               </AlertDialog.Description>
@@ -183,7 +191,7 @@ const Banks = () => {
             </AlertDialog.Content>
           </AlertDialog.Root>
         </>
-      }
+      )}
     </div>
   );
 };

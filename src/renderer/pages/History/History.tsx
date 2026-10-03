@@ -1,23 +1,25 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Navigation from '../../components/Navigation';
-import { DataTable, Column } from '../../components/DataTable';
-import { useCalculations } from '../../hooks/useCalculations';
-import { CalculationOverview } from '../../../types/calculation';
-import { AlertDialog, Flex, Text } from '@radix-ui/themes';
-import { ClipLoader } from 'react-spinners';
-import Button from '../../components/Button';
-import { MdReceipt, MdDrafts } from 'react-icons/md';
-import Error from '../../components/Error';
-import SearchBar from '../../components/SearchBar';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Navigation from "../../components/Navigation";
+import { DataTable, Column } from "../../components/DataTable";
+import { useCalculations } from "../../hooks/useCalculations";
+import { CalculationOverview } from "../../../types/calculation";
+import { AlertDialog, Flex } from "@radix-ui/themes";
+import { ClipLoader } from "react-spinners";
+import Button from "../../components/Button";
+import { MdReceipt, MdDrafts } from "react-icons/md";
+import Error from "../../components/Error";
+import SearchBar from "../../components/SearchBar";
 
 const History = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'submitted' | 'draft'>(
-    'submitted'
+  const [activeTab, setActiveTab] = useState<"submitted" | "draft">(
+    "submitted"
   );
-  const [deletingCalculation, setDeletingCalculation] = useState<CalculationOverview | undefined>(undefined);
-  const [searchValue, setSearchValue] = useState('');
+  const [deletingCalculation, setDeletingCalculation] = useState<
+    CalculationOverview | undefined
+  >(undefined);
+  const [searchValue, setSearchValue] = useState("");
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value);
@@ -38,57 +40,59 @@ const History = () => {
 
   const columns: Column<CalculationOverview>[] = [
     {
-      key: 'createdAt',
-      header: 'Date',
-      width: 'w-1/6',
+      key: "createdAt",
+      header: "Date",
+      width: "w-1/6",
       sortable: true,
       render: (value: string) => {
         return new Date(value).toLocaleDateString();
       },
     },
     {
-      key: 'updatedAt',
-      header: 'Time',
-      width: 'w-1/6',
+      key: "updatedAt",
+      header: "Time",
+      width: "w-1/6",
       sortable: true,
       render: (value: any, row: CalculationOverview) => {
         return new Date(row.createdAt).toLocaleTimeString([], {
-          hour: '2-digit',
-          minute: '2-digit',
+          hour: "2-digit",
+          minute: "2-digit",
         });
       },
     },
     {
-      key: 'account',
-      header: 'Account Name',
-      width: 'w-1/5',
+      key: "account",
+      header: "Account Name",
+      width: "w-1/5",
       sortable: true,
       searchable: true,
       render: (value: any) => {
-        return value?.name || 'N/A';
+        return value?.name || "N/A";
       },
     },
     {
-      key: 'accountId',
-      header: 'TIN Number',
-      width: 'w-1/6',
+      key: "accountId",
+      header: "TIN Number",
+      width: "w-1/6",
       sortable: true,
       searchable: true,
       render: (value: any, row: CalculationOverview) => {
-        return row.account?.tinNumber || 'N/A';
+        return row.account?.tinNumber || "N/A";
       },
     },
     {
-      key: 'year',
-      header: 'Year',
-      width: 'w-1/6',
+      key: "year",
+      header: "Year",
+      width: "w-1/6",
       sortable: true,
       searchable: true,
     },
   ];
 
   const handleEdit = async (calculation: CalculationOverview) => {
-    navigate('/calculate', { state: { calculationId: calculation.id, isEditing: true } });
+    navigate("/calculate", {
+      state: { calculationId: calculation.id, isEditing: true },
+    });
   };
 
   const handleDelete = (calculation: CalculationOverview) => {
@@ -113,17 +117,23 @@ const History = () => {
     navigate(`/view-calculation/${calculation.id}`);
   };
 
-  const handleActiveTabChange = (tab: 'submitted' | 'draft') => {
+  const handleActiveTabChange = (tab: "submitted" | "draft") => {
     setActiveTab(tab);
-    setSearchValue('');
+    setSearchValue("");
   };
 
   const filteredCalculations = calculations.filter((calculation) => {
     const statusMatch = calculation.status === activeTab;
 
-    const searchMatch = searchValue === '' ||
-      (calculation.account?.name?.toLowerCase().includes(searchValue.toLowerCase()) ||
-        calculation.account?.tinNumber?.toString().toLowerCase().includes(searchValue.toLowerCase()));
+    const searchMatch =
+      searchValue === "" ||
+      calculation.account?.name
+        ?.toLowerCase()
+        .includes(searchValue.toLowerCase()) ||
+      calculation.account?.tinNumber
+        ?.toString()
+        .toLowerCase()
+        .includes(searchValue.toLowerCase());
 
     return statusMatch && searchMatch;
   });
@@ -132,45 +142,59 @@ const History = () => {
     <div className="p-8">
       <Navigation title="History" />
 
-      {error ? <Error title="Failed to load calculations" message={error} onRetry={fetchCalculations} /> :
+      {error ? (
+        <Error
+          title="Failed to load calculations"
+          message={error}
+          onRetry={fetchCalculations}
+        />
+      ) : (
         <>
           {/* Tabs Section */}
-          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 mb-6 flex items-center justify-between">
+          <div className="mb-6 flex items-center justify-between rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
             <div className="flex space-x-1">
               <button
-                onClick={() => handleActiveTabChange('submitted')}
-                className={`flex items-center space-x-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${activeTab === 'submitted'
-                  ? 'bg-green-400/20 text-green-300 border border-green-400/30'
-                  : 'text-gray-400 hover:text-white hover:bg-white/10'
-                  }`}
+                onClick={() => handleActiveTabChange("submitted")}
+                className={`flex items-center space-x-2 rounded-lg px-4 py-3 font-medium transition-all duration-200 ${
+                  activeTab === "submitted"
+                    ? "border border-green-400/30 bg-green-400/20 text-green-300"
+                    : "text-gray-400 hover:bg-white/10 hover:text-white"
+                }`}
               >
                 <MdReceipt className="text-lg" />
                 <span>Submitted</span>
-                <span className={`ml-1 px-2 py-1 text-xs rounded-full ${activeTab === 'submitted'
-                  ? 'bg-green-400/30 text-green-200'
-                  : 'bg-gray-600 text-gray-300'
-                  }`}>
-                  {calculations.filter((c) => c.status === 'submitted').length}
+                <span
+                  className={`ml-1 rounded-full px-2 py-1 text-xs ${
+                    activeTab === "submitted"
+                      ? "bg-green-400/30 text-green-200"
+                      : "bg-gray-600 text-gray-300"
+                  }`}
+                >
+                  {calculations.filter((c) => c.status === "submitted").length}
                 </span>
               </button>
               <button
-                onClick={() => handleActiveTabChange('draft')}
-                className={`flex items-center space-x-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${activeTab === 'draft'
-                  ? 'bg-yellow-400/20 text-yellow-300 border border-yellow-400/30'
-                  : 'text-gray-400 hover:text-white hover:bg-white/10'
-                  }`}
+                onClick={() => handleActiveTabChange("draft")}
+                className={`flex items-center space-x-2 rounded-lg px-4 py-3 font-medium transition-all duration-200 ${
+                  activeTab === "draft"
+                    ? "border border-yellow-400/30 bg-yellow-400/20 text-yellow-300"
+                    : "text-gray-400 hover:bg-white/10 hover:text-white"
+                }`}
               >
                 <MdDrafts className="text-lg" />
                 <span>Drafts</span>
-                <span className={`ml-1 px-2 py-1 text-xs rounded-full ${activeTab === 'draft'
-                  ? 'bg-yellow-400/30 text-yellow-200'
-                  : 'bg-gray-600 text-gray-300'
-                  }`}>
-                  {calculations.filter((c) => c.status === 'draft').length}
+                <span
+                  className={`ml-1 rounded-full px-2 py-1 text-xs ${
+                    activeTab === "draft"
+                      ? "bg-yellow-400/30 text-yellow-200"
+                      : "bg-gray-600 text-gray-300"
+                  }`}
+                >
+                  {calculations.filter((c) => c.status === "draft").length}
                 </span>
               </button>
             </div>
-            <div className="flex-1 max-w-md">
+            <div className="max-w-md flex-1">
               <SearchBar
                 value={searchValue}
                 onChange={handleSearchChange}
@@ -181,17 +205,19 @@ const History = () => {
 
           {/* Loading State */}
           {loading && (
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-8">
-              <div className="flex justify-center items-center">
+            <div className="rounded-xl border border-white/10 bg-white/5 p-8 backdrop-blur-sm">
+              <div className="flex items-center justify-center">
                 <ClipLoader color="#3B82F6" size={32} />
-                <span className="ml-3 text-gray-300">Loading calculations...</span>
+                <span className="ml-3 text-gray-300">
+                  Loading calculations...
+                </span>
               </div>
             </div>
           )}
 
           {/* Data Table */}
           {!loading && !error && (
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl overflow-hidden">
+            <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm">
               <DataTable
                 data={filteredCalculations}
                 columns={columns}
@@ -199,17 +225,25 @@ const History = () => {
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 showActions={true}
-                actionsColumn={{ view: activeTab === 'submitted', edit: true, delete: true }}
+                actionsColumn={{
+                  view: activeTab === "submitted",
+                  edit: true,
+                  delete: true,
+                }}
               />
             </div>
           )}
 
           {/* Delete Confirmation Dialog */}
           <AlertDialog.Root open={!!deletingCalculation}>
-            <AlertDialog.Content className="bg-surface-2 border border-white/20 rounded-xl">
-              <AlertDialog.Title className="text-white">Delete Calculation</AlertDialog.Title>
+            <AlertDialog.Content className="rounded-xl border border-white/20 bg-surface-2">
+              <AlertDialog.Title className="text-white">
+                Delete Calculation
+              </AlertDialog.Title>
               <AlertDialog.Description size="3" className="text-gray-300">
-                Are you sure you want to delete this calculation for "{deletingCalculation?.account?.name}" ({deletingCalculation?.year})?
+                Are you sure you want to delete this calculation for "
+                {deletingCalculation?.account?.name}" (
+                {deletingCalculation?.year})?
               </AlertDialog.Description>
 
               <Flex gap="3" mt="6" justify="end" align="center">
@@ -242,7 +276,7 @@ const History = () => {
             </AlertDialog.Content>
           </AlertDialog.Root>
         </>
-      }
+      )}
     </div>
   );
 };

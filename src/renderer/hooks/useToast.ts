@@ -1,4 +1,4 @@
-import { toast, Bounce, ToastOptions } from 'react-toastify';
+import { toast, Bounce, ToastOptions } from "react-toastify";
 
 interface UseToastReturn {
   showSuccess: (message: string, options?: Partial<ToastOptions>) => void;
@@ -8,17 +8,17 @@ interface UseToastReturn {
 }
 
 const defaultOptions: ToastOptions = {
-  position: 'bottom-right',
+  position: "bottom-right",
   pauseOnHover: false,
   autoClose: 4000,
-  theme: 'colored',
+  theme: "colored",
   transition: Bounce,
   draggable: true,
   style: {
     zIndex: 9999,
-    width: '100%',
+    width: "100%",
   },
-  containerId: 'toast-container',
+  containerId: "toast-container",
 };
 
 export const useToast = (): UseToastReturn => {
