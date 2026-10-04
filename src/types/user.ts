@@ -1,3 +1,5 @@
+import { Settings } from "./settings";
+
 export type UserRole = "SUPERADMIN" | "ADMIN" | "USER" | "TRIAL";
 
 export interface User {
@@ -6,4 +8,5 @@ export interface User {
   email: string | null;
   phone: string | null;
   role: UserRole;
+  settings: Settings;
 }

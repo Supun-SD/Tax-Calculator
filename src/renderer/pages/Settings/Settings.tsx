@@ -1,6 +1,6 @@
 import Navigation from "../../components/Navigation";
 import Input from "../../components/Input";
-import { TbFileImport, TbFileExport, TbReload } from "react-icons/tb";
+import { TbFileImport, TbFileExport } from "react-icons/tb";
 import { FiSave } from "react-icons/fi";
 import {
   MdAttachMoney,
@@ -13,18 +13,10 @@ import Button from "../../components/Button";
 import { useState, useMemo, useEffect } from "react";
 import { useSettingsContext } from "../../contexts/SettingsContext";
 import { Settings } from "../../../types/settings";
-import { ClipLoader } from "react-spinners";
 import { CalculationService } from "../../services/calculationService";
 
 const SettingsPage = () => {
-  const {
-    settings,
-    loading,
-    error,
-    isUpdating,
-    updateSettings,
-    refreshSettings,
-  } = useSettingsContext();
+  const { settings, isUpdating, updateSettings } = useSettingsContext();
 
   const [reliefsAndAit, setReliefsAndAit] = useState({
     personalRelief: 0,
@@ -192,39 +184,6 @@ const SettingsPage = () => {
 
     await updateSettings(updatedSettings);
   };
-
-  if (loading) {
-    return (
-      <div className="p-8">
-        <Navigation title="Settings" />
-        <div className="mt-4 flex h-60 items-center justify-center">
-          <div className="text-white">
-            <ClipLoader color="#fff" size={32} />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-8">
-        <Navigation title="Settings" />
-        <div className="mt-4 flex flex-col items-center justify-center gap-4">
-          <div className="text-center text-red-500">Error: {error}</div>
-          <Button
-            type="button"
-            variant="secondary"
-            icon={TbReload}
-            onClick={() => refreshSettings()}
-            disabled={loading}
-          >
-            {loading ? "Reloading..." : "Reload Settings"}
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   if (!settings) {
     return (

@@ -1,9 +1,9 @@
 import React, {
   createContext,
   useContext,
-  useEffect,
   useState,
   ReactNode,
+  useEffect,
 } from "react";
 import { Settings, SettingsUpdateReq } from "../../types/settings";
 import { settingsService } from "../services/settingsService";
@@ -12,15 +12,11 @@ import { useUserContext } from "./UserContext";
 
 interface SettingsContextType {
   settings: Settings | null;
-  loading: boolean;
+  setSettings: React.Dispatch<React.SetStateAction<Settings | null>>;
   error: string | null;
   isUpdating: boolean;
-  currentYear: string;
-  setCurrentYear: (year: string) => void;
-  fetchSettingsByYear: (year: string) => Promise<void>;
   updateSettings: (settings: Settings) => Promise<Settings | null>;
   clearError: () => void;
-  refreshSettings: () => Promise<void>;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(
@@ -35,39 +31,18 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({
   children,
 }) => {
   const [settings, setSettings] = useState<Settings | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [currentYear, setCurrentYear] = useState<string>("2024/2025");
   const { showSuccess, showError } = useToast();
-  const { token } = useUserContext();
+  const { token, user } = useUserContext();
 
-  const fetchSettingsByYear = async (year: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const fetchedSettings = await settingsService.getSettingsByYear(
-        year,
-        token
-      );
-      setSettings(fetchedSettings);
-    } catch (err: any) {
-      let errorMessage = "Error loading settings";
-
-      if (err?.response?.data?.message) {
-        errorMessage = err.response.data.message;
-      } else if (err?.response?.data) {
-        errorMessage = err.response.data;
-      } else if (err?.message) {
-        errorMessage = err.message;
-      }
-
-      setError(errorMessage);
-      showError(errorMessage);
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (user?.settings) {
+      setSettings(user.settings);
+    } else {
+      setSettings(null);
     }
-  };
+  }, [user]);
 
   const updateSettings = async (
     settingsData: Settings
@@ -76,7 +51,6 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({
     setError(null);
 
     const newSettings: SettingsUpdateReq = {
-      year: settingsData.year,
       reliefsAndAit: settingsData.reliefsAndAit,
       taxRates: settingsData.taxRates,
     };
@@ -113,25 +87,13 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({
     setError(null);
   };
 
-  const refreshSettings = async () => {
-    await fetchSettingsByYear(currentYear);
-  };
-
-  useEffect(() => {
-    fetchSettingsByYear(currentYear);
-  }, [currentYear]);
-
   const value: SettingsContextType = {
     settings,
-    loading,
+    setSettings,
     error,
     isUpdating,
-    currentYear,
-    setCurrentYear,
-    fetchSettingsByYear,
     updateSettings,
     clearError,
-    refreshSettings,
   };
 
   return (

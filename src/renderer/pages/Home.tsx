@@ -3,81 +3,21 @@ import { ImCalculator } from "react-icons/im";
 import {
   MdOutlineSupervisorAccount,
   MdOutlineSettings,
-  MdError,
   MdLogout,
 } from "react-icons/md";
 import { LuHistory } from "react-icons/lu";
 import { PiBankBold } from "react-icons/pi";
 import { Text } from "@radix-ui/themes";
-import { useSettingsContext } from "../contexts/SettingsContext";
 import { useUserContext } from "../contexts/UserContext";
-import { ClipLoader } from "react-spinners";
 import packageJson from "../../../package.json";
 
 const Home = () => {
   const navigate = useNavigate();
-  const { loading, error, refreshSettings } = useSettingsContext();
   const { logout } = useUserContext();
 
   const handleLogout = () => {
     logout();
   };
-
-  if (loading) {
-    return (
-      <div className="mt-36 flex flex-col items-center p-8">
-        <div className="flex flex-col items-center gap-6 rounded-xl border border-white/10 bg-white/5 p-12 backdrop-blur-sm">
-          <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-blue-400/20">
-            <ImCalculator className="text-4xl text-blue-300" />
-          </div>
-          <div className="text-center">
-            <Text className="mb-2 text-2xl font-bold text-white">
-              System Loading
-            </Text>
-            <br />
-            <Text className="text-sm text-gray-300">
-              Initializing Tax Calculation System
-            </Text>
-          </div>
-          <ClipLoader color="#60A5FA" size={40} />
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="mt-36 flex flex-col items-center p-8">
-        <div className="flex max-w-md flex-col items-center gap-6 rounded-xl border border-red-500/20 bg-red-500/10 p-12 backdrop-blur-sm">
-          <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-red-500/20">
-            <MdError className="text-4xl text-red-400" />
-          </div>
-          <div className="text-center">
-            <Text className="mb-2 text-2xl font-bold text-red-300">
-              System Error
-            </Text>
-            <br />
-            <div className="text-sm text-gray-300">
-              Failed to initialize the system
-            </div>
-            <br />
-            {error && (
-              <Text className="mt-3 rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-xs text-red-200">
-                {error}
-              </Text>
-            )}
-          </div>
-          <button
-            onClick={refreshSettings}
-            className="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/20 px-6 py-3 font-medium text-red-300 transition-all duration-200 hover:scale-105 hover:bg-red-500/30"
-          >
-            <MdError className="text-lg" />
-            Reload System
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="mt-20 flex flex-col items-center justify-center p-8">

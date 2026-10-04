@@ -1,6 +1,5 @@
 export interface Settings {
   id: number;
-  year: string;
   reliefsAndAit: ReliefsAndAit;
   taxRates: TaxRates;
 }
@@ -24,7 +23,6 @@ export interface TaxRates {
 }
 
 export interface SettingsUpdateReq {
-  year: string;
   reliefsAndAit: ReliefsAndAit;
   taxRates: TaxRates;
 }
