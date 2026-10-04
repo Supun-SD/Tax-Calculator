@@ -163,7 +163,7 @@ const Home = () => {
       {/* Footer */}
       <div className="mt-[5vh] text-center">
         <Text className="text-sm text-gray-400">
-          Tax Calculation System update check v{packageJson.version}
+          Tax Calculation System v{packageJson.version}
         </Text>
       </div>
     </div>
