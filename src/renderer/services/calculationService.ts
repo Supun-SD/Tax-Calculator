@@ -155,7 +155,7 @@ const checkCalculation = async (
 export const downloadCalculationPdf = async (
   id: number,
   token: string | null
-): Promise<void> => {
+): Promise<{ blob: Blob; filename: string }> => {
   const response = await axios.get(`${API_BASE_URL}/calculation/print/${id}`, {
     responseType: "blob",
     headers: {
@@ -164,24 +164,41 @@ export const downloadCalculationPdf = async (
   });
 
   const contentDisposition = response.headers["content-disposition"];
+
   let filename = `calculation_${id}.pdf`;
 
   if (contentDisposition) {
-    const match = contentDisposition.match(/filename\*?=(?:UTF-8''|")?([^"]+)/);
-    if (match && match[1]) {
-      filename = match[1];
+    const filenameStarMatch = contentDisposition.match(
+      /filename\*\s*=\s*(?:UTF-8'')?([^;]+)/i
+    );
+
+    const filenameMatch = contentDisposition.match(
+      /filename\s*=\s*"([^"]+)"|filename\s*=\s*([^;]+)/i
+    );
+
+    if (filenameStarMatch?.[1]) {
+      filename = decodeURIComponent(
+        filenameStarMatch[1].trim().replace(/^["']|["']$/g, "")
+      );
+    } else if (filenameMatch) {
+      filename = (filenameMatch[1] || filenameMatch[2]).trim();
     }
   }
 
-  const blob = new Blob([response.data], { type: "application/pdf" });
-  const url = window.URL.createObjectURL(blob);
+  filename = filename.replace(/[<>:"/\\|?*]/g, "_");
 
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  link.click();
+  if (!filename.toLowerCase().endsWith(".pdf")) {
+    filename += ".pdf";
+  }
 
-  window.URL.revokeObjectURL(url);
+  const blob = new Blob([response.data], {
+    type: "application/pdf",
+  });
+
+  return {
+    blob,
+    filename,
+  };
 };
 
 export const calculationService = {

@@ -7,6 +7,8 @@ import {
 import { calculationService } from "../services/calculationService";
 import { useToast } from "./useToast";
 import { useUserContext } from "../contexts/UserContext";
+import { save } from "@tauri-apps/plugin-dialog";
+import { writeFile } from "@tauri-apps/plugin-fs";
 
 interface UseCalculationsReturn {
   calculations: CalculationOverview[];
@@ -287,10 +289,33 @@ export const useCalculations = (): UseCalculationsReturn => {
   const downloadCalculationPdf = useCallback(
     async (id: number): Promise<void> => {
       setIsDownloading(true);
+
       try {
-        await calculationService.downloadCalculationPdf(id, token);
+        const { blob, filename } =
+          await calculationService.downloadCalculationPdf(id, token);
+
+        const filePath = await save({
+          title: "Save Calculation PDF",
+          defaultPath: filename,
+          filters: [
+            {
+              name: "PDF Document",
+              extensions: ["pdf"],
+            },
+          ],
+        });
+
+        if (!filePath) {
+          return;
+        }
+
+        const arrayBuffer = await blob.arrayBuffer();
+        const bytes = new Uint8Array(arrayBuffer);
+
+        await writeFile(filePath, bytes);
+
         showSuccess("Calculation downloaded successfully");
-      } catch (err: any) {
+      } catch (err) {
         const errorMessage = "Error downloading calculation";
 
         setError(errorMessage);
@@ -299,7 +324,7 @@ export const useCalculations = (): UseCalculationsReturn => {
         setIsDownloading(false);
       }
     },
-    []
+    [token]
   );
 
   const clearError = useCallback(() => {

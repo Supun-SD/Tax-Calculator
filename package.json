@@ -1,7 +1,7 @@
 {
   "name": "tax-calculator",
   "private": true,
-  "version": "0.1.9",
+  "version": "1.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -13,6 +13,8 @@
     "@headlessui/react": "2.2.7",
     "@radix-ui/themes": "3.2.1",
     "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-dialog": "~2.8.1",
+    "@tauri-apps/plugin-fs": "~2.6.0",
     "@tauri-apps/plugin-opener": "^2",
     "@tauri-apps/plugin-updater": "^2.13.1",
     "axios": "1.11.0",
