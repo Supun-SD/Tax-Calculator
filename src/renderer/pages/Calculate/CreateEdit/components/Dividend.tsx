@@ -39,7 +39,8 @@ const Dividend: React.FC<DividendProps> = ({ isOpen, onClose }) => {
   const dividendIncome =
     currentCalculation?.calculationData?.sourceOfIncome?.dividendIncome;
   const aitRate: number =
-    currentCalculation?.calculationData?.settings?.reliefsAndAit?.aitDividend;
+    currentCalculation?.calculationData?.settings?.reliefsAndAit?.aitDividend ??
+    0;
 
   const totalGrossDividend = useMemo(
     () =>

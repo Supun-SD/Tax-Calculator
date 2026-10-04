@@ -29,7 +29,6 @@ import { useCalculationContext } from "../../../contexts/CalculationContext";
 import { useToast } from "../../../hooks/useToast";
 import { useCalculations } from "../../../hooks/useCalculations";
 import { Status } from "../../../../types/enums/status";
-import { Calculation } from "../../../../types/calculation";
 import Error from "../../../components/Error";
 
 const MODAL_COMPONENTS = {
@@ -144,11 +143,15 @@ const Calculate = () => {
         accountId: currentCalculation.accountId,
         calculationData: cleanCalculationData,
       };
-      if (isEditing) {
+      if (isEditing && calculationId) {
         await updateCalculation(calculationId, calculationReq);
       } else {
-        const calculation: Calculation =
-          await createCalculation(calculationReq);
+        const calculation = await createCalculation(calculationReq);
+
+        if (!calculation) {
+          return;
+        }
+
         setCalculationId(calculation.id);
         setIsEditing(true);
       }
@@ -182,7 +185,7 @@ const Calculate = () => {
         calculationData: cleanCalculationData,
       };
 
-      if (isEditing) {
+      if (isEditing && calculationId !== undefined) {
         const calculation = await updateCalculation(
           calculationId,
           calculationReq

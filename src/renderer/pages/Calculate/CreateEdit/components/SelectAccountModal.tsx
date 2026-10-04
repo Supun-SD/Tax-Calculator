@@ -75,6 +75,10 @@ const SelectAccountModal: React.FC<SelectAccountModalProps> = ({
 
   useEffect(() => {
     async function checkExistingCalculation() {
+      if (!selectedAccount) {
+        return;
+      }
+
       try {
         const calculation = await checkCalculation(
           selectedAccount.id,

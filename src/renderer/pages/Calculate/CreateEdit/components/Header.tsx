@@ -11,7 +11,7 @@ interface HeaderProps {
   assessmentPeriod: { start: string; end: string } | null;
   onSelectAccount: () => void;
   isEditing: boolean;
-  status: Status;
+  status?: Status;
 }
 
 const Header: React.FC<HeaderProps> = ({

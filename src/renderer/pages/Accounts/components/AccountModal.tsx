@@ -17,7 +17,7 @@ interface AccountModalProps {
     id: number,
     account: AccountUpdateReq
   ) => Promise<Account | null>;
-  account?: Account;
+  account: Account | null;
 }
 
 const AccountModal: React.FC<AccountModalProps> = ({

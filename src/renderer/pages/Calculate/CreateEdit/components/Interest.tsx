@@ -120,8 +120,9 @@ const Interest: React.FC<InterestProps> = ({ isOpen, onClose }) => {
 
   const interestIncome =
     currentCalculation?.calculationData?.sourceOfIncome?.interestIncome;
-  const aitRate: number | undefined =
-    currentCalculation?.calculationData?.settings?.reliefsAndAit?.aitInterest;
+  const aitRate: number =
+    currentCalculation?.calculationData?.settings?.reliefsAndAit?.aitInterest ??
+    0;
 
   const filteredBanks = useMemo(
     () =>

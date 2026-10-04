@@ -7,7 +7,7 @@ import CalculationCard from "./CalculationCard";
 interface ViewAccountModalProps {
   isOpen: boolean;
   onClose: () => void;
-  account?: Account;
+  account: Account | null;
 }
 
 const ViewAccountModal: React.FC<ViewAccountModalProps> = ({

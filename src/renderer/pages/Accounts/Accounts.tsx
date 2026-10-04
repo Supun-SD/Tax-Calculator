@@ -1,21 +1,21 @@
-import Button from '../../components/Button';
-import Navigation from '../../components/Navigation';
-import SearchBar from '../../components/SearchBar';
-import { MdAdd } from 'react-icons/md';
-import { DataTable, Column } from '../../components/DataTable';
-import React, { useState } from 'react';
-import { Account } from '../../../types/account';
-import AccountModal from './components/AccountModal';
-import ViewAccountModal from './components/ViewAccountModal';
-import { AlertDialog, Flex } from '@radix-ui/themes';
-import { useAccounts } from '../../hooks/useAccounts';
-import { ClipLoader } from 'react-spinners';
-import Error from '../../components/Error';
+import Button from "../../components/Button";
+import Navigation from "../../components/Navigation";
+import SearchBar from "../../components/SearchBar";
+import { MdAdd } from "react-icons/md";
+import { DataTable, Column } from "../../components/DataTable";
+import React, { useState } from "react";
+import { Account } from "../../../types/account";
+import AccountModal from "./components/AccountModal";
+import ViewAccountModal from "./components/ViewAccountModal";
+import { AlertDialog, Flex } from "@radix-ui/themes";
+import { useAccounts } from "../../hooks/useAccounts";
+import { ClipLoader } from "react-spinners";
+import Error from "../../components/Error";
 
 const Accounts = () => {
-  const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
+  const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
   const [deletingAccount, setDeletingAccount] = useState<Account | null>(null);
   const [viewingAccount, setViewingAccount] = useState<Account | null>(null);
@@ -29,27 +29,27 @@ const Accounts = () => {
     createAccount,
     updateAccount,
     deleteAccount,
-    error
+    error,
   } = useAccounts();
 
   const columns: Column<Account>[] = [
     {
-      key: 'id',
-      header: 'ID',
-      width: 'w-1/6',
+      key: "id",
+      header: "ID",
+      width: "w-1/6",
       sortable: true,
     },
     {
-      key: 'name',
-      header: 'Name',
-      width: 'w-2/5',
+      key: "name",
+      header: "Name",
+      width: "w-2/5",
       sortable: true,
       searchable: true,
     },
     {
-      key: 'tinNumber',
-      header: 'TIN Number',
-      width: 'w-1/6',
+      key: "tinNumber",
+      header: "TIN Number",
+      width: "w-1/6",
       sortable: true,
       searchable: true,
     },
@@ -60,13 +60,13 @@ const Accounts = () => {
   };
 
   const handleAddButtonClick = () => {
-    setModalMode('add');
+    setModalMode("add");
     setSelectedAccount(null);
     setIsModalOpen(true);
   };
 
   const handleEdit = (account: Account) => {
-    setModalMode('edit');
+    setModalMode("edit");
     setSelectedAccount(account);
     setIsModalOpen(true);
   };
@@ -102,13 +102,19 @@ const Accounts = () => {
     <div className="p-8">
       <Navigation title="Accounts" />
 
-      {error ? <Error title="Failed to load accounts" message={error} onRetry={fetchAccounts} /> :
+      {error ? (
+        <Error
+          title="Failed to load accounts"
+          message={error}
+          onRetry={fetchAccounts}
+        />
+      ) : (
         <>
           {/* Search and Add Section */}
-          <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-6 mb-6">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="mb-6 rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
+            <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
               {/* Search Bar */}
-              <div className="flex-1 max-w-md">
+              <div className="max-w-md flex-1">
                 <SearchBar
                   value={searchValue}
                   onChange={handleSearchChange}
@@ -129,9 +135,9 @@ const Accounts = () => {
           </div>
 
           {/* Data Table Section */}
-          <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden">
+          <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm">
             {loading ? (
-              <div className="flex items-center justify-center h-60">
+              <div className="flex h-60 items-center justify-center">
                 <div className="flex items-center space-x-3">
                   <ClipLoader color="#60A5FA" size={32} />
                   <span className="text-gray-300">Loading accounts...</span>
@@ -142,7 +148,7 @@ const Accounts = () => {
                 data={accounts}
                 columns={columns}
                 searchValue={searchValue}
-                searchKeys={['name', 'tinNumber']}
+                searchKeys={["name", "tinNumber"]}
                 showActions={true}
                 onEdit={handleEdit}
                 onView={handleView}
@@ -167,12 +173,13 @@ const Accounts = () => {
 
           {/* Delete Confirmation Dialog */}
           <AlertDialog.Root open={!!deletingAccount}>
-            <AlertDialog.Content className="bg-surface-2 border border-white/20 rounded-xl">
-              <AlertDialog.Title className="text-white text-lg font-semibold">
+            <AlertDialog.Content className="rounded-xl border border-white/20 bg-surface-2">
+              <AlertDialog.Title className="text-lg font-semibold text-white">
                 Delete Account
               </AlertDialog.Title>
-              <AlertDialog.Description size="3" className="text-gray-300 mt-2">
-                Are you sure you want to delete the account "{deletingAccount?.name}"?
+              <AlertDialog.Description size="3" className="mt-2 text-gray-300">
+                Are you sure you want to delete the account "
+                {deletingAccount?.name}"?
               </AlertDialog.Description>
 
               <Flex gap="3" mt="6" justify="end" align="center">
@@ -205,7 +212,7 @@ const Accounts = () => {
             </AlertDialog.Content>
           </AlertDialog.Root>
         </>
-      }
+      )}
     </div>
   );
 };

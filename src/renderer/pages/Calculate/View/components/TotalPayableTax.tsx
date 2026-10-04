@@ -1,7 +1,6 @@
 import { Calculation } from "../../../../../types/calculation";
-import { Text } from "@radix-ui/themes";
+import { Text, Tooltip } from "@radix-ui/themes";
 import { MdCalculate, MdRemoveCircle } from "react-icons/md";
-import { Tooltip } from "@radix-ui/themes";
 import { BsFillInfoCircleFill } from "react-icons/bs";
 
 interface TotalPayableTaxProps {
@@ -88,7 +87,8 @@ const TotalPayableTax = ({ calculation }: TotalPayableTaxProps) => {
     );
   };
 
-  const totalDeductions = aitRent + aitInterestTotal + apitTotal;
+  const totalDeductions =
+    (aitRent ?? 0) + (aitInterestTotal ?? 0) + (apitTotal ?? 0);
 
   return (
     <div className="mb-8">
@@ -131,7 +131,7 @@ const TotalPayableTax = ({ calculation }: TotalPayableTaxProps) => {
 
           <div className="grid grid-cols-2 gap-0 border-b border-white/10">
             <div className="p-3">
-              {aitInterestTotal > 0 ? (
+              {(aitInterestTotal ?? 0) > 0 ? (
                 <Tooltip
                   content={getInterestAitBreakdownContent()}
                   className="bg-transparent"

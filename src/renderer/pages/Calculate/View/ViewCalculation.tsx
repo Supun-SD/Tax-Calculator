@@ -38,6 +38,9 @@ const ViewCalculation = () => {
   }, [calculationId, getCalculationById, navigate]);
 
   const reloadCalculationData = async () => {
+    if (!calculationId) {
+      return;
+    }
     const fetchedCalculation = await getCalculationById(calculationId);
     if (fetchedCalculation) {
       setCalculation(fetchedCalculation);

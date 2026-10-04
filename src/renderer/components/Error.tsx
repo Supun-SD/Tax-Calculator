@@ -5,7 +5,7 @@ import { FiAlertTriangle, FiRefreshCw } from "react-icons/fi";
 
 interface ErrorProps {
   title?: string;
-  message?: string;
+  message: string | null;
   onRetry: () => void;
   retryLabel?: string;
   icon?: IconType;
