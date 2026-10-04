@@ -53,7 +53,7 @@ const History = () => {
       header: "Time",
       width: "w-1/6",
       sortable: true,
-      render: (value: any, row: CalculationOverview) => {
+      render: (_value: any, row: CalculationOverview) => {
         return new Date(row.createdAt).toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
@@ -76,7 +76,7 @@ const History = () => {
       width: "w-1/6",
       sortable: true,
       searchable: true,
-      render: (value: any, row: CalculationOverview) => {
+      render: (_value: any, row: CalculationOverview) => {
         return row.account?.tinNumber || "N/A";
       },
     },
