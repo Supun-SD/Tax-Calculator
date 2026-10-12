@@ -29,7 +29,10 @@
   "bundle": {
     "active": true,
     "targets": [
-      "nsis"
+      "nsis",
+      "deb",
+      "rpm",
+      "appimage"
     ],
     "createUpdaterArtifacts": true,
     "icon": [
